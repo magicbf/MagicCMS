@@ -125,7 +125,7 @@ final class Controller
              LIMIT " . Forum::PER_PAGE_TOPICS . ' OFFSET ' . (($page - 1) * Forum::PER_PAGE_TOPICS),
             array_merge($params, [$uid, $b['id']])
         );
-        return $this->page($b['title'], 'board', ['b' => $b, 'rows' => $rows, 'page' => $page, 'pages' => $pages]);
+        return $this->page($b['title'], 'board', ['b' => $b, 'rows' => $rows, 'page' => $page, 'pages' => $pages, 'subscribed' => user() ? Subscriptions::isBoard((int) user()['id'], (int) $b['id']) : false]);
     }
 
     // ------------------------------------------------------------------ topic
@@ -153,10 +153,17 @@ final class Controller
         } elseif ($posts) {
             Forum::markRead((int) $t['id'], (int) end($posts)['id']);
         }
+        $subscribed = false;
+        if (user()) {
+            $subscribed = Subscriptions::isTopic((int) user()['id'], (int) $t['id']);
+            if ($subscribed) {
+                Subscriptions::seen((int) user()['id'], (int) $t['id']);
+            }
+        }
         $boards = Forum::isMod() ? db()->all('SELECT b.id, CONCAT(c.title, \' › \', b.title) AS title FROM {forum_boards} b JOIN {forum_categories} c ON c.id = b.category_id WHERE b.read_level <= ? ORDER BY c.sort_order, c.id, b.sort_order, b.id', [Auth::level()]) : [];
         return $this->page($t['title'], 'topic', [
             't' => $t, 'posts' => $posts, 'page' => $page, 'pages' => $pages, 'moveTargets' => $boards,
-            'canReply' => Forum::canReply($t),
+            'canReply' => Forum::canReply($t), 'subscribed' => $subscribed,
         ]);
     }
 
@@ -205,6 +212,8 @@ final class Controller
                 Forum::syncBoard((int) $b['id']);
                 Forum::recountUsers([user()['id']]);
                 Forum::markRead($tid, $pid);
+                Subscriptions::autoSubscribe($tid);
+                Subscriptions::onTopic($b, $tid, $title, (int) user()['id'], $body);
                 Hooks::fire('forum.topic.created', ['topic_id' => $tid, 'post_id' => $pid, 'board_id' => (int) $b['id'], 'user_id' => (int) user()['id'], 'title' => $title]);
                 redirect('/forum/topic/' . $tid);
             }
@@ -242,6 +251,8 @@ final class Controller
                 Forum::syncBoard((int) $t['board_id']);
                 Forum::recountUsers([user()['id']]);
                 Forum::markRead((int) $t['id'], $pid);
+                Subscriptions::autoSubscribe((int) $t['id']);
+                Subscriptions::onReply($t, $pid, (int) user()['id'], $body);
                 Hooks::fire('forum.post.created', ['post_id' => $pid, 'topic_id' => (int) $t['id'], 'user_id' => (int) user()['id']]);
                 redirect('/forum/post/' . $pid);
             }
@@ -374,6 +385,7 @@ final class Controller
             flash('info', t('You already reported this post.'));
         } else {
             db()->exec('INSERT INTO {forum_reports} (post_id, user_id, reason, created_at) VALUES (?,?,?,?)', [$post['id'], user()['id'], $reason, now()]);
+            \MagicCMS\Modules\Notifications\Notifications::addForPermission('forum.moderate', 'report', t('Post reported by {who}', ['who' => user()['username']]), '/forum/reports', mb_substr($reason, 0, 120), 'report:' . $post['id'], (int) user()['id']);
             flash('success', t('Thank you – the moderators have been notified.'));
         }
         redirect('/forum/post/' . $post['id']);
@@ -443,5 +455,63 @@ final class Controller
     public function preview(): never
     {
         json_out(['ok' => true, 'html' => Bbcode::render(mb_substr((string) ($_POST['body'] ?? ''), 0, 20000))]);
+    }
+
+    // ------------------------------------------------------------------ subscriptions
+    public function subscribeTopic(array $p): never
+    {
+        $t = Forum::topic((int) $p['id']);
+        if ($t) {
+            $on = input('sub') === '1';
+            Subscriptions::setTopic((int) user()['id'], (int) $t['id'], $on);
+            flash('success', $on ? t('You now follow this topic and will be notified about new replies.') : t('You no longer follow this topic.'));
+        }
+        redirect($t ? '/forum/topic/' . (int) $t['id'] : '/forum');
+    }
+
+    public function subscribeBoard(array $p): never
+    {
+        $b = Forum::board((int) $p['id']);
+        if ($b && Forum::canRead($b)) {
+            $on = input('sub') === '1';
+            Subscriptions::setBoard((int) user()['id'], (int) $b['id'], $on);
+            flash('success', $on ? t('You will be notified about new topics here.') : t('Notifications for this subcategory are off.'));
+        }
+        redirect($b ? '/forum/subcategory/' . (int) $b['id'] : '/forum');
+    }
+
+    public function subscriptions(): string
+    {
+        $uid = (int) user()['id'];
+        $topics = db()->all(
+            'SELECT t.id, t.title, t.reply_count, t.last_post_at, b.title AS board_title, b.read_level FROM {forum_topic_subs} s JOIN {forum_topics} t ON t.id = s.topic_id JOIN {forum_boards} b ON b.id = t.board_id
+             WHERE s.user_id = ? AND b.read_level <= ? ORDER BY t.last_post_at DESC LIMIT 200',
+            [$uid, Auth::level()]
+        );
+        $boards = db()->all(
+            'SELECT b.id, b.title, c.title AS category_title FROM {forum_board_subs} s JOIN {forum_boards} b ON b.id = s.board_id JOIN {forum_categories} c ON c.id = b.category_id
+             WHERE s.user_id = ? AND b.read_level <= ? ORDER BY c.sort_order, b.sort_order',
+            [$uid, Auth::level()]
+        );
+        return $this->page(t('My subscriptions'), 'subscriptions', ['topics' => $topics, 'boards' => $boards]);
+    }
+
+    /** One-click unsubscribe from an e-mail (signed link, works without login). */
+    public function unsubForm(array $p): string
+    {
+        if (!hash_equals(Subscriptions::sig($p['kind'], (int) $p['uid'], (int) $p['id']), $p['sig'])) {
+            return $this->nf();
+        }
+        $title = $p['kind'] === 'topic' ? (string) db()->val('SELECT title FROM {forum_topics} WHERE id = ?', [(int) $p['id']]) : (string) db()->val('SELECT title FROM {forum_boards} WHERE id = ?', [(int) $p['id']]);
+        return $this->page(t('Unsubscribe'), 'unsub', ['p' => $p, 'title' => $title]);
+    }
+
+    public function unsub(array $p): never
+    {
+        if (hash_equals(Subscriptions::sig($p['kind'], (int) $p['uid'], (int) $p['id']), $p['sig'])) {
+            $p['kind'] === 'topic' ? Subscriptions::setTopic((int) $p['uid'], (int) $p['id'], false) : Subscriptions::setBoard((int) $p['uid'], (int) $p['id'], false);
+            flash('success', t('You have been unsubscribed.'));
+        }
+        redirect(user() ? '/forum/subscriptions' : '/forum');
     }
 }

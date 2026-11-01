@@ -29,6 +29,11 @@ return function (Router $r): void {
     $r->post('/forum/post/{id:\d+}/delete', [$c, 'deletePost'], $w);
     $r->post('/forum/post/{id:\d+}/report', [$c, 'report'], $w);
     $r->post('/forum/topic/{id:\d+}/mod', [$c, 'mod'], $w);
+    $r->post('/forum/topic/{id:\d+}/subscribe', [$c, 'subscribeTopic'], $w);
+    $r->post('/forum/subcategory/{id:\d+}/subscribe', [$c, 'subscribeBoard'], $w);
+    $r->get('/forum/subscriptions', [$c, 'subscriptions'], $w);
+    $r->get('/forum/unsub/{kind:topic|board}/{id:\d+}/{uid:\d+}/{sig:[a-f0-9]+}', [$c, 'unsubForm']);
+    $r->post('/forum/unsub/{kind:topic|board}/{id:\d+}/{uid:\d+}/{sig:[a-f0-9]+}', [$c, 'unsub']);
     $r->get('/forum/reports', [$c, 'reports'], ['perm' => 'forum.moderate']);
     $r->post('/forum/reports/{id:\d+}/close', [$c, 'closeReport'], ['perm' => 'forum.moderate']);
 

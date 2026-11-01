@@ -1,6 +1,7 @@
 <div class="forum-bar">
   <div class="forum-bar-links">
     <?php if (user()): ?><a class="btn btn-sm btn-ghost" href="<?= e(url('forum/unread')) ?>"><?= e(t('Unread topics')) ?></a>
+      <a class="btn btn-sm btn-ghost" href="<?= e(url('forum/subscriptions')) ?>">🔔 <?= e(t('My subscriptions')) ?></a>
       <form method="post" action="<?= e(url('forum/markread')) ?>" class="inline"><?= csrf_field() ?><button class="btn btn-sm btn-ghost" type="submit"><?= e(t('Mark all read')) ?></button></form><?php endif ?>
     <?php if (can('forum.moderate')): ?><a class="btn btn-sm btn-ghost" href="<?= e(url('forum/reports')) ?>">🛡 <?= e(t('Reports')) ?><?php $n = (int) db()->val("SELECT COUNT(*) FROM {forum_reports} WHERE status = 'open'"); if ($n): ?> <span class="badge"><?= $n ?></span><?php endif ?></a><?php endif ?>
   </div>

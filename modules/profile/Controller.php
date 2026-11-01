@@ -38,8 +38,8 @@ final class Controller
             }
         }
         db()->exec(
-            'UPDATE {users} SET email = ?, bio = ?, signature = ?, timezone = ?, theme_mode = ?, notify_pm = ? WHERE id = ?',
-            [$email, $bio, $sig, $tz, $mode, empty($_POST['notify_pm']) ? 0 : 1, $u['id']]
+            'UPDATE {users} SET email = ?, bio = ?, signature = ?, timezone = ?, theme_mode = ?, notify_pm = ?, forum_autosub = ?, notify_forum = ? WHERE id = ?',
+            [$email, $bio, $sig, $tz, $mode, empty($_POST['notify_pm']) ? 0 : 1, empty($_POST['forum_autosub']) ? 0 : 1, empty($_POST['notify_forum']) ? 0 : 1, $u['id']]
         );
         if ($newEmail !== null) {
             \MagicCMS\Modules\Auth\Controller::sendVerification((int) $u['id'], (string) $u['username'], (string) $u['email'], 'email_change', $newEmail);

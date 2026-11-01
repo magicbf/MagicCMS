@@ -1,9 +1,10 @@
-<?php /** @var array $t @var array $posts @var int $page @var int $pages @var array $moveTargets @var bool $canReply */
+<?php /** @var array $t @var array $posts @var int $page @var int $pages @var array $moveTargets @var bool $canReply @var bool $subscribed */
 use MagicCMS\Core\Bbcode; use MagicCMS\Modules\Forum\Forum;
 $me = user(); $mod = Forum::isMod(); $modTopic = $mod && MagicCMS\Core\Auth::level() >= (int) $t['author_level']; $base = url('forum/topic/' . (int) $t['id']); ?>
 <?= render('forum/_crumbs', ['items' => [[$t['category_title'], url('forum/category/' . (int) $t['category_id'])], [$t['board_title'], url('forum/subcategory/' . (int) $t['board_id'])], [$t['title'], null]]]) ?>
 <div class="forum-head"><h1 class="admin-title"><?= $t['is_locked'] ? '🔒 ' : '' ?><?= e($t['title']) ?></h1>
-  <?php if ($canReply): ?><a class="btn btn-primary" href="<?= e($base . '/reply') ?>">↩ <?= e(t('Reply')) ?></a><?php elseif ($t['is_locked']): ?><span class="badge">🔒 <?= e(t('Locked')) ?></span><?php elseif (!$me): ?><a class="btn btn-ghost" href="<?= e(url('login?next=' . rawurlencode('/forum/topic/' . (int) $t['id']))) ?>"><?= e(t('Log in to reply')) ?></a><?php endif ?></div>
+  <div class="forum-head-actions"><?php if ($me): ?><form class="inline" method="post" action="<?= e($base . '/subscribe') ?>"><?= csrf_field() ?><input type="hidden" name="sub" value="<?= $subscribed ? '0' : '1' ?>"><button class="btn btn-ghost" title="<?= e($subscribed ? t('Stop notifications') : t('Get notified about new replies')) ?>"><?= $subscribed ? '🔔 ' . e(t('Following')) : '🔕 ' . e(t('Follow')) ?></button></form><?php endif ?>
+  <?php if ($canReply): ?><a class="btn btn-primary" href="<?= e($base . '/reply') ?>">↩ <?= e(t('Reply')) ?></a><?php elseif ($t['is_locked']): ?><span class="badge">🔒 <?= e(t('Locked')) ?></span><?php elseif (!$me): ?><a class="btn btn-ghost" href="<?= e(url('login?next=' . rawurlencode('/forum/topic/' . (int) $t['id']))) ?>"><?= e(t('Log in to reply')) ?></a><?php endif ?></div></div>
 <?= render('pagination', ['page' => $page, 'pages' => $pages, 'base' => $base]) ?>
 <?php foreach ($posts as $i => $p): $own = $me && (int) $me['id'] === (int) $p['user_id']; $first = (int) $p['id'] === (int) $t['first_post_id']; ?>
 <article class="post card" id="post-<?= (int) $p['id'] ?>">

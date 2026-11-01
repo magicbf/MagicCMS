@@ -24,6 +24,8 @@
     <div class="form-row"><label class="label" for="tz"><?= e(t('Timezone')) ?></label><select class="select" id="tz" name="timezone"><option value=""><?= e(t('Site default')) ?></option><?php foreach (DateTimeZone::listIdentifiers() as $tz): ?><option <?= ($u['timezone'] ?? '') === $tz ? 'selected' : '' ?>><?= e($tz) ?></option><?php endforeach ?></select></div>
     <div class="form-row"><label class="label" for="tm"><?= e(t('Appearance')) ?></label><select class="select" id="tm" name="theme_mode"><option value=""><?= e(t('Site default')) ?></option><?php foreach (['dark' => 'Dark', 'light' => 'Light', 'auto' => 'Follow my device'] as $k => $l): ?><option value="<?= $k ?>" <?= ($u['theme_mode'] ?? '') === $k ? 'selected' : '' ?>><?= e(t($l)) ?></option><?php endforeach ?></select></div>
   </div>
+  <label class="checkbox"><input type="checkbox" name="forum_autosub" value="1" <?= !empty($u['forum_autosub']) ? 'checked' : '' ?>> <?= e(t('Follow topics I create or reply to automatically')) ?></label>
+  <label class="checkbox"><input type="checkbox" name="notify_forum" value="1" <?= !empty($u['notify_forum']) ? 'checked' : '' ?>> <?= e(t('E-mail me about forum activity I follow (notifications in the bell always stay on)')) ?></label>
   <label class="checkbox"><input type="checkbox" name="notify_pm" value="1" <?= !empty($u['notify_pm']) ? 'checked' : '' ?>> <?= e(t('E-mail me when I receive a private message')) ?></label>
   <button class="btn btn-primary"><?= e(t('Save')) ?></button>
 </form></div>

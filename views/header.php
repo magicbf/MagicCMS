@@ -8,6 +8,7 @@
     <div class="header-actions">
       <?php if ($layout['left']): ?><button class="icon-btn drawer-toggle" data-drawer="left" aria-label="<?= e(t('Open left panels')) ?>" aria-controls="drawer-left">◧</button><?php endif ?>
       <?php if ($layout['right']): ?><button class="icon-btn drawer-toggle" data-drawer="right" aria-label="<?= e(t('Open right panels')) ?>" aria-controls="drawer-right">◨</button><?php endif ?>
+      <?php if ($u): $nn = notif_unread(); ?><a class="icon-btn notif-link" href="<?= e(url('notifications')) ?>" aria-label="<?= e(t('Notifications')) ?><?= $nn ? ' (' . $nn . ')' : '' ?>" title="<?= e(t('Notifications')) ?>">🔔<?php if ($nn): ?><b class="pm-dot"><?= $nn > 9 ? '9+' : $nn ?></b><?php endif ?></a><?php endif ?>
       <?php if (pm_enabled()): $pmn = pm_unread(); ?><a class="icon-btn pm-link" href="<?= e(url('messages')) ?>" aria-label="<?= e(t('Messages')) ?><?= $pmn ? ' (' . $pmn . ')' : '' ?>" title="<?= e(t('Messages')) ?>">✉<?php if ($pmn): ?><b class="pm-dot"><?= $pmn > 9 ? '9+' : $pmn ?></b><?php endif ?></a><?php endif ?>
       <?php if (setting('appearance.allow_user_mode', true)): ?><button class="icon-btn mode-toggle" aria-label="<?= e(t('Switch light/dark mode')) ?>" title="<?= e(t('Switch light/dark mode')) ?>"><span class="mode-icon" aria-hidden="true"></span></button><?php endif ?>
       <?php if ($u): ?>

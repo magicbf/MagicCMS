@@ -278,3 +278,26 @@ function pm_enabled(): bool
     static $on = null;
     return $on ??= (bool) (user() && db()->val("SELECT 1 FROM {modules} WHERE module_key = 'messages' AND enabled = 1"));
 }
+
+/** Unread in-site notifications for the current user. */
+function notif_unread(): int
+{
+    static $n = null;
+    if ($n === null) {
+        $n = 0;
+        if (user() && db()->val("SELECT 1 FROM {modules} WHERE module_key = 'notifications' AND enabled = 1")) {
+            $n = \MagicCMS\Modules\Notifications\Notifications::unread((int) user()['id']);
+        }
+    }
+    return $n;
+}
+
+/** Add a notification (no-op when the module is off). */
+function notify_user(int $userId, string $type, string $title, string $url = '', string $body = '', string $ref = ''): void
+{
+    try {
+        \MagicCMS\Modules\Notifications\Notifications::add($userId, $type, $title, $url, $body, $ref);
+    } catch (\Throwable $e) {
+        error_log('MagicCMS notify: ' . $e->getMessage());
+    }
+}

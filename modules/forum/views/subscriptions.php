@@ -1,0 +1,10 @@
+<?php /** @var array $topics @var array $boards */ ?>
+<nav class="breadcrumb"><a href="<?= e(url('forum')) ?>"><?= e(t('Forum')) ?></a> <span class="sep">›</span> <span><?= e(t('My subscriptions')) ?></span></nav>
+<div class="forum-head"><h1 class="admin-title"><?= e(t('My subscriptions')) ?></h1></div>
+<p class="muted"><?= e(t('You get a notification (and an e-mail unless you switched that off in your profile) when something new happens here. You follow your own topics automatically – change that in your profile.')) ?></p>
+<section class="card"><h2 class="card-title"><?= e(t('Subcategories (new topics)')) ?></h2><div class="card-body">
+<?php foreach ($boards as $b): ?><form class="inline-form sub-row" method="post" action="<?= e(url('forum/subcategory/' . (int) $b['id'] . '/subscribe')) ?>"><?= csrf_field() ?><input type="hidden" name="sub" value="0"><a href="<?= e(url('forum/subcategory/' . (int) $b['id'])) ?>"><strong><?= e($b['title']) ?></strong></a><span class="muted small"><?= e($b['category_title']) ?></span><button class="btn btn-sm btn-ghost"><?= e(t('Unfollow')) ?></button></form>
+<?php endforeach; if (!$boards): ?><p class="muted"><?= e(t('None. Use “Follow new topics” on a subcategory page.')) ?></p><?php endif ?></div></section>
+<section class="card"><h2 class="card-title"><?= e(t('Topics (new replies)')) ?></h2><div class="card-body">
+<?php foreach ($topics as $t): ?><form class="inline-form sub-row" method="post" action="<?= e(url('forum/topic/' . (int) $t['id'] . '/subscribe')) ?>"><?= csrf_field() ?><input type="hidden" name="sub" value="0"><a href="<?= e(url('forum/topic/' . (int) $t['id'] . '/last')) ?>"><strong><?= e($t['title']) ?></strong></a><span class="muted small"><?= e($t['board_title']) ?> · <?= (int) $t['reply_count'] ?> <?= e(t('replies')) ?> · <?= e(time_ago($t['last_post_at'])) ?></span><button class="btn btn-sm btn-ghost"><?= e(t('Unfollow')) ?></button></form>
+<?php endforeach; if (!$topics): ?><p class="muted"><?= e(t('None. Use “Follow” on a topic page – or just reply, and you follow it automatically.')) ?></p><?php endif ?></div></section>
