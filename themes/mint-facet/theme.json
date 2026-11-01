@@ -1,0 +1,13 @@
+{
+  "name": "Mint Facet",
+  "slug": "mint-facet",
+  "version": "1.0.0",
+  "author": "MagicCMS",
+  "description": "Sharp, faceted mint-on-graphite theme: chamfered corners, solid mint title bars with crystal facets, a heavy mint rule under the header, wipe-fill navigation buttons and drifting pixels. Dark and light variants. Builds on Magic Red.",
+  "requires": "0.1",
+  "parent": "magic-red",
+  "stylesheets": ["tokens.css", "theme.css"],
+  "scripts": [],
+  "defaults": { "scheme": "mint", "radius": 0, "mode": "dark" },
+  "supports": { "darkLight": true, "panels": ["left", "right"] }
+}

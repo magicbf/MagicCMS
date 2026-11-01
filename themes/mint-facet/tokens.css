@@ -1,0 +1,46 @@
+/* Mint Facet – design tokens (overrides Magic Red). Graphite surfaces, mint signal colour, no rounding. */
+:root {
+  --c-primary:#69dcbe; --c-primary-hi:#8bf5e2; --c-primary-lo:#2f8f78; --c-accent:#8bf5e2;
+  --c-text-on-primary:#0a0d10; --c-on-bar:#0a0d10;
+
+  --c-bg:#0a0d10; --c-bg-2:#0c1114; --c-surface:#12171b; --c-surface-2:#1a2127; --c-border:#26313a;
+  --glass:linear-gradient(var(--c-surface),var(--c-surface));
+  --glass-border:rgba(105,220,190,.28); --glass-hl:transparent;
+  --field-bg:#0a0d10; --field-border:rgba(230,236,238,.20);
+  --pill-bg:#12171b;
+  --btn-bg:#12171b; --btn-fg:#e6ecee; --btn-border:rgba(230,236,238,.28);
+
+  --c-text:#e6ecee; --c-text-dim:#c9d2d6; --c-text-faint:#8e9aa0;
+  --c-success:#4be0a0; --c-warning:#f5b94a; --c-danger:#ff6b6b; --c-info:#7cc4ff;
+
+  --g-primary:linear-gradient(135deg,#8bf5e2 0%,#69dcbe 48%,#3fb99c 100%);
+  --g-titlebar:var(--g-primary);
+
+  /* facets: translucent diagonal shards laid over a mint fill */
+  --mf-facets:
+    linear-gradient(180deg,rgba(255,255,255,.40),rgba(255,255,255,0) 55%),
+    linear-gradient(118deg,rgba(255,255,255,.28) 0 14%,transparent 14%),
+    linear-gradient(118deg,transparent 0 30%,rgba(0,70,58,.14) 30% 46%,transparent 46%),
+    linear-gradient(62deg,transparent 0 58%,rgba(255,255,255,.20) 58% 66%,transparent 66%),
+    linear-gradient(62deg,transparent 0 78%,rgba(0,70,58,.17) 78% 100%),
+    linear-gradient(135deg,#8bf5e2 0%,#69dcbe 48%,#3fb99c 100%);
+  --mf-ink:var(--c-primary);          /* mint text on dark; deep teal in the light variant */
+  --mf-cut:14px;                      /* chamfer size */
+  --shadow:0 18px 30px rgba(0,0,0,.35);
+
+  --radius-sm:0px; --radius:0px; --radius-lg:0px;
+  --font-body:"Hanken Grotesk",system-ui,"Segoe UI",Roboto,sans-serif;
+  --font-display:"Jost","Hanken Grotesk",system-ui,sans-serif;
+  --fs-base:15px; --lh:1.6;
+}
+:root[data-theme="light"] {
+  --c-bg:#f1f5f6; --c-bg-2:#e7eef0; --c-surface:#ffffff; --c-surface-2:#e7eef0; --c-border:#d3dde0;
+  --glass-border:rgba(11,122,102,.30);
+  --field-bg:#f1f5f6; --field-border:rgba(10,13,16,.22);
+  --pill-bg:#ffffff;
+  --btn-bg:#ffffff; --btn-fg:#0f1a1f; --btn-border:rgba(10,13,16,.28);
+  --c-text:#0f1a1f; --c-text-dim:#2e3f47; --c-text-faint:#566870;
+  --c-success:#0f7a4a; --c-warning:#8a5a00; --c-danger:#b3261e; --c-info:#1565a8;
+  --c-accent:#0b7a66; --mf-ink:#0b7a66;
+  --shadow:0 14px 28px rgba(15,26,31,.12);
+}

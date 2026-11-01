@@ -1,0 +1,124 @@
+/* Mint Facet – child of Magic Red. Only the look is overridden; layout, panels and modules come from the parent. */
+@font-face{font-family:"Hanken Grotesk";src:url("fonts/hanken-grotesk-latin-400-700.woff2") format("woff2");font-weight:400 700;font-style:normal;font-display:swap}
+@font-face{font-family:"Jost";src:url("fonts/jost-latin-300-600.woff2") format("woff2");font-weight:300 600;font-style:normal;font-display:swap}
+
+body.mcms{font-weight:400}
+a{color:var(--c-primary-hi)}
+:where(:root[data-theme="light"]) a{color:#0b7a66}
+:where(a):hover{color:var(--c-text)}
+h1,h2,h3,h4,.admin-title,.section-title{font-family:var(--font-display);font-weight:500;letter-spacing:0;text-transform:none}
+.admin-title{font-size:32px;font-weight:600}.section-title{font-size:20px;font-weight:600}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.12em;color:var(--mf-ink)}
+::selection{background:var(--c-primary);color:#0a0d10}
+:focus-visible{outline:2px solid var(--mf-ink);outline-offset:3px;border-radius:0}
+
+/* ============ background: flat graphite with faint facets ============ */
+.fx-a,.fx-b,.fx-c,.fx-grain,.fx-vig{display:none}
+.fx-grid{inset:0;background:linear-gradient(118deg,rgba(105,220,190,.05) 0 11%,transparent 11%),linear-gradient(62deg,transparent 0 84%,rgba(105,220,190,.045) 84%);-webkit-mask-image:none;mask-image:none}
+:root[data-theme="light"] .fx-grid{background:linear-gradient(118deg,rgba(11,122,102,.06) 0 11%,transparent 11%),linear-gradient(62deg,transparent 0 84%,rgba(11,122,102,.05) 84%)}
+
+/* ============ header: panel bar with a heavy mint rule, light wordmark ============ */
+.site-header{background:var(--c-surface);border-bottom:5px solid var(--c-primary);overflow:visible}
+.site-header::before,.site-header::after{display:none}
+.brand-mark,.brand-logo{border-radius:0;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%);box-shadow:none;filter:none}
+.brand-name,.brand-xl .brand-name{font:300 clamp(24px,3vw,34px)/1 var(--font-display);letter-spacing:.01em;text-transform:none;color:var(--c-text);background:none;-webkit-text-fill-color:currentColor}
+.brand-sub{font:600 11px var(--font-body);letter-spacing:.16em;color:var(--mf-ink)}
+.header-user{border-radius:0;border:1px solid var(--glass-border);background:var(--c-surface-2)}
+
+/* ============ navigation: chamfered outline buttons that fill with mint on hover ============ */
+.site-nav:not(.nav-vertical) .nav-list{background:none;border:0;box-shadow:none;padding:0;gap:10px 12px;border-radius:0}
+.site-nav:not(.nav-vertical) .nav-item{max-width:none}
+.nav-btn{--cut:10px;position:relative;isolation:isolate;border-radius:0;border:0;font-family:var(--font-body);font-weight:600;font-size:15px;letter-spacing:0;color:var(--c-text);min-height:44px;
+  clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut));
+  background:linear-gradient(135deg,#8bf5e2,rgba(105,220,190,.35) 55%,#69dcbe);box-shadow:none}
+.nav-btn::before{content:"";position:absolute;inset:2px;z-index:-2;background:linear-gradient(118deg,rgba(105,220,190,.14) 0 16%,transparent 16%),linear-gradient(62deg,transparent 0 80%,rgba(105,220,190,.10) 80%),var(--c-surface);
+  clip-path:polygon(calc(var(--cut) - 2px) 0,100% 0,100% calc(100% - var(--cut) + 2px),calc(100% - var(--cut) + 2px) 100%,0 100%,0 calc(var(--cut) - 2px))}
+.nav-btn::after{inset:0;z-index:-1;background:var(--mf-facets);transform:translateX(-102%);transition:transform .28s var(--ease)}
+.nav-btn:hover,.nav-btn:focus-visible{color:#0a0d10;background:linear-gradient(135deg,#8bf5e2,rgba(105,220,190,.35) 55%,#69dcbe);outline:none}
+.nav-btn:hover::after,.nav-btn:focus-visible::after{transform:translateX(0)}
+:is(.nav-item.is-active>.nav-btn,.nav-btn.is-active){background:var(--mf-facets);color:#0a0d10}
+:is(.nav-item.is-active>.nav-btn,.nav-btn.is-active)::before,:is(.nav-item.is-active>.nav-btn,.nav-btn.is-active)::after{display:none}
+.nav-badge{border-radius:0;background:#0a0d10;color:var(--c-primary-hi);border-color:transparent}
+.nav-sub li{background:var(--c-surface);border:1px solid var(--glass-border);border-radius:0;box-shadow:var(--shadow);backdrop-filter:none}
+.nav-burger{border-radius:0;background:var(--c-surface);border:2px solid var(--c-primary)}
+.nav-burger span{border-radius:0;background:var(--c-primary)}
+
+/* ============ cards, panels: flat graphite slabs, mint title bars ============ */
+.card,.panel,.stat-tile{background:var(--c-surface);border:1px solid var(--glass-border);border-radius:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.card-title,.panel-title{position:relative;min-height:52px;padding:0 12px 0 20px;background:var(--mf-facets);color:#0a0d10;border:0;box-shadow:none;text-shadow:none;font:600 20px/1.2 var(--font-display);letter-spacing:0;text-transform:none;
+  clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,0 100%)}
+.card-title::after,.panel-title::after{background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.55) 50%,transparent 60%)}
+.card-title small{font-family:var(--font-body);font-weight:600;opacity:.75;letter-spacing:0}
+.panel-title h3{flex:1;font:inherit}
+.panel-toggle{border-radius:0;background:rgba(10,13,16,.12);border:1px solid rgba(10,13,16,.45);color:#0a0d10}
+.stat-tile{border-left:4px solid var(--c-primary)}
+.stat-tile .stat-num,.stat-tile b{font-family:var(--font-display);font-weight:500;color:var(--mf-ink)}
+.forum-table>.forum-row:hover{background:rgba(105,220,190,.08);box-shadow:inset 4px 0 0 var(--c-primary)}
+:root[data-theme="light"] .forum-table>.forum-row:hover{background:rgba(11,122,102,.07);box-shadow:inset 4px 0 0 #0b7a66}
+
+/* ============ buttons, badges, fields ============ */
+.btn{border-radius:0;font-family:var(--font-body);font-weight:600;font-size:15px;letter-spacing:0;text-transform:none;min-height:46px;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%);background:transparent;border:2px solid rgba(var(--mf-lr,230,236,238),.3);color:var(--c-text);box-shadow:none}
+:root[data-theme="light"] .btn{--mf-lr:10,13,16}
+.btn:hover{border-color:var(--mf-ink);color:var(--mf-ink);transform:none}
+.btn:active{transform:translateY(1px)}
+.btn-sm{min-height:36px;font-size:13px;clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,0 100%)}
+.btn-primary{background:var(--mf-facets);border:0;color:#0a0d10}
+.btn-primary:hover{color:#0a0d10;filter:brightness(1.12);box-shadow:none}
+.btn-ghost{background:transparent}
+.btn-danger{background:transparent;color:var(--c-danger);border-color:var(--c-danger)}
+.btn-danger:hover{background:var(--c-danger);color:#fff}
+.btn-dark{background:#0a0d10;color:#e6ecee;border-color:rgba(230,236,238,.3)}
+.badge{border-radius:0;font-weight:700;letter-spacing:.08em;clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,0 100%)}
+.input,.select,.textarea{border-radius:0;background:var(--field-bg);border:1px solid var(--field-border);min-height:46px;font-family:var(--font-body)}
+.textarea{min-height:0}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--mf-ink);box-shadow:inset 3px 0 0 var(--c-primary)}
+.avatar{border-radius:50%;box-shadow:0 0 0 2px var(--c-primary)}   /* avatars stay circular (site rule) */
+
+/* ============ hero: graphite slab, facet shards, drifting mint pixels ============ */
+.hero,.hero-lite{border-radius:0;border:0;border-left:5px solid var(--c-primary);box-shadow:none;color:var(--c-text)}
+.hero-bg,.hero-lite{background:var(--c-bg-2)}
+.hero-bg::before{background:linear-gradient(118deg,rgba(105,220,190,.10) 0 16%,transparent 16%),linear-gradient(62deg,transparent 0 78%,rgba(105,220,190,.09) 78%);transform:none}
+.hero-bg::after{background-image:none;background:linear-gradient(118deg,transparent 0 56%,rgba(105,220,190,.06) 56% 70%,transparent 70%);-webkit-mask-image:none;mask-image:none}
+.hero-lite::before{background:linear-gradient(118deg,rgba(105,220,190,.10) 0 16%,transparent 16%)}
+.hero-lite::after{background:linear-gradient(62deg,transparent 0 78%,rgba(105,220,190,.09) 78%);-webkit-mask-image:none;mask-image:none}
+.hero-mark{color:rgba(105,220,190,.10)}
+.hero .hero-title,.hero-title{font-family:var(--font-display);font-weight:500;letter-spacing:0;text-transform:none;color:var(--c-text);text-shadow:none}
+.hero .eyebrow,.hero-lite .eyebrow{color:var(--mf-ink);opacity:1}
+.hero .lead,.hero-lite .lead,.hero-sub{color:var(--c-text-dim);opacity:1}
+.hero .btn-dark{background:var(--mf-facets);color:#0a0d10;border:0}
+.hero .btn-glass,.hero-lite .btn-glass{background:transparent;color:var(--c-text);border:2px solid rgba(230,236,238,.35);backdrop-filter:none;box-shadow:none}
+:root[data-theme="light"] .hero .btn-glass{border-color:rgba(10,13,16,.35)}
+.hero-fx-embers .hero-fx i{border-radius:0;background:var(--c-primary);box-shadow:none}
+.hero-wrap-full .hero{border-left:0;border-right:0}
+:root[data-theme="light"] .hero-bg::before{background:linear-gradient(118deg,rgba(11,122,102,.10) 0 16%,transparent 16%),linear-gradient(62deg,transparent 0 78%,rgba(11,122,102,.09) 78%)}
+
+/* ============ news, forum, misc ============ */
+.news-card{border-radius:0}
+.news-card:hover{border-color:var(--c-primary);transform:translateY(-4px)}
+.pos-opt,.att-file,.reactions .react,.filter-tabs a{border-radius:0}
+.poll-bar,.poll-bar i{border-radius:0}
+.poll-bar i{background:var(--mf-facets)}
+.react.is-mine{background:rgba(105,220,190,.16)}
+.filter-tabs a.is-on{background:var(--mf-facets);color:#0a0d10}
+
+/* ============ footer: mirrored mint rule ============ */
+.site-footer{background:var(--c-surface);border-top:5px solid var(--c-primary);backdrop-filter:none;-webkit-backdrop-filter:none;border-radius:0}
+.site-footer::before,.footer-glow{display:none}
+.site-footer h4{font:600 16px/1 var(--font-display);letter-spacing:0;text-transform:none;color:var(--c-text)}
+.site-footer h4::before{content:"";width:8px;height:8px;background:var(--c-primary);clip-path:polygon(0 0,100% 0,100% 100%,0 100%);margin-right:2px}
+.site-footer h4::after{background:linear-gradient(90deg,var(--glass-border),transparent);max-width:none}
+.site-footer .fcol ul a:hover{color:var(--mf-ink)}
+.footer-bottom{border-top-color:var(--glass-border)}
+
+/* accent text that must stay readable on the light variant */
+.grad-text{background:none;-webkit-text-fill-color:currentColor;color:var(--mf-ink)}
+.stat-tile .stat-num,.stat-tile b,.stat-tile.is-accent .stat-num,.stat-tile.is-accent b{color:var(--mf-ink)}
+:root[data-theme="light"] .stat-tile *{--c-primary-hi:#0b7a66;--c-accent:#0b7a66}
+:root[data-theme="light"] .hero .eyebrow,:root[data-theme="light"] .eyebrow{color:#0b7a66}
+.stat-tile strong,.stat-tile.is-hot strong{font-family:var(--font-display);font-weight:500;color:var(--mf-ink)}
+.stat-tile.is-hot{background:var(--c-surface);border-color:var(--glass-border)}
+.stat-tile.is-hot span{color:var(--mf-ink)}
+:root[data-theme="light"] .stat-tile.is-hot{background:#fff}:root[data-theme="light"] .stat-tile.is-hot strong{color:#0b7a66}
+.panel .stats dd,.panel .stats b,.panel .stats strong{color:var(--mf-ink)}
+:root[data-theme="light"] .stats dd{color:#0b7a66 !important}
