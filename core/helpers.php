@@ -76,9 +76,9 @@ function hook(string $name, ...$args): string
     return Hooks::html($name, ...$args);
 }
 
-function theme_assets(string $where): string
+function theme_assets(string $where, bool $admin = false): string
 {
-    return View::assets($where);
+    return View::assets($where, $admin);
 }
 
 function redirect(string $to, int $code = 302): never

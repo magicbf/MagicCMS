@@ -106,7 +106,8 @@ final class View
         $skipHero = str_contains($cls, 'page-admin') || str_contains($cls, 'page-auth')
             || (($o['layout'] ?? '') === 'none' && !str_contains($cls, 'page-forum') && !str_contains($cls, 'page-home'));
         $hero = Hero::html(!empty($o['hero']), $skipHero);
-        return self::render('layout', [
+        $admin = str_contains($cls, 'page-admin');
+        return self::render($admin ? 'admin_layout' : 'layout', [
             'hero' => $hero,
             'head' => (string) ($o['head'] ?? ''),
             'title' => $title,
@@ -120,12 +121,15 @@ final class View
     }
 
     /** <link>/<script> tags for core + the theme chain (parents first). */
-    public static function assets(string $where): string
+    public static function assets(string $where, bool $admin = false): string
     {
         $out = '';
-        $chain = array_reverse(self::chain());
+        $chain = $admin ? [] : array_reverse(self::chain());   // the admin console has its own look, independent of the site theme
         if ($where === 'head') {
             $out .= '<link rel="stylesheet" href="' . e(asset('core.css')) . '">' . "\n";
+            if ($admin) {
+                $out .= '<link rel="stylesheet" href="' . e(asset('admin.css')) . '">' . "\n";
+            }
             foreach ($chain as $t) {
                 foreach ($t['meta']['stylesheets'] ?? ['tokens.css', 'theme.css'] as $css) {
                     if (is_file($t['dir'] . '/' . $css)) {
