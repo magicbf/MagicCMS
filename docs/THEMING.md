@@ -191,11 +191,25 @@ editor: `.editor`, `.editor-toolbar`, `.editor-preview`; moderation: `.mod-tools
 Selectors: `.nav-list`, `.nav-item`, `.nav-btn`, `.nav-btn-sub`, `.nav-sub`, `.nav-badge`, `.nav-burger`, `.is-active`, `.is-open`, `.nav-vertical` (sidebar variant), `.hide-mobile`. The burger/dropdown *behaviour* is in core.js + core.css; the theme only paints it. The `<html>` carries `data-nav-style="gradient|flash|solid|outline|glass"` (gradient = pill group with a gradient active item; flash = every button gradient) and `data-nav-fx="shine|glow|lift|none"` (admin choice) — style each combination. Items may carry an inline `--btn-color` override: derive the button from it, e.g. `--btn: var(--btn-color, var(--c-primary))` (see Magic Red).
 
 ### Hero
-v0.1 ships `.hero-lite`, `.hero-lite-inner`, `.eyebrow`, `.lead`, `.grad-text`, `.hero-cta` (home intro). The full hero module (planned) will use `.hero`, `.hero-slide`, `.hero-media`, `.hero-overlay`, `.hero-content`, `.hero-title`, `.hero-sub`, `.hero-cta`, `.hero-dots`, `.hero-arrow`. Modifiers: `.hero-compact|normal|full`, `.align-left|center|right`. Height via `--hero-h`, overlay via `--hero-overlay` (set inline by core).
+Markup (from `core/Hero.php`; the theme only paints it):
+```html
+<div class="hero-wrap [hero-wrap-full]"><div class="container">
+<section class="hero hero-h-{compact|normal|tall|full} hero-tr-{fade|slide|zoom} hero-fx-{embers|aurora|grid|none}" data-hero …>
+  <div class="hero-fx"> <i style="--x;--s;--d;--dl;--dx"> … | .fxa-1 .fxa-2 | .fxg </div>
+  <div class="hero-slides">
+    <article class="hero-slide align-{left|center|right} [has-image] [is-active|is-leaving]" style="--hf;--hs;--ov">
+      <div class="hero-bg"></div>  <!-- or: .hero-media (background-image) + .hero-overlay -->
+      <div class="hero-content"><span class="eyebrow"> <h2 class="hero-title"> <p class="lead"> <div class="hero-cta"><a class="btn btn-dark"> <a class="btn btn-glass"></div></div>
+    </article> …
+  </div>
+  <button class="hero-arrow prev|next"> <div class="hero-dots"><button class="hero-dot is-active"> …
+</section></div></div>
+```
+Custom properties set by core: `--hh` (height, on `.hero`), `--hf`/`--hs` (optional slide gradient colours), `--ov` (overlay 0–.9), `--iv` (autoplay interval, drives the dot progress fill), `--px`/`--py` (parallax offsets from `hero.js`). Slides are stacked in one grid cell and switched with `.is-active` / `.is-leaving`, so a theme animates them with plain CSS transitions. Use `var(--c-on-bar)` for text on the gradient and white on picture slides.
 
-### News & categories *(module planned for v0.4 — class names reserved)*
-`.news-grid`, `.news-card`, `.news-cover`, `.news-meta`, `.news-title`, `.news-excerpt`, `.news-featured`, `.cat-badge`, `.cat-banner`, `.tag`.
-Each category-coloured element gets `style="--cat-color:#hex"` — use `var(--cat-color, var(--c-primary))` for badges, borders and title-bar accents. Covers are `<img class="news-cover">` pointing to an uploaded image **or** a generated SVG (`/cover/<id>.svg`); style both identically (`object-fit:cover; aspect-ratio:16/9`).
+### News & categories
+`.news-grid`, `.news-card` (+`.news-featured`), `.news-cover`, `.news-flag`, `.news-body`, `.news-meta`, `.news-title`, `.news-excerpt`, `.news-foot`, `.cat-badge`, `.chip-row` / `.chip`, `.tag`; article: `.article`, `.article-cover`, `.article-head`, `.article-title`, `.article-lead`, `.article-body`; comments: `.comment`; panel: `.news-mini`.
+Each category-coloured element gets `style="--cat-color:#hex"` — use `var(--cat-color, var(--c-primary))` for badges, borders and title-bar accents. Covers are `<img>` inside `.news-cover` pointing to an uploaded image **or** a generated SVG (`/cover/news/<id>.svg`); style both identically (`object-fit:cover; aspect-ratio:16/9`).
 
 ### Home & stats (default theme)
 `.page-intro`, `.page-title`, `.eyebrow`, `.live-dot`, `.hero-lite` (`.hero-mark`, `.hero-title`, `.lead`, `.hero-cta` with `.btn-dark` / `.btn-glass`), `.stat-grid` / `.stat-tile` (`.is-hot` highlights one tile), `.grad-text`.
@@ -212,8 +226,7 @@ Place a file with the same name in `themes/<slug>/templates/` to replace the cor
 | `layout.php` | Whole page shell | `$title`, `$content`, `$layoutMode`, `$panels` (`['left'=>[…],'right'=>[…]]`), `$user`, `$meta` |
 | `header.php` / `footer.php` | Chrome | `$user`, `$menu`, `$siteName` |
 | `nav.php` | Menu markup | `$items` (tree: `label,url,icon,badge,active,children,color,new_tab,hideMobile`), `$class` |
-| `hero.php` *(planned)* | Hero banner | `$slides` (`headline,sub,media,cta[],overlay`), `$opts` |
-| `news-card.php` *(planned)* | News teaser | `$post` (`title,url,excerpt,cover,category{name,color,icon}`) |
+| `news/_card.php` | News teaser card | `$p` (post row with `cat_name,cat_slug,cat_color,cat_icon,author`), `$big` |
 | `panel.php` | Panel wrapper | `$panel` (`id,key,title,hideMobile`), `$html` |
 | `pagination.php`, `breadcrumb.php`, `alert.php` | Components | component-specific |
 

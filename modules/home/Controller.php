@@ -9,7 +9,7 @@ final class Controller
 {
     public function index(): string
     {
-        return View::page(t('Home'), render('home/index'), ['class' => 'page-home']);
+        return View::page(t('Home'), render('home/index'), ['class' => 'page-home', 'hero' => true]);
     }
 
     /** Save the light/dark preference (account if logged in, cookie always). */

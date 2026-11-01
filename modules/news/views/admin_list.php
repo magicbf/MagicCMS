@@ -1,0 +1,13 @@
+<?php /** @var array $rows @var string $q @var string $status @var int $page @var int $pages @var int $total */ use MagicCMS\Modules\News\News; ?>
+<div class="tabs sub"><a class="tab is-active" href="<?= e(url('admin/news')) ?>"><?= e(t('Posts')) ?></a><a class="tab" href="<?= e(url('admin/news/categories')) ?>"><?= e(t('Categories')) ?></a></div>
+<div class="forum-bar"><div class="forum-bar-links"><a class="btn btn-primary btn-sm" href="<?= e(url('admin/news/new')) ?>">+ <?= e(t('New post')) ?></a>
+  <?php foreach (['' => 'All', 'published' => 'Published', 'scheduled' => 'Scheduled', 'draft' => 'Drafts'] as $k => $l): ?><a class="btn btn-sm <?= $status === $k ? 'btn-primary' : 'btn-ghost' ?>" href="<?= e(url('admin/news' . ($k ? '?status=' . $k : ''))) ?>"><?= e(t($l)) ?></a><?php endforeach ?></div>
+  <form class="forum-search" method="get" action="<?= e(url('admin/news')) ?>"><input class="input" name="q" value="<?= e($q) ?>" placeholder="<?= e(t('Search title…')) ?>"><button class="btn btn-sm btn-ghost"><?= e(t('Search')) ?></button></form></div>
+<div class="card"><div class="card-body table-wrap"><table class="table"><thead><tr><th><?= e(t('Title')) ?></th><th><?= e(t('Category')) ?></th><th><?= e(t('Status')) ?></th><th><?= e(t('Date')) ?></th><th>💬</th><th>👁</th><th></th></tr></thead><tbody>
+<?php foreach ($rows as $r): $sched = $r['status'] === 'published' && $r['publish_at'] > now(); ?>
+<tr><td><a href="<?= e(url('news/' . $r['slug'])) ?>"><strong><?= e($r['title']) ?></strong></a><?= $r['featured'] ? ' <span class="badge">★</span>' : '' ?></td>
+<td><?php if ($r['cat_name']): ?><span class="cat-badge" style="--cat-color:<?= e(News::catColor($r)) ?>"><?= e($r['cat_name']) ?></span><?php else: ?><span class="muted">—</span><?php endif ?></td>
+<td><span class="badge"><?= e($r['status'] === 'draft' ? t('Draft') : ($sched ? t('Scheduled') : t('Published'))) ?></span></td><td><?= e(fmt_date($r['publish_at'])) ?></td><td><?= (int) $r['comment_count'] ?></td><td><?= (int) $r['views'] ?></td>
+<td class="actions"><a class="btn btn-sm btn-ghost" href="<?= e(url('admin/news/' . (int) $r['id'])) ?>"><?= e(t('Edit')) ?></a><form method="post" action="<?= e(url('admin/news/delete/' . (int) $r['id'])) ?>"><?= csrf_field() ?><button class="btn btn-sm btn-danger" data-confirm="<?= e(t('Delete this post?')) ?>">✕</button></form></td></tr>
+<?php endforeach; if (!$rows): ?><tr><td colspan="7" class="muted"><?= e(t('Nothing here yet.')) ?></td></tr><?php endif ?></tbody></table></div></div>
+<?= render('pagination', ['page' => $page, 'pages' => $pages, 'base' => url('admin/news') . ($status ? '?status=' . $status : '')]) ?>

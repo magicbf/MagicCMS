@@ -15,19 +15,7 @@ $posts = $forum ? (int) db()->val('SELECT COUNT(*) FROM {forum_posts} p JOIN {fo
   <span class="live-dot"><i></i><?= e(t('{n} online now', ['n' => $online])) ?></span>
 </div>
 
-<section class="hero-lite">
-  <svg class="hero-mark" aria-hidden="true" viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="2"><path d="M42 150V62q0-10 10-4l48 42 48-42q10-6 10 4v88h-24V96l-34 30-34-30v54z"/><path d="M100 24l12 22-12 22-12-22z"/></svg>
-  <div class="hero-lite-inner">
-    <span class="eyebrow"><?= e(t('Official website')) ?></span>
-    <h2 class="hero-title"><?= e((string) setting('site.tagline', '') !== '' ? setting('site.tagline') : setting('site.name', 'MagicCMS')) ?></h2>
-    <p class="lead"><?= e(setting('site.description', '')) ?></p>
-    <div class="hero-cta">
-      <?php if (!$u && setting('auth.registration', 'open') !== 'closed'): ?><a class="btn btn-dark" href="<?= e(url('register')) ?>"><?= e(t('Join the team')) ?> <span aria-hidden="true">→</span></a><?php endif ?>
-      <?php if ($forum): ?><a class="btn btn-glass" href="<?= e(url('forum')) ?>"><?= e(t('Open the forum')) ?></a><?php endif ?>
-      <a class="btn btn-glass" href="<?= e(url('members')) ?>"><?= e(t('Meet the members')) ?></a>
-    </div>
-  </div>
-</section>
+
 
 <div class="stat-grid">
   <div class="stat-tile"><span><?= e(t('Members')) ?></span><strong><?= $members ?></strong></div>
@@ -38,6 +26,11 @@ $posts = $forum ? (int) db()->val('SELECT COUNT(*) FROM {forum_posts} p JOIN {fo
   <?php endif ?>
 </div>
 
+<?php $news = db()->val("SELECT 1 FROM {modules} WHERE module_key = 'news' AND enabled = 1") ? MagicCMS\Modules\News\News::latest(6) : []; ?>
+<?php if ($news): ?>
+<section class="home-news"><div class="section-head"><h2 class="section-title"><?= e(t('Latest news')) ?></h2><a class="btn btn-ghost btn-sm" href="<?= e(url('news')) ?>"><?= e(t('All news')) ?> →</a></div>
+  <div class="news-grid"><?php foreach ($news as $p): echo render('news/_card', ['p' => $p]); endforeach ?></div></section>
+<?php endif ?>
 <?php if (can('admin.access')): ?>
 <div class="card"><h2 class="card-title"><?= e(t('Getting started')) ?></h2><div class="card-body">
   <ul class="checklist">
@@ -45,6 +38,8 @@ $posts = $forum ? (int) db()->val('SELECT COUNT(*) FROM {forum_posts} p JOIN {fo
     <li><a href="<?= e(url('admin/settings')) ?>"><?= e(t('Upload your logo')) ?></a></li>
     <li><a href="<?= e(url('admin/navigation')) ?>"><?= e(t('Add buttons to the menu')) ?></a></li>
     <li><a href="<?= e(url('admin/panels')) ?>"><?= e(t('Arrange side panels (left / right / none)')) ?></a></li>
-    <li><a href="<?= e(url('admin/forum')) ?>"><?= e(t('Set up forum boards')) ?></a></li>
+    <li><a href="<?= e(url('admin/hero')) ?>"><?= e(t('Customise the hero banner')) ?></a></li>
+    <li><a href="<?= e(url('admin/news')) ?>"><?= e(t('Write your first news post')) ?></a></li>
+    <li><a href="<?= e(url('admin/forum')) ?>"><?= e(t('Set up forum categories')) ?></a></li>
   </ul></div></div>
 <?php endif ?>

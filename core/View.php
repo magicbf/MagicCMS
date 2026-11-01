@@ -98,7 +98,14 @@ final class View
     public static function page(string $title, string $content, array $o = []): string
     {
         $layout = Layout::resolve($o['layout'] ?? self::$routeLayout);
+        $cls = (string) ($o['class'] ?? '');
+        // No hero on admin/login pages or bare message pages (404, 403 …); the home page and forum may show one.
+        $skipHero = str_contains($cls, 'page-admin') || str_contains($cls, 'page-auth')
+            || (($o['layout'] ?? '') === 'none' && !str_contains($cls, 'page-forum') && !str_contains($cls, 'page-home'));
+        $hero = Hero::html(!empty($o['hero']), $skipHero);
         return self::render('layout', [
+            'hero' => $hero,
+            'head' => (string) ($o['head'] ?? ''),
             'title' => $title,
             'content' => $content,
             'layout' => $layout,

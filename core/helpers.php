@@ -219,3 +219,43 @@ function has_custom_logo(): bool
 {
     return site_logo() !== asset('logo-mark.svg');
 }
+
+/** Absolute URL (for RSS, OpenGraph, canonical links). */
+function abs_url(string $path = ''): string
+{
+    return rtrim((string) (Bootstrap::$config['app']['url'] ?? ''), '/') . '/' . ltrim($path, '/');
+}
+
+/** URL of an uploaded picture, or null when missing. */
+function upload_url(string $folder, ?string $name): ?string
+{
+    return $name && preg_match('/^[a-z]+_[a-f0-9]{12}\.(webp|jpg)$/', $name) && is_file(MCMS_ROOT . '/uploads/' . $folder . '/' . $name)
+        ? url('uploads/' . $folder . '/' . $name) : null;
+}
+
+/** "2026-11-01T14:30" typed in the viewer's timezone → UTC DATETIME string (null when empty/invalid). */
+function local_to_utc(string $local): ?string
+{
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}$/', $local)) {
+        return null;
+    }
+    $tz = (string) (user()['timezone'] ?? '') ?: (string) setting('site.timezone', 'UTC');
+    try {
+        return (new DateTimeImmutable(str_replace('T', ' ', $local), new DateTimeZone($tz)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+    } catch (Throwable) {
+        return null;
+    }
+}
+
+function utc_to_local(?string $utc): string
+{
+    if (!$utc) {
+        return '';
+    }
+    $tz = (string) (user()['timezone'] ?? '') ?: (string) setting('site.timezone', 'UTC');
+    try {
+        return (new DateTimeImmutable($utc, new DateTimeZone('UTC')))->setTimezone(new DateTimeZone($tz))->format('Y-m-d\TH:i');
+    } catch (Throwable) {
+        return '';
+    }
+}

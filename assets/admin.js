@@ -4,10 +4,12 @@
   var d = document;
   // Show only the target field that matches the chosen link type
   d.querySelectorAll('[data-ref-switch]').forEach(function (sel) {
-    var form = sel.closest('form');
+    var form = sel.closest('fieldset') || sel.closest('form');
     function sync() { form.querySelectorAll('[data-ref]').forEach(function (r) { r.hidden = r.dataset.ref !== sel.value; r.style.display = r.hidden ? 'none' : ''; }); }
     sel.addEventListener('change', sync); sync();
   });
+  // Range → <output> (CSP forbids inline handlers)
+  d.querySelectorAll('input[data-out]').forEach(function (r) { var o = d.getElementById(r.dataset.out); r.addEventListener('input', function () { if (o) o.textContent = r.value; }); });
   // Live colour-scheme preview
   var f = d.querySelector('form[data-presets]');
   if (f) {

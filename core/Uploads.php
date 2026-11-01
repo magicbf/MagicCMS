@@ -193,4 +193,71 @@ final class Uploads
         }
         return true;
     }
+
+    /**
+     * Generic picture upload for news covers, category images and hero slides.
+     * Validates, decodes, optionally centre-crops to an aspect ratio, downsizes to fit $maxW×$maxH and re-encodes (strips metadata).
+     * @param string $prefix  file name prefix, e.g. "news" → news_ab12cd34ef56.webp
+     * @param float|null $ratio  crop to this width/height ratio (e.g. 16/9) or null to keep the original
+     * @return string stored file name inside uploads/<folder>/
+     */
+    public static function picture(array $file, string $folder, string $prefix, int $maxW, int $maxH, ?float $ratio = null): string
+    {
+        $err = $file['error'] ?? UPLOAD_ERR_NO_FILE;
+        if ($err === UPLOAD_ERR_NO_FILE) {
+            throw new \RuntimeException(t('Please choose an image.'));
+        }
+        if ($err === UPLOAD_ERR_INI_SIZE) {
+            throw new \RuntimeException(t('Image is too large for this server (limit {n}).', ['n' => ini_get('upload_max_filesize')]));
+        }
+        if ($err !== UPLOAD_ERR_OK || ($file['size'] ?? 0) > 5 * 1048576 || !is_uploaded_file($file['tmp_name'])) {
+            throw new \RuntimeException(t('Upload failed or file larger than 5 MB.'));
+        }
+        if (!extension_loaded('gd')) {
+            throw new \RuntimeException(t('Image processing (GD) is not available on this server.'));
+        }
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+        $info = @getimagesize($file['tmp_name']);
+        if (!in_array($mime, self::MIME, true) || !$info || $info[0] < 32 || $info[1] < 32 || $info[0] * $info[1] > 25_000_000) {
+            throw new \RuntimeException(t('Unsupported or invalid image (JPG, PNG, GIF or WebP).'));
+        }
+        $src = @imagecreatefromstring((string) file_get_contents($file['tmp_name']));
+        if (!$src) {
+            throw new \RuntimeException(t('Could not read the image.'));
+        }
+        $w = imagesx($src);
+        $h = imagesy($src);
+        $sx = $sy = 0;
+        if ($ratio) {
+            if ($w / $h > $ratio) { $nw = (int) round($h * $ratio); $sx = intdiv($w - $nw, 2); $w = $nw; }
+            else { $nh = (int) round($w / $ratio); $sy = intdiv($h - $nh, 2); $h = $nh; }
+        }
+        $scale = min(1, $maxW / $w, $maxH / $h);
+        $dw = max(1, (int) round($w * $scale));
+        $dh = max(1, (int) round($h * $scale));
+        $webp = function_exists('imagewebp');
+        $dst = imagecreatetruecolor($dw, $dh);
+        if ($webp) { imagealphablending($dst, false); imagesavealpha($dst, true); }
+        else { imagefill($dst, 0, 0, imagecolorallocate($dst, 18, 18, 22)); }
+        imagecopyresampled($dst, $src, 0, 0, $sx, $sy, $dw, $dh, $w, $h);
+        $dir = MCMS_ROOT . '/uploads/' . $folder;
+        if (!is_dir($dir) && !@mkdir($dir, 0755, true)) {
+            throw new \RuntimeException(t('Upload folder is not writable.'));
+        }
+        $name = $prefix . '_' . bin2hex(random_bytes(6)) . ($webp ? '.webp' : '.jpg');
+        $ok = $webp ? imagewebp($dst, $dir . '/' . $name, 84) : imagejpeg($dst, $dir . '/' . $name, 86);
+        imagedestroy($src);
+        imagedestroy($dst);
+        if (!$ok) {
+            throw new \RuntimeException(t('Upload folder is not writable.'));
+        }
+        return $name;
+    }
+
+    public static function deletePicture(string $folder, ?string $name): void
+    {
+        if ($name && preg_match('/^[a-z]+_[a-f0-9]{12}\.(webp|jpg)$/', $name) && preg_match('/^[a-z]+$/', $folder)) {
+            @unlink(MCMS_ROOT . '/uploads/' . $folder . '/' . $name);
+        }
+    }
 }

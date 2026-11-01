@@ -31,8 +31,8 @@
 | Custom pages | ✅ | Sanitized HTML editor; Markdown/WYSIWYG planned |
 | Theme engine (parent themes, tokens, overrides) | ✅ | Theme upload UI planned |
 | Plugins / modules loader | ✅ (modules) | Core modules are loaded from the `modules` table; admin UI for enabling/installing planned |
-| Hero module | ⏳ | v0.1 ships a static "hero-lite" intro on the home page; full module planned |
-| News + categories + generated covers | ⏳ | planned (v0.4) |
+| Hero module (slider, effects, buttons, scheduling) | ✅ | Admin → Hero – see [§12](#12-hero-module) |
+| News + categories + generated covers + comments + RSS | ✅ | Admin → News – see [§13](#13-news--categories) |
 | Forum (category → subcategory → topics → posts) | ✅ | Own side-panel layout (none by default; admin can enable left/right/both), BBCode, per-subcategory read/post levels, sticky/announce/lock/move/delete, reports queue, search, unread tracking, ranks – see [§15](#15-forum). Attachments, polls, subscriptions/e-mail notifications, reactions: planned |
 | Versioned migrations + auto-upgrade | ✅ | `migrations/NNNN_*.sql` (+ optional `.php` seed); new code upgrades an older database automatically |
 | Matches / roster / events panels | ⏳ | planned (v0.3) |
@@ -255,7 +255,7 @@ All tables use the configurable prefix (default `mcms_`), InnoDB, `utf8mb4_unico
 | `news` | id, title, slug, category_id, cover, excerpt, body, status, featured, publish_at, author_id, views, seo (JSON) |
 | `news_categories` | id, parent_id, name, slug, color, icon, image, cover_style, sort_order, visibility |
 | `news_tags` / `news_tag_map` | Tags |
-| `comments` | Comments (news and other content) |
+| `news_comments` | News comments |
 | `forum_categories`, `forum_boards` (= subcategories), `forum_topics`, `forum_posts`, `forum_reads`, `forum_markread`, `forum_reports` | Forum (attachments & subscriptions tables arrive with those features) |
 | `matches`, `match_maps`, `opponents`, `games`, `events` | Esports data |
 | `team_members` | Roster |
@@ -393,43 +393,47 @@ In **Admin → Appearance → Colour scheme** the site admin can pick the look w
 
 ## 12. Hero module
 
-A configurable banner at the top of the home page (or any page / module), managed in **Admin → Hero**.
+A configurable, animated banner (**Admin → Hero**). It is a slider of slides — or a single banner — built from your own slides and/or your featured news posts.
 
-| Option | Choices |
+| Setting | Choices |
 |---|---|
-| **Placement** | home only / selected pages / all pages / off |
-| **Type** | Single banner · **Slider** (multiple slides, auto-play, arrows/dots) · Video background · Animated abstract gradient (default, no image needed) |
-| **Content per slide** | headline, sub-headline, up to 2 **call-to-action buttons** (label + target, same target types as the menu), image or video, overlay opacity, text alignment |
-| **Dynamic content** | optional *Next match countdown*, *Latest news* (auto-fills from featured posts), *Live stream* embed, *Join us* CTA |
-| **Layout** | height (compact / normal / full-screen), full-width or contained, content position |
-| **Behaviour** | transition (fade/slide), interval, pause on hover, hide on mobile or use simplified version |
-| **Scheduling** | start/end dates per slide (e.g. tournament announcement) |
+| **Where** | home page only (default) · all public pages (compact height) · off |
+| **Content** | *my slides* · *featured news posts* · *slides, then featured news* |
+| **Height / width** | compact · normal · tall · full screen  /  contained rounded card · full width (edge to edge) |
+| **Transition** | fade · slide · zoom |
+| **Background effect** | rising embers · aurora glow · moving grid · none |
+| **Behaviour** | autoplay + seconds per slide (3–30), pause on hover/focus, arrows, dots with a progress fill, swipe on touch, ← → keys, mouse parallax on desktop |
 
-Images are auto-resized into responsive `srcset` variants; the hero never blocks first paint (lazy-loaded video, CSS-only default background).
+**Per slide:** small label (eyebrow), headline, sub-headline, optional **background picture** (auto-resized to 1920 px, Ken-Burns zoom) with an adjustable **darkening overlay**, text alignment (left/centre/right), **two call-to-action buttons** (each linking to a built-in page/module, a custom page, or a URL — same targets as the menu builder), optional **custom gradient colours** (otherwise the site colour scheme), an **active** switch, **start/end dates** for scheduling (e.g. a tournament announcement), and up/down ordering. A fresh install ships three gradient slides, so the home page looks good immediately.
+
+Quality notes: effects are pure CSS (transform/opacity only); everything respects `prefers-reduced-motion` and the admin's *Animations* setting; the banner is fully keyboard- and screen-reader-accessible (carousel roles, hidden inactive slides); with no active slides the banner simply doesn't render.
 
 ---
 
 ## 13. News & categories
 
-Full blog-style news system with **custom categories**.
+A blog-style news system (**Admin → News**) with custom categories, tags, comments and RSS.
 
-**Posts**: title, slug, cover image, excerpt, body (Markdown/WYSIWYG-lite), category, tags, author, status (`draft` / `scheduled` / `published`), **featured/sticky** flag, comment toggle, SEO title/description, view counter.
+**Posts:** title, slug, category, excerpt, HTML body (unsafe tags are stripped automatically), optional cover picture (cropped to 16:9), tags, status (*draft / published*), **publish date** (a future date schedules the post), **featured** flag (pinned first; can feed the hero), comments on/off, SEO title/description. Public pages add OpenGraph tags for nice link previews, a view counter, related posts and a draft preview for admins.
 
-**Categories** (Admin → News → Categories) — create as many as you like (e.g. *Match Reports*, *Team News*, *Patch Notes*, *Interviews*):
+**Categories** — create as many as you like (*Match Reports*, *Team News*, *Patch Notes*, …):
 
 | Field | Description |
 |---|---|
-| Name / slug / description | Shown on category pages |
-| **Colour** | Used for category badges, title-bar accents and generated covers |
-| **Icon** | Built-in icon set |
-| **Custom picture** | Optional uploaded image (auto-resized) used as category banner & fallback cover |
-| **Default generated picture** | If no picture is uploaded, MagicCMS **procedurally generates an abstract cover** |
-| Parent category | Optional nesting |
-| Visibility / sort order | Per role, drag & drop order |
+| Name / slug / description | Shown on the category page |
+| **Colour** | Badges, card accent line, glows and the generated cover |
+| **Icon** | Any emoji |
+| **Picture** (optional) | Used as the fallback cover for the category's posts |
+| **Cover style** | auto · blades · orbits · mesh · waves (plus a site-wide default) |
+| Sort order | Controls the filter chips |
 
-**Procedural covers.** When a post has no cover image and its category has no picture, an abstract SVG is generated *deterministically* from a seed (post/category ID + category colour): layered gradients, blades, orbit rings, grids or waves in the category's colour on a dark/light base. The same post always gets the same artwork; no external services; output is a few KB, cached in `cache/covers/` and fully theme-aware. Admins can pick the generator style (*blades*, *orbits*, *mesh*, *waves*) per site or per category.
+Deleting a category keeps its posts (they become uncategorised).
 
-Other: category & tag archives, RSS per category, related posts, "featured" slider (can feed the Hero), and a *Latest News* panel with optional category filter.
+**Procedural covers.** A post without a cover picture (and whose category has no picture) gets an **abstract SVG cover generated on the fly** from the post id and the category colour — layered blades, orbit rings, glowing mesh or waves. The same post always gets the same artwork, nothing is stored, there are no external services, and the response is served with immutable HTTP caching (`/cover/news/<id>.svg?v=<hash>`; the hash changes when you change the colour or style).
+
+**Also included:** category and tag archives, category filter chips, **comments** (members; flood-limited; moderators or the author can delete), **RSS** feed (`/news/feed.xml`, optional `?category=slug`), a *Latest News* panel (optionally filtered by category), a *Latest news* grid on the home page, and a News menu entry.
+
+**Planned:** rich-text editor, scheduled "publish" notifications, per-post gallery.
 
 ---
 
@@ -679,7 +683,7 @@ Key settings:
 **v0.1 also:** menu builder, appearance (light/dark + colour schemes), hero module
 **v0.2 – Community:** ✅ profiles & avatars, ✅ forum, ✅ shoutbox, ✅ online users · ⏳ private messages
 **v0.3 – Esports:** matches, roster, events, recent-matches & next-match panels, recruitment form
-**v0.4 – Content:** news + categories + generated covers, pages, gallery, downloads, polls, search
+**v0.4 – Content:** ✅ news + categories + generated covers, ✅ hero, pages, gallery, downloads, polls, search
 **v0.5 – Polish:** notifications, audit log UI, SEO/RSS/sitemap, GDPR tools, i18n packs
 **v1.0 – Stable:** security review, docs, theme & plugin marketplace-ready manifests
 
