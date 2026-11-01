@@ -50,7 +50,7 @@ final class Controller
         if (mb_strlen($name) < 2) {
             $fail(t('Please enter your name or nickname.'));
         }
-        if (!valid_email($email)) {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $fail(t('Please enter a valid e-mail address.'));
         }
         $pos = db()->one('SELECT * FROM {recruit_positions} WHERE id = ? AND is_open = 1', [(int) input('position')]);

@@ -18,7 +18,6 @@
 <form class="card-body" method="post" action="<?= e(url('profile')) ?>"><?= csrf_field() ?>
   <div class="form-row"><label class="label"><?= e(t('Username')) ?></label><input class="input" value="<?= e($u['username']) ?>" disabled></div>
   <div class="form-row"><label class="label" for="em"><?= e(t('Email')) ?></label><input class="input" id="em" type="email" name="email" value="<?= e($u['email']) ?>" required></div>
-  <div class="form-row"><label class="label" for="emp"><?= e(t('Current password (only needed when you change the e-mail address)')) ?></label><input class="input" id="emp" type="password" name="email_password" autocomplete="current-password"></div>
   <div class="form-row"><label class="label" for="bio"><?= e(t('About me')) ?></label><textarea class="textarea" id="bio" name="bio" rows="3" maxlength="500"><?= e($u['bio']) ?></textarea></div>
   <div class="form-row"><label class="label" for="sig"><?= e(t('Signature')) ?></label><input class="input" id="sig" name="signature" maxlength="300" value="<?= e($u['signature']) ?>"></div>
   <div class="form-grid">

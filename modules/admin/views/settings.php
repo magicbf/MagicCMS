@@ -13,7 +13,6 @@
   </div>
   <div class="form-grid">
     <div class="form-row"><label class="label"><?= e(t('Registration')) ?></label><select class="select" name="registration"><?php foreach (['open' => 'Open', 'approval' => 'Requires admin approval', 'closed' => 'Closed'] as $k => $l): ?><option value="<?= $k ?>" <?= setting('auth.registration', 'open') === $k ? 'selected' : '' ?>><?= e(t($l)) ?></option><?php endforeach ?></select></div>
-    <div class="form-row"><label class="label"><?= e(t('Registrations per connection per hour (0 = no limit)')) ?></label><input class="input" type="number" min="0" max="1000" name="reg_limit" value="<?= (int) setting('auth.reg_limit', 5) ?>"></div>
     <div class="form-row"><label class="label"><?= e(t('Max avatar size (MB, 1–5)')) ?></label><input class="input" type="number" min="1" max="5" name="avatar_mb" value="<?= (int) setting('upload.avatar_max_mb', 5) ?>"></div>
   </div>
   <div class="form-row"><label class="label"><?= e(t('"Online" window (minutes)')) ?></label><input class="input" type="number" min="1" max="60" name="online_min" value="<?= (int) setting('online.window_min', 5) ?>"></div>

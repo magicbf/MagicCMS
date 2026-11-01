@@ -283,7 +283,7 @@ final class Controller
     {
         $post = $this->ownPost((int) $p['id']);
         $t = $post ? Forum::topic((int) $post['topic_id']) : null;
-        if (!$post || !$t || !Forum::canRead($t)) {
+        if (!$post || !$t) {
             return $this->nf();
         }
         $isOwner = (int) $post['user_id'] === (int) user()['id'];
@@ -338,7 +338,7 @@ final class Controller
     {
         $post = $this->ownPost((int) $p['id']);
         $t = $post ? Forum::topic((int) $post['topic_id']) : null;
-        if (!$post || !$t || !Forum::canRead($t)) {
+        if (!$post || !$t) {
             redirect('/forum');
         }
         $first = (int) $post['id'] === (int) $post['first_post_id'];
@@ -373,7 +373,7 @@ final class Controller
     public function mod(array $p): never
     {
         $t = Forum::topic((int) $p['id']);
-        if (!$t || !Forum::canRead($t) || !Forum::isMod() || !Auth::mayAffect((int) $t['user_id'], (int) $t['author_level'])) {
+        if (!$t || !Forum::isMod() || !Auth::mayAffect((int) $t['user_id'], (int) $t['author_level'])) {
             flash('danger', t('You cannot moderate this topic.'));
             redirect($t ? '/forum/topic/' . (int) $t['id'] : '/forum');
         }
@@ -407,8 +407,7 @@ final class Controller
     public function report(array $p): never
     {
         $post = db()->one('SELECT id, topic_id FROM {forum_posts} WHERE id = ?', [(int) $p['id']]);
-        $rt = $post ? Forum::topic((int) $post['topic_id']) : null;
-        if (!$post || !$rt || !Forum::canRead($rt) || !can('forum.report')) {
+        if (!$post || !Forum::topic((int) $post['topic_id']) || !can('forum.report')) {
             redirect('/forum');
         }
         $reason = mb_substr((string) input('reason'), 0, 300);
@@ -494,9 +493,6 @@ final class Controller
     public function subscribeTopic(array $p): never
     {
         $t = Forum::topic((int) $p['id']);
-        if ($t && !Forum::canRead($t)) {
-            $t = null;
-        }
         if ($t) {
             $on = input('sub') === '1';
             Subscriptions::setTopic((int) user()['id'], (int) $t['id'], $on);

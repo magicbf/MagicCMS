@@ -52,7 +52,7 @@ final class Controller
         if (!preg_match('/^[A-Za-z0-9_\-]{3,20}$/', $f['username'])) {
             $err[] = t('Username: 3–20 characters, letters, numbers, _ and - only.');
         }
-        if (!valid_email($f['email'])) {
+        if (!filter_var($f['email'], FILTER_VALIDATE_EMAIL) || strlen($f['email']) > 190) {
             $err[] = t('Please enter a valid email address.');
         }
         if (strlen($pw) < 8 || strlen($pw) > 72) {
@@ -63,9 +63,6 @@ final class Controller
         }
         if (empty($_POST['tos'])) {
             $err[] = t('Please accept the rules to register.');
-        }
-        if (!$err && ($rl = (int) setting('auth.reg_limit', 5)) > 0 && Auth::limited('reg', $rl, 3600)) {
-            $err[] = t('Too many registrations from your connection. Please try again later.');
         }
         if (!$err && db()->val('SELECT id FROM {users} WHERE username = ? OR email = ?', [$f['username'], $f['email']])) {
             $err[] = t('That username or email is already registered.');
@@ -78,7 +75,6 @@ final class Controller
             return View::page(t('Register'), render('auth/register', ['f' => $f, 'mode' => $mode]), ['class' => 'page-auth']);
         }
 
-        Auth::hit('reg');
         $status = $mode === 'approval' ? 'pending' : 'active';
         $id = db()->insert(
             'INSERT INTO {users} (username, email, password_hash, role_id, status, timezone, created_at) VALUES (?,?,?,?,?,?,?)',
@@ -161,7 +157,7 @@ final class Controller
         if (!self::throttled('resend')) {
             $u = db()->one('SELECT id, username, email FROM {users} WHERE (username = ? OR email = ?) AND email_verified_at IS NULL AND status <> \'banned\' LIMIT 1', [$ident, $ident]);
             if ($u && setting('auth.email_verify')) {
-                defer(static fn() => self::sendVerification((int) $u['id'], $u['username'], $u['email']));
+                self::sendVerification((int) $u['id'], $u['username'], $u['email']);
             }
             flash('info', t('If that account still needs confirmation, a new link is on its way.'));
         } else {
@@ -187,7 +183,7 @@ final class Controller
         if ($u) { // identical response either way → no account enumeration
             $token = Tokens::create((int) $u['id'], 'reset', 3600);
             $html = Mailer::template(t('Reset your password'), '<p>' . e(t('Hi {name}, we received a request to reset your password. The link is valid for 60 minutes and works once. If this was not you, simply ignore this e-mail.', ['name' => $u['username']])) . '</p>', [t('Choose a new password'), abs_url('reset/' . $token)]);
-            defer(static fn() => Mailer::send($u['email'], t('Reset your password'), $html));
+            Mailer::send($u['email'], t('Reset your password'), $html);
         }
         flash('info', t('If an account matches, we have sent password reset instructions to its e-mail address.'));
         redirect('/login');
@@ -216,7 +212,7 @@ final class Controller
             return View::page(t('Choose a new password'), render('auth/reset', ['token' => $p['token']]), ['class' => 'page-auth']);
         }
         db()->exec('UPDATE {users} SET password_hash = ?, email_verified_at = COALESCE(email_verified_at, ?) WHERE id = ?', [Auth::hash($pw), now(), $row['user_id']]);
-        Auth::passwordChanged((int) $row['user_id']); // ends every other session / remember-me token
+        db()->exec('DELETE FROM {remember_tokens} WHERE user_id = ?', [$row['user_id']]); // sign out other devices
         db()->exec("DELETE FROM {email_tokens} WHERE user_id = ? AND type = 'reset'", [$row['user_id']]);
         db()->exec('DELETE FROM {login_attempts} WHERE login = (SELECT LOWER(username) FROM {users} WHERE id = ?)', [$row['user_id']]);
         audit('auth.password_reset', 'user #' . $row['user_id']);

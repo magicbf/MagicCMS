@@ -41,7 +41,7 @@ final class Bbcode
         $s = preg_replace('/\[url=(' . $url . ')\](.*?)\[\/url\]/is', '<a href="$1" rel="nofollow ugc noopener" target="_blank">$2</a>', $s);
         $s = preg_replace('/\[url\](' . $url . ')\[\/url\]/i', '<a href="$1" rel="nofollow ugc noopener" target="_blank">$1</a>', $s);
         $s = preg_replace('/\[img\](https:\/\/[^\s\[\]<>]+)\[\/img\]/i', '<img class="bb-img" src="$1" alt="" loading="lazy">', $s);
-        $s = self::autolink((string) $s);
+        $s = preg_replace('~(?<![="\'>/\w])(https?://[^\s<\[]+)~i', '<a href="$1" rel="nofollow ugc noopener" target="_blank">$1</a>', $s);
 
         // 5. lists
         $s = preg_replace_callback('/\[list(=1)?\]\s*(.*?)\[\/list\]/is', static function ($m) {
@@ -71,28 +71,6 @@ final class Bbcode
 
         // 8. restore code blocks
         return (string) preg_replace_callback('/\x01(\d+)\x01/', static fn($m) => $codes[(int) $m[1]] ?? '', $s);
-    }
-
-    /** Turn bare URLs into links – in plain text only, never inside a tag or an existing link (that would corrupt the markup). */
-    private static function autolink(string $html): string
-    {
-        $out = '';
-        $inLink = 0;
-        foreach (preg_split('/(<[^>]*>)/', $html, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) ?: [] as $part) {
-            if ($part[0] === '<') {
-                if (preg_match('/^<a[\s>]/i', $part)) {
-                    $inLink++;
-                } elseif (stripos($part, '</a') === 0) {
-                    $inLink = max(0, $inLink - 1);
-                }
-                $out .= $part;
-            } elseif ($inLink === 0) {
-                $out .= preg_replace('~(https?://[^\s<\[]+)~i', '<a href="$1" rel="nofollow ugc noopener" target="_blank">$1</a>', $part);
-            } else {
-                $out .= $part;
-            }
-        }
-        return $out;
     }
 
     /** Plain-text excerpt for lists/search results. */

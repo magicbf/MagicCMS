@@ -56,7 +56,7 @@ final class Mailer
     public static function fromEmail(): string
     {
         $c = (string) setting('mail.from_email', '');
-        if (valid_email($c)) {
+        if (filter_var($c, FILTER_VALIDATE_EMAIL)) {
             return $c;
         }
         $host = parse_url((string) (Bootstrap::$config['app']['url'] ?? ''), PHP_URL_HOST) ?: 'localhost';
@@ -90,7 +90,7 @@ final class Mailer
     {
         self::$error = '';
         $to = self::clean($to);
-        if (!valid_email($to)) {
+        if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
             self::$error = 'invalid recipient';
             return false;
         }

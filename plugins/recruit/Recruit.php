@@ -45,7 +45,7 @@ final class Recruit
 
     public static function mail(string $to, string $subject, string $title, string $body, ?array $button = null): void
     {
-        if (valid_email($to)) {
+        if (filter_var($to, FILTER_VALIDATE_EMAIL)) {
             Mailer::send($to, $subject, Mailer::template($title, '<p>' . nl2br(e($body)) . '</p>', $button));
         }
     }

@@ -74,8 +74,7 @@ final class Subscriptions
         $unsub = self::unsubLink($kind, (int) $r['user_id'], $id);
         $html = Mailer::template($headline, '<p>' . e($excerpt) . '</p>', [$button, abs_url(ltrim($link, '/'))],
             t('You get this because you follow this on {site}.', ['site' => (string) setting('site.name')]) . ' ' . t('Unsubscribe: {link}', ['link' => $unsub]));
-        $to = (string) $r['email'];
-        defer(static fn() => Mailer::send($to, $subject, $html));
+        Mailer::send($r['email'], $subject, $html);
     }
 
     /** New reply → followers of the topic. */

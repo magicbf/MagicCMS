@@ -45,8 +45,7 @@
 | **Notifications centre** (bell, merged entries, read/clear) + **forum subscriptions** (follow topics/subcategories, auto-follow, signed one-click unsubscribe) | ✅ | see [§14](#14-built-in-panels--modules), [§15](#15-forum) |
 | **Recruitment plugin** (application form, positions, custom questions, status tracking, notes, applicant notifications) | ✅ | `plugins/recruit` |
 | **Bundled themes**: Magic Red (default), **Hazard Protocol** (terminal / hazard-yellow) **Aurora Glass** (bright frosted glass, light by default) and **Mint Facet** (sharp chamfered mint on graphite) – each with light + dark variants and an auto-applied colour scheme | ✅ | `themes/`, see [THEMING](docs/THEMING.md) |
-| **Backups & safe updates** (db / full backups, restore, automatic + cron, validated update packages, automatic rollback, CLI tools) | ✅ | see [§4.5](#45-updating--backups) |
-| **Partners strip** (full-width panel above the footer, logos scroll right → left, hideable in Admin → Panels) | ✅ | Admin → Partners |
+| Update/migration runner UI | ⏳ | planned |
 
 ---
 
@@ -180,22 +179,11 @@ Re-installing intentionally requires deleting `config/installed.lock` **and** re
 - Review **Admin → Settings → Layout** to choose side panels.
 - Assign Administrator/Moderator roles under **Admin → Users**.
 
-### 4.5 Updating & backups
+### 4.5 Updating *(planned)*
 
-**Admin → Backups & updates** (superadministrator only; permission `admin.system`).
+Upload new files over old ones, open `/admin/update`. Versioned SQL migrations in `migrations/` run in order; the applied version is tracked in `mcms_meta`.
 
-*Backups*
-- **Back up now** creates `backups/db-<time>-<label>.sql.gz` (every table of this installation, streamed, one statement per line, completeness marker). Tick *Include uploads* for one `full-….zip` with database + `uploads/`.
-- **Restore** replaces the whole database with a chosen backup after you type `RESTORE`; a safety backup of the current state is made first and put back automatically if the restore fails. Full backups also merge their uploads back. Uploaded backups are verified (MagicCMS header, same table prefix, not from a newer schema, complete).
-- **Automatic**: every N days (default 7, 0 = off) when a superadmin opens the admin area – the dump runs after the page was sent. Keep the newest N (default 10); safety backups from updates/restores are kept separately (newest 5). For exact schedules use cron: `php tools/backup.php [--uploads]`.
-- Backups are private data (hashed passwords, messages). The `backups/` folder gets a deny-all `.htaccess`; on nginx the sample config blocks it. Put it outside the web root with `app.backup_dir` in `config/config.php` if you can.
-
-*Updates* – never touch your settings, content, uploads or config
-1. Get a release package (`MagicCMS-x.y.z.zip`, built with `php tools/build-release.php`, or use **Check for updates**, which reads the GitHub release feed over HTTPS and verifies a published `.sha256`).
-2. **Review**: the package is validated *before* anything changes – `release.json`, allowed code folders only (never `config/`, `uploads/`, `cache/`, `backups/`, `setup.php`), allowed file types, no symlinks/path tricks/hidden files, per-file SHA-256, PHP syntax of every file, version not older than installed, PHP version/extensions, free disk space, writable targets. Customised bundled files are listed.
-3. **Install** (type `UPDATE`): database backup → copy of every file that will be replaced (`backups/code-<ver>-<time>.zip`) → maintenance mode → atomic file replacement → the new code runs the **database migrations** on the next request → maintenance mode back to what it was. If anything fails – including a migration – code **and** database are rolled back automatically. Your own themes/plugins (anything not in the package) are never touched; put customisations in a child theme or plugin.
-4. **Undo the last update** restores code and database from the pre-update backups.
-CLI: `php tools/update.php package.zip`, `php tools/update.php --rollback`.
+---
 
 ## 5. Project structure
 
@@ -636,7 +624,7 @@ Found a vulnerability? Please report it privately to the maintainers rather than
 
 MagicCMS themes are **self-contained folders** that define a design via **CSS variables (design tokens)** and, if needed, **template overrides**. A theme can be a 30-line colour swap or a total redesign.
 
-The default theme **Magic Red** (v1.1 "smoked glass") is: **frosted, tinted glass panels** (backdrop blur + saturation, fine film grain, a 1 px lit edge that is bright top-left and warm at the far corner, asymmetric corner radii, and ripples of light radiating from a different corner of each panel); **glossy, translucent title lenses** in a condensed display face (Big Shoulders Display) with a sheared right edge, brushed texture, echo arcs and a glass-bead icon, whose colour bleeds into the panel below; one orchestrated sheen sweep at page load (then on hover). The older base look: warm-black surfaces with drifting aurora glows, a masked grid and film grain; frosted-glass cards with large rounded corners; **glossy gradient title bars** with a slow shine sweep; a pill-group navigation whose active item is a glossy gradient; Unbounded display type over Inter body text (both self-hosted); live stat tiles and a gradient hero on the home page — all CSS-only (GPU-friendly transforms/opacity), respecting `prefers-reduced-motion` and the admin's animation setting ("Off" also drops the blur effects for slow devices). It includes a **light variant** (`[data-theme="light"]`) and honours the **admin colour scheme** overrides (see [§11](#11-appearance-lightdark-mode--colour-schemes)).
+The default theme **Magic Red** ("Ember" look) is: warm-black surfaces with drifting aurora glows, a masked grid and film grain; frosted-glass cards with large rounded corners; **glossy gradient title bars** with a slow shine sweep; a pill-group navigation whose active item is a glossy gradient; Unbounded display type over Inter body text (both self-hosted); live stat tiles and a gradient hero on the home page — all CSS-only (GPU-friendly transforms/opacity), respecting `prefers-reduced-motion` and the admin's animation setting ("Off" also drops the blur effects for slow devices). It includes a **light variant** (`[data-theme="light"]`) and honours the **admin colour scheme** overrides (see [§11](#11-appearance-lightdark-mode--colour-schemes)).
 
 👉 **Full guide, including an AI prompt template: [`docs/THEMING.md`](docs/THEMING.md)**
 

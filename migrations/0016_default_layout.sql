@@ -1,0 +1,2 @@
+-- Default layout is now ONE column of panels on the right; the Account panel is off (login lives in the header)
+-- (data changes are done in 0016_default_layout.php)

@@ -51,7 +51,6 @@ final class Events
     public static function rsvp(array $e, int $userId, string $wanted): string
     {
         return db()->transaction(function () use ($e, $userId, $wanted) {
-            db()->val('SELECT id FROM {events} WHERE id = ? FOR UPDATE', [$e['id']]); // capacity must not be oversold by parallel requests
             $cur = db()->val('SELECT status FROM {event_signups} WHERE event_id = ? AND user_id = ?', [$e['id'], $userId]);
             $going = (int) db()->val("SELECT COUNT(*) FROM {event_signups} WHERE event_id = ? AND status = 'going'", [$e['id']]);
             $status = $wanted;
