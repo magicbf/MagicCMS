@@ -1,0 +1,13 @@
+{
+  "name": "Crystallic",
+  "slug": "crystallic",
+  "version": "1.1.0",
+  "author": "MagicCMS Theme Studio",
+  "description": "Silver crystal glass: cut-corner facets, prismatic edges, drifting crystal shards, glowing gem icons and twinkling sparks. Rectangular and sharp, dark and light. Builds on Magic Red.",
+  "requires": "0.1",
+  "parent": "magic-red",
+  "stylesheets": ["tokens.css", "theme.css"],
+  "scripts": [],
+  "defaults": { "scheme": "crystal", "radius": 0, "mode": "dark" },
+  "supports": { "darkLight": true, "panels": ["left", "right"] }
+}

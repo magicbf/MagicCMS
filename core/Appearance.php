@@ -28,6 +28,7 @@ final class Appearance
         'aurora' => ['Aurora', ['primary' => '#3d5afe', 'primary_hi' => '#6c8cf5', 'primary_lo' => '#1e36b8', 'accent' => '#ff9a6b', 'on_primary' => '#ffffff']],
         'mint' => ['Mint', ['primary' => '#69dcbe', 'primary_hi' => '#8bf5e2', 'primary_lo' => '#2f8f78', 'accent' => '#8bf5e2', 'on_primary' => '#0a0d10']],
         'nebula' => ['Nebula', ['primary' => '#7b4dff', 'primary_hi' => '#ff2fb9', 'primary_lo' => '#3b1c9e', 'accent' => '#3aa0ff', 'on_primary' => '#ffffff']],
+        'crystal' => ['Crystal', ['primary' => '#a0a8b8', 'primary_hi' => '#e8edf5', 'primary_lo' => '#5a6270', 'accent' => '#7eb8da', 'on_primary' => '#0e1018']],
         'mono' => ['Mono', ['primary' => '#d4d4dc', 'primary_hi' => '#ffffff', 'primary_lo' => '#5d5d68', 'accent' => '#a0a0aa', 'on_primary' => '#0b0b0d']],
     ];
 
