@@ -224,6 +224,17 @@ Each category-coloured element gets `style="--cat-color:#hex"` — use `var(--ca
 ### Mode toggle
 `.mode-toggle` (button), with `[data-theme]` on `<html>`.
 
+### 4.1 Header styles – what themes must tolerate
+
+The site setting `layout.header` (classic / inline / hanging / float / rail, see README §9) changes the **markup around** the menu, brand and account area, not their inner markup. `<html>` carries `data-header` and `data-rhythm`. To stay compatible a theme should:
+
+- style `.site-nav`, `.nav-btn`, `.brand`, `.header-actions`, `.header-user` independent of their wrapper (never assume `.site-navbar` is the parent – it only exists in `classic`);
+- not set `overflow:hidden` on `.site-header` with a specificity that beats `.site-header.hd-inline` / `.hd-hanging` / `.hd-float` (dropdown menus live inside the header in those styles) – core.css already overrides the common cases;
+- use tokens (`--glass`, `--glass-border`, `--shadow`, `--c-bg-2`) for backgrounds: the new wrappers (`.hd-badge`, `.hd-island`, `.site-rail`) paint themselves with them;
+- keep nav items able to shrink: the compact slots (`.hd-inline`, `.hd-bar`, `.hd-i-nav`) set `flex:0 1 auto` on `.nav-item`.
+
+A theme may restyle the wrappers (`.hd-badge`, `.hd-island`, `.site-rail`, `.hd-bar`) for extra polish – all three bundled child themes work with the defaults.
+
 ## 5. Template overrides (optional)
 
 Place a file with the same name in `themes/<slug>/templates/` to replace the core one. Templates are plain PHP. **Always escape output with `e()`**.

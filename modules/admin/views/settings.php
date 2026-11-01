@@ -20,6 +20,19 @@
   <?php $unv = (int) db()->val('SELECT COUNT(*) FROM {users} WHERE email_verified_at IS NULL'); if ($unv): ?><small class="help"><?= e(t('{n} existing account(s) are unverified and would have to confirm their address first (you can mark them verified in Admin → Users).', ['n' => $unv])) ?></small><?php endif ?>
   <label class="checkbox"><input type="checkbox" name="logo_show_name" value="1" <?= setting('site.logo_show_name', true) ? 'checked' : '' ?>> <?= e(t('Show the site name next to a custom logo')) ?></label>
   <label class="checkbox"><input type="checkbox" name="maintenance" value="1" <?= setting('site.maintenance') ? 'checked' : '' ?>> <?= e(t('Maintenance mode (only staff can see the site)')) ?></label>
+  <h3 class="section-title"><?= e(t('Header & layout style')) ?></h3>
+  <p class="muted"><?= e(t('Rearranges logo, menu and account area. Works with every theme – the theme still decides colours, shapes and fonts.')) ?></p>
+  <div class="hs-picker" role="radiogroup" aria-label="<?= e(t('Header style')) ?>">
+  <?php foreach (MagicCMS\Core\Layout::HEADERS as $k => $label): [$name, $desc] = array_pad(explode(' – ', $label, 2), 2, ''); ?>
+    <label class="hs-opt"><input type="radio" name="layout_header" value="<?= e($k) ?>" <?= MagicCMS\Core\Layout::header() === $k ? 'checked' : '' ?>>
+      <span class="hs-mini hs-<?= e($k) ?>" aria-hidden="true"><i class="lg"></i><i class="mn"></i><i class="ac"></i><i class="bd"></i></span>
+      <b><?= e(t($name)) ?></b><small><?= e(t($desc)) ?></small></label>
+  <?php endforeach ?>
+  </div>
+  <div class="form-grid">
+    <div class="form-row"><label class="label"><?= e(t('Rhythm')) ?></label><select class="select" name="layout_rhythm"><?php foreach (MagicCMS\Core\Layout::RHYTHMS as $k => $l): ?><option value="<?= e($k) ?>" <?= MagicCMS\Core\Layout::rhythm() === $k ? 'selected' : '' ?>><?= e(t($l)) ?></option><?php endforeach ?></select><small class="help"><?= e(t('Staggered offsets the sidebars and gives the page a less rigid look (wide screens only).')) ?></small></div>
+    <div class="form-row"><label class="label"><?= e(t('Sides')) ?></label><label class="checkbox"><input type="checkbox" name="layout_mirror" value="1" <?= setting('layout.mirror') ? 'checked' : '' ?>> <?= e(t('Mirror the side panels (left ↔ right)')) ?></label></div>
+  </div>
   <p><button class="btn btn-primary"><?= e(t('Save settings')) ?></button></p>
 </div></form>
 

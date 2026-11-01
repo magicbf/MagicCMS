@@ -42,6 +42,12 @@ final class Appearance
             Settings::set('appearance.scheme', $d['scheme']);
             $changed[] = t('colour scheme “{n}”', ['n' => self::PRESETS[$d['scheme']][0]]);
         }
+        foreach (['header' => Layout::HEADERS, 'rhythm' => Layout::RHYTHMS] as $k => $opts) {
+            if (isset($d[$k]) && isset($opts[$d[$k]])) {
+                Settings::set('layout.' . $k, $d[$k]);
+                $changed[] = t('{what} “{n}”', ['what' => $k === 'header' ? t('header style') : t('layout rhythm'), 'n' => $d[$k]]);
+            }
+        }
         if (isset($d['mode']) && in_array($d['mode'], ['dark', 'light', 'auto'], true)) {
             Settings::set('appearance.mode_default', $d['mode']);
             $changed[] = t('default mode “{n}”', ['n' => $d['mode']]);

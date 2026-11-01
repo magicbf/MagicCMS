@@ -1,10 +1,13 @@
-<?php /** @var array $layout */ $u = user(); $custom = has_custom_logo(); $showName = !$custom || setting('site.logo_show_name', true); ?>
-<header class="site-header" id="top">
-  <div class="container header-top">
-    <a class="brand brand-xl" href="<?= e(url('')) ?>">
+<?php /** @var array $layout */ $u = user(); $custom = has_custom_logo(); $showName = !$custom || setting('site.logo_show_name', true);
+$style = MagicCMS\Core\Layout::header();
+$navItems = MagicCMS\Core\Nav::tree('main');
+$brandHtml = static function (string $extra = '') use ($custom, $showName): string { ob_start(); ?>
+<a class="brand brand-xl<?= $extra ? ' ' . e($extra) : '' ?>" href="<?= e(url('')) ?>">
       <img class="<?= $custom ? 'brand-logo' : 'brand-mark' ?>" src="<?= e(site_logo()) ?>" alt="<?= !$showName ? e(setting('site.name', 'MagicCMS')) : '' ?>" height="64"<?= $custom ? '' : ' width="64"' ?>>
       <?php if ($showName): ?><span class="brand-text"><b class="brand-name"><?= e(setting('site.name', 'MagicCMS')) ?></b><?php if ((string) setting('site.tagline', '') !== ''): ?><small class="brand-sub"><?= e(setting('site.tagline')) ?></small><?php endif ?></span><?php endif ?>
     </a>
+<?php return (string) ob_get_clean(); };
+$actionsHtml = static function () use ($layout, $u): string { ob_start(); ?>
     <div class="header-actions">
       <?php if ($layout['left']): ?><button class="icon-btn drawer-toggle" data-drawer="left" aria-label="<?= e(t('Open left panels')) ?>" aria-controls="drawer-left">◧</button><?php endif ?>
       <?php if ($layout['right']): ?><button class="icon-btn drawer-toggle" data-drawer="right" aria-label="<?= e(t('Open right panels')) ?>" aria-controls="drawer-right">◨</button><?php endif ?>
@@ -19,12 +22,61 @@
         <?php if (setting('auth.registration', 'open') !== 'closed'): ?><a class="btn btn-primary hide-mobile" href="<?= e(url('register')) ?>"><?= e(t('Register')) ?></a><?php endif ?>
       <?php endif ?>
     </div>
+<?php return (string) ob_get_clean(); };
+$classic = static function (string $wrap = '') use ($brandHtml, $actionsHtml, $navItems): string { ob_start(); ?>
+<?= $wrap ? '<div class="' . e($wrap) . '">' : '' ?>
+<header class="site-header" id="top">
+  <div class="container header-top">
+    <?= $brandHtml() ?>
+    <?= $actionsHtml() ?>
   </div>
 </header>
 <div class="nav-sentinel" aria-hidden="true"></div>
 <div class="site-navbar">
   <div class="container navbar-inner">
     <a class="nav-mini-brand" href="<?= e(url('')) ?>" aria-label="<?= e(setting('site.name', 'MagicCMS')) ?>"><img src="<?= e(site_logo()) ?>" alt="" height="30"></a>
-    <?= render('nav', ['items' => MagicCMS\Core\Nav::tree('main'), 'class' => 'site-nav']) ?>
+    <?= render('nav', ['items' => $navItems, 'class' => 'site-nav']) ?>
   </div>
 </div>
+<?= $wrap ? '</div>' : '' ?>
+<?php return (string) ob_get_clean(); };
+
+switch ($style):
+  case 'inline': ?>
+<header class="site-header hd-inline" id="top">
+  <div class="container hd-row">
+    <?= $brandHtml() ?>
+    <?= render('nav', ['items' => $navItems, 'class' => 'site-nav']) ?>
+    <?= $actionsHtml() ?>
+  </div>
+</header>
+<?php break;
+  case 'hanging': ?>
+<header class="site-header hd-hanging" id="top">
+  <div class="container hd-stage">
+    <div class="hd-badge"><?= $brandHtml('hd-brand') ?></div>
+    <div class="hd-top"><?= $actionsHtml() ?></div>
+    <div class="hd-bar"><?= render('nav', ['items' => $navItems, 'class' => 'site-nav']) ?></div>
+  </div>
+</header>
+<?php break;
+  case 'float': ?>
+<header class="site-header hd-float" id="top">
+  <div class="container hd-islands">
+    <div class="hd-island hd-i-brand"><?= $brandHtml() ?></div>
+    <div class="hd-island hd-i-nav"><?= render('nav', ['items' => $navItems, 'class' => 'site-nav']) ?></div>
+    <div class="hd-island hd-i-act"><?= $actionsHtml() ?></div>
+  </div>
+</header>
+<?php break;
+  case 'rail': ?>
+<aside class="site-rail" aria-label="<?= e(t('Site')) ?>">
+  <div class="rail-brand"><?= $brandHtml() ?></div>
+  <div class="rail-nav"><?= render('nav', ['items' => $navItems, 'class' => 'site-nav nav-vertical']) ?></div>
+  <div class="rail-actions"><?= $actionsHtml() ?></div>
+</aside>
+<?= $classic('hd-rail-mobile') ?>
+<?php break;
+  default: ?>
+<?= $classic() ?>
+<?php endswitch ?>

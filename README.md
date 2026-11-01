@@ -356,6 +356,20 @@ Configured in **Admin → Settings → Layout** and overridable **per page/modul
 
 Examples: show both sidebars on the home page, but use *none* on the forum for maximum width, and *right* on news articles.
 
+### Header & layout styles (Admin → Settings)
+
+One site setting rearranges the logo, menu and account area – and it works with **every theme**, because the styles only move things around (structure in `assets/core.css`); colours, shapes and fonts still come from the theme's tokens.
+
+| Style (`layout.header`) | Arrangement |
+|---|---|
+| `classic` (default) | Tall logo row on top, full-width sticky menu bar below |
+| `inline` | **Compact**: logo · menu · account in one slim, sticky bar |
+| `hanging` | **Hanging logo**: an oversized logo badge hangs off the left edge; the menu bar is offset to the right under a floating account cluster – deliberately asymmetric |
+| `float` | **Floating islands**: three detached glass islands (logo, menu, account) at different heights; the bar stays sticky while scrolling |
+| `rail` | **Side rail** (≥ 1360 px): fixed vertical menu with the logo on top and the account area at the bottom; narrower screens fall back to the classic header |
+
+Two more switches: **Rhythm** (`layout.rhythm`: `even` / `stagger` – staggered offsets the sidebars, alternates panel insets and lifts every second stat tile, wide screens only) and **Mirror the side panels** (`layout.mirror`, swaps left ↔ right). All header styles collapse to a burger menu on phones. Themes can recommend a style with `"defaults": {"header": "hanging", "rhythm": "stagger"}` in `theme.json`.
+
 ### Panel management (Admin → Panels)
 
 - **Enable/disable/remove** any panel with one click.
@@ -747,6 +761,9 @@ Key settings:
 |---|---|---|
 | `site.name` | `MagicCMS` | Site title |
 | `layout.mode` | `both` | `none` / `left` / `right` / `both` |
+| `layout.header` | `classic` | `classic` / `inline` / `hanging` / `float` / `rail` |
+| `layout.rhythm` | `even` | `even` / `stagger` |
+| `layout.mirror` | `false` | Swap left/right side panels |
 | `theme.active` | `magic-red` | Active theme slug |
 | `appearance.mode_default` | `dark` | `dark` / `light` / `auto` |
 | `appearance.allow_user_mode` | `1` | Let users switch light/dark |

@@ -132,3 +132,125 @@ form.inline{display:inline;margin:0}
 .powered{display:inline-flex;align-items:center;gap:.45rem}
 @media (max-width:899.98px){.footer-grid{grid-template-columns:1fr 1fr}.fbrand{grid-column:1/-1}}
 @media (max-width:520px){.footer-grid{grid-template-columns:1fr}}
+
+/* =====================================================================
+   Header / layout styles (setting layout.header, layout.rhythm).
+   Structure only: colours come from the theme's tokens, so every theme works with every style.
+   ===================================================================== */
+.site-header.hd-inline,.site-header.hd-hanging,.site-header.hd-float{overflow:visible}   /* dropdown menus live inside these headers */
+.site-rail{display:none}
+
+/* --- Compact: one slim sticky bar ------------------------------------ */
+.site-header.hd-inline{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--c-bg) 84%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.hd-row{display:flex;align-items:center;gap:var(--gap,20px);min-height:68px;padding-block:8px}
+.hd-inline .brand-xl .brand-mark,.hd-inline .brand-xl .brand-logo{width:auto;height:42px}
+.hd-inline .brand-xl .brand-name{font-size:18px;letter-spacing:.02em}
+.hd-inline .brand-sub{display:none}
+.hd-inline .site-nav{flex:1;min-width:0}
+.hd-inline .header-actions{margin-left:0}
+.hd-inline .hu-text{display:none}
+
+/* --- Hanging logo: oversized badge hangs off an offset menu bar ------- */
+.site-header.hd-hanging{position:relative;z-index:30}
+.hd-stage{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;column-gap:calc(var(--gap,20px) * 1.2);row-gap:6px;padding-top:10px;align-items:center}
+.hd-badge{grid-column:1;grid-row:1 / span 2;align-self:start;position:relative;z-index:5;margin-bottom:-26px;padding:16px 22px 20px 18px;background:var(--c-bg-2);border:1px solid var(--glass-border,transparent);border-top:0;border-radius:0 0 var(--radius-lg,24px) var(--radius-lg,24px);box-shadow:var(--shadow,0 14px 30px rgba(0,0,0,.3))}
+.hd-badge .brand{flex-direction:column;align-items:flex-start;gap:10px}
+.hd-badge .brand-mark,.hd-badge .brand-logo{width:auto;height:92px;max-width:180px;object-fit:contain}
+.hd-badge .brand-text{gap:4px}
+.hd-top{grid-column:2;grid-row:1;justify-self:end}
+.hd-top .header-actions{margin-left:0}
+.hd-bar{grid-column:2;grid-row:2;min-width:0;margin-left:clamp(0px,4vw,56px)}
+.hd-bar .site-nav{flex:none;width:100%}
+.hd-top .hu-text{display:none}
+
+/* --- Floating islands: detached, sticky, deliberately uneven ---------- */
+.site-header.hd-float{position:sticky;top:10px;z-index:50;background:none;border:0;box-shadow:none;padding-top:12px;pointer-events:none}
+.site-header.hd-float::before,.site-header.hd-float::after{display:none}
+.hd-islands{display:flex;align-items:flex-start;gap:14px;pointer-events:none}
+.hd-island{pointer-events:auto;background:var(--glass,var(--c-surface));border:1px solid var(--glass-border,transparent);border-radius:var(--radius-lg,24px);box-shadow:var(--shadow,0 14px 30px rgba(0,0,0,.3));-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);padding:8px 14px}
+.hd-i-brand{flex:none;padding:8px 18px 8px 10px}
+.hd-i-brand .brand-xl .brand-mark,.hd-i-brand .brand-xl .brand-logo{height:44px;width:auto}
+.hd-i-brand .brand-xl .brand-name{font-size:18px}
+.hd-i-brand .brand-sub{display:none}
+.hd-i-nav{flex:1;min-width:0;margin-top:16px;padding:4px}
+.hd-i-act{flex:none;margin-top:4px;padding:6px 10px}
+.hd-i-act .header-actions{margin-left:0}
+.hd-i-act .hu-text{display:none}
+.hd-i-nav .site-nav .nav-list{background:none!important;border:0!important;box-shadow:none!important;padding:0!important;backdrop-filter:none!important}
+.hd-i-nav .site-nav{flex:none;width:100%}
+
+/* --- Side rail (wide screens; smaller screens keep the classic header) -- */
+.hd-rail-mobile{display:block}
+@media (min-width:1360px){
+  html[data-header="rail"]{--rail-w:236px;--sidebar-w:250px}
+  html[data-header="rail"] body.mcms{padding-left:var(--rail-w)}
+  html[data-header="rail"] .hd-rail-mobile{display:none}
+  html[data-header="rail"] .site-rail{display:flex;flex-direction:column;gap:20px;position:fixed;left:0;top:0;bottom:0;width:var(--rail-w);padding:24px 16px 18px;overflow-y:auto;z-index:55;background:var(--c-bg-2);border-right:1px solid var(--glass-border,var(--c-border))}
+  .site-rail .brand{flex-direction:column;align-items:flex-start;gap:10px}
+  .site-rail .brand-mark,.site-rail .brand-logo{width:auto;height:72px;max-width:100%;object-fit:contain}
+  .site-rail .rail-nav{flex:1;min-height:0}
+  .site-rail .site-nav{flex:none}
+  .site-rail .nav-vertical .nav-list{gap:4px;background:none;border:0;box-shadow:none;padding:0}
+  .site-rail .nav-vertical .nav-btn{justify-content:flex-start;width:100%}
+  .site-rail .nav-sub{padding-left:.8rem}
+  .site-rail .rail-actions{border-top:1px solid var(--glass-border,var(--c-border));padding-top:16px}
+  .site-rail .header-actions{flex-wrap:wrap;margin:0;gap:.5rem}
+  .site-rail .header-user{width:100%}
+  .site-rail .header-actions>.btn{flex:1 1 auto}
+  .site-rail .drawer-toggle{display:none!important}
+}
+
+/* nav items in the narrower header slots: size to content instead of stretching */
+.hd-inline .site-nav:not(.nav-vertical) .nav-item,.hd-bar .site-nav:not(.nav-vertical) .nav-item,.hd-i-nav .site-nav:not(.nav-vertical) .nav-item{flex:0 1 auto;max-width:none}
+.hd-inline .site-nav:not(.nav-vertical) .nav-btn,.hd-bar .site-nav:not(.nav-vertical) .nav-btn,.hd-i-nav .site-nav:not(.nav-vertical) .nav-btn{padding-inline:13px;font-size:13px;min-height:40px}
+.hd-inline .site-nav:not(.nav-vertical) .nav-list,.hd-bar .site-nav:not(.nav-vertical) .nav-list,.hd-i-nav .site-nav:not(.nav-vertical) .nav-list{justify-content:center}
+.hd-badge{max-width:min(320px,34vw)}
+.hd-badge .brand-xl .brand-name{font-size:20px;white-space:normal;line-height:1.1}
+.hd-badge .brand-sub{white-space:normal}
+.site-rail .brand-xl .brand-name{font-size:20px;white-space:normal;line-height:1.1}
+.site-rail .brand-sub{white-space:normal}
+
+/* --- Responsive for the new headers ---------------------------------- */
+@media (max-width:899.98px){
+  .hd-row{flex-wrap:wrap;min-height:60px}
+  .hd-inline .site-nav{order:3;flex-basis:100%}
+  .hd-inline .header-actions{margin-left:auto}
+  .hd-stage{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px}
+  .hd-badge{grid-column:auto;margin:0;max-width:none;padding:8px 14px;border-radius:0 0 var(--radius,16px) var(--radius,16px)}
+  .hd-badge .brand{flex-direction:row;align-items:center}
+  .hd-badge .brand-mark,.hd-badge .brand-logo{height:46px}
+  .hd-top{margin:0}
+  .hd-bar{flex:1 1 100%;margin-left:0}
+  .hd-islands{flex-wrap:wrap}
+  .hd-i-brand{flex:1 1 auto}.hd-i-act{margin-top:0}
+  .hd-i-nav{order:3;flex-basis:100%;margin-top:0}
+}
+
+/* --- Rhythm: staggered (wide screens only, sidebars stay drawers below) -- */
+@media (min-width:1100px){
+  html[data-rhythm="stagger"] .col-left{margin-top:34px}
+  html[data-rhythm="stagger"] .col-right{margin-top:-4px}
+  html[data-rhythm="stagger"] .col-left>.panel:nth-child(odd){margin-right:20px}
+  html[data-rhythm="stagger"] .col-left>.panel:nth-child(even){margin-left:16px}
+  html[data-rhythm="stagger"] .col-right>.panel:nth-child(odd){margin-left:20px}
+  html[data-rhythm="stagger"] .col-right>.panel:nth-child(even){margin-right:16px;margin-top:6px}
+  html[data-rhythm="stagger"] .stat-grid>:nth-child(even){transform:translateY(12px)}
+  html[data-rhythm="stagger"] .stat-grid{margin-bottom:calc(var(--gap,20px) + 12px)}
+  html[data-rhythm="stagger"] .col-main>.card:nth-of-type(even){margin-left:28px}
+}
+
+/* --- Admin picker miniatures ---------------------------------------- */
+.hs-picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin:.4rem 0 1rem}
+.hs-opt{display:flex;flex-direction:column;gap:8px;padding:10px;border:1px solid var(--glass-border,var(--c-border));border-radius:var(--radius,12px);cursor:pointer;background:var(--c-surface)}
+.hs-opt:has(input:checked){border-color:var(--c-primary);box-shadow:0 0 0 1px var(--c-primary)}
+.hs-opt input{position:absolute;opacity:0;pointer-events:none}
+.hs-opt b{font-size:13px}.hs-opt small{color:var(--c-text-dim);line-height:1.35}
+.hs-mini{position:relative;height:78px;border-radius:8px;background:color-mix(in srgb,var(--c-text) 6%,var(--c-bg));overflow:hidden}
+.hs-mini i{position:absolute;display:block;border-radius:3px;background:color-mix(in srgb,var(--c-text) 22%,transparent)}
+.hs-mini .lg{background:var(--c-primary)}.hs-mini .mn{background:color-mix(in srgb,var(--c-primary) 45%,transparent)}
+.hs-classic .lg{left:6px;top:5px;width:16px;height:14px}.hs-classic .ac{right:6px;top:7px;width:30px;height:9px}.hs-classic .mn{left:6px;right:6px;top:24px;height:9px}.hs-classic .bd{left:6px;right:6px;top:40px;height:32px}
+.hs-inline .lg{left:6px;top:6px;width:14px;height:12px}.hs-inline .mn{left:26px;right:46px;top:8px;height:8px}.hs-inline .ac{right:6px;top:8px;width:34px;height:8px}.hs-inline .bd{left:6px;right:6px;top:26px;height:46px}
+.hs-hanging .lg{left:6px;top:0;width:24px;height:34px;border-radius:0 0 6px 6px}.hs-hanging .ac{right:6px;top:5px;width:26px;height:7px}.hs-hanging .mn{left:40px;right:12px;top:18px;height:9px}.hs-hanging .bd{left:6px;right:6px;top:42px;height:30px}
+.hs-float .lg{left:6px;top:6px;width:22px;height:13px;border-radius:7px}.hs-float .mn{left:34px;right:40px;top:12px;height:12px;border-radius:7px}.hs-float .ac{right:6px;top:6px;width:28px;height:11px;border-radius:7px}.hs-float .bd{left:6px;right:6px;top:34px;height:38px}
+.hs-rail .lg{left:5px;top:6px;width:20px;height:14px}.hs-rail .mn{left:5px;top:26px;width:20px;height:34px}.hs-rail .ac{left:5px;bottom:5px;width:20px;height:8px}.hs-rail .bd{left:32px;right:6px;top:6px;bottom:6px}
+.hs-rhythm{display:flex;gap:12px;flex-wrap:wrap;margin:.4rem 0 1rem}

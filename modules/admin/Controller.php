@@ -60,6 +60,9 @@ final class Controller
             Settings::set('site.timezone', $tz);
         }
         Settings::set('layout.mode', self::pick((string) input('layout_mode'), Layout::MODES, 'both'));
+        Settings::set('layout.header', self::pick((string) input('layout_header'), array_keys(Layout::HEADERS), 'classic'));
+        Settings::set('layout.rhythm', self::pick((string) input('layout_rhythm'), array_keys(Layout::RHYTHMS), 'even'));
+        Settings::set('layout.mirror', !empty($_POST['layout_mirror']));
         Settings::set('auth.registration', self::pick((string) input('registration'), ['open', 'approval', 'closed'], 'open'));
         Settings::set('upload.avatar_max_mb', max(1, min(5, (int) input('avatar_mb', 5))));
         Settings::set('online.window_min', max(1, min(60, (int) input('online_min', 5))));
