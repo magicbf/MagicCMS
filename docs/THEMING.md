@@ -123,6 +123,37 @@ All tokens are defined on `:root`. **Never hard-code colours in `theme.css`; use
 
 Changing only these values re-skins the entire CMS.
 
+### 3.1 Light & dark mode
+
+Core sets `data-theme="dark"` or `data-theme="light"` on `<html>` (resolved from the user's choice, the admin default, or `prefers-color-scheme` for `auto`) **before first paint**. Dark tokens live on `:root`; a theme that supports both **must** also define the light overrides:
+
+```css
+:root[data-theme="light"] {
+  --c-bg:#f5f5f7; --c-bg-2:#ffffff; --c-surface:#ffffff; --c-surface-2:#f0f0f3;
+  --c-border:#dcdce2; --c-text:#17171c; --c-text-dim:#5a5a66;
+  --shadow:0 6px 18px rgba(20,20,30,.12);
+  --glow:0 0 0 1px var(--c-primary), 0 0 18px rgba(225,6,19,.25);
+  color-scheme: light;
+}
+```
+
+Rules: never hard-code colours (use tokens) so both modes work; brand colours may stay the same; set `"darkLight": true` in `theme.json`. Style mode-specific details with `[data-theme="light"] .selector`. The toggle button is `.mode-toggle` (core JS flips the attribute and saves the preference).
+
+### 3.2 Admin colour-scheme overrides
+
+Admins can choose a preset or custom colours in **Admin → Appearance**. Core stores them and emits, *after* all theme stylesheets:
+
+```html
+<style id="mcms-scheme">
+:root{--c-primary:#2f6bff;--c-primary-hi:#6e9bff;--c-primary-lo:#0a2a7a;--radius:12px}
+:root[data-theme="light"]{--c-primary:#1f56e0}
+</style>
+```
+
+Overridable tokens: `--c-primary`, `--c-primary-hi`, `--c-primary-lo`, `--c-accent`, `--c-bg`, `--c-bg-2`, `--c-surface`, `--c-surface-2`, `--c-border`, `--c-text`, `--c-text-dim`, `--radius*`, `--font-*`, and the motion level (`<html data-motion="off|subtle|full">`).
+
+**Consequence for theme authors:** derive gradients, glows and shadows from tokens (`color-mix(in srgb, var(--c-primary) 45%, transparent)` for translucent variants) instead of hard-coded RGB, so scheme changes recolour everything. Honour `[data-motion="off"]` by disabling animations.
+
 ## 4. Required CSS class contract
 
 MagicCMS core markup uses stable, BEM-ish class names. A theme **should style at least these** (anything unstyled falls back to the parent/default theme):
@@ -160,6 +191,29 @@ Selectors: `.panel`, `.panel-title`, `.panel-body`, `.panel-toggle`, `.panel.is-
 ### Chat
 `.chat`, `.chat-log`, `.chat-msg`, `.chat-input`
 
+### Navigation (menu builder output)
+```html
+<nav class="site-nav" aria-label="Main">
+  <button class="nav-burger" aria-expanded="false"></button>
+  <ul class="nav-list">
+    <li class="nav-item is-active"><a class="nav-btn" href="/news"><i class="icon"></i><span>News</span><b class="nav-badge">3</b></a></li>
+    <li class="nav-item has-sub"><a class="nav-btn" href="#">Team</a>
+      <ul class="nav-sub"><li><a class="nav-btn nav-btn-sub" href="/team">Roster</a></li></ul></li>
+  </ul>
+</nav>
+```
+Selectors: `.nav-list`, `.nav-item`, `.nav-btn`, `.nav-btn-sub`, `.nav-sub`, `.nav-badge`, `.nav-burger`, `.is-active`, `.is-open`. The `<html>` carries `data-nav-style="gradient|solid|outline|glass"` and `data-nav-fx="shine|glow|lift|none"` (admin choice) — style each combination. Items may carry an inline `--btn-color` override: use `background: var(--btn-color, var(--g-primary))`.
+
+### Hero
+`.hero`, `.hero-slide`, `.hero-media`, `.hero-overlay`, `.hero-content`, `.hero-title`, `.hero-sub`, `.hero-cta` (contains `.btn`), `.hero-dots`, `.hero-arrow`. Modifiers: `.hero-compact|normal|full`, `.align-left|center|right`. Height via `--hero-h`, overlay via `--hero-overlay` (set inline by core).
+
+### News & categories
+`.news-grid`, `.news-card`, `.news-cover`, `.news-meta`, `.news-title`, `.news-excerpt`, `.news-featured`, `.cat-badge`, `.cat-banner`, `.tag`.
+Each category-coloured element gets `style="--cat-color:#hex"` — use `var(--cat-color, var(--c-primary))` for badges, borders and title-bar accents. Covers are `<img class="news-cover">` pointing to an uploaded image **or** a generated SVG (`/cover/<id>.svg`); style both identically (`object-fit:cover; aspect-ratio:16/9`).
+
+### Mode toggle
+`.mode-toggle` (button), with `[data-theme]` on `<html>`.
+
 ## 5. Template overrides (optional)
 
 Place a file with the same name in `themes/<slug>/templates/` to replace the core one. Templates are plain PHP. **Always escape output with `e()`**.
@@ -168,6 +222,9 @@ Place a file with the same name in `themes/<slug>/templates/` to replace the cor
 |---|---|---|
 | `layout.php` | Whole page shell | `$title`, `$content`, `$layoutMode`, `$panels` (`['left'=>[…],'right'=>[…]]`), `$user`, `$meta` |
 | `header.php` / `footer.php` | Chrome | `$user`, `$menu`, `$siteName` |
+| `nav.php` | Menu markup | `$items` (tree: `label,url,icon,badge,active,children,color`) |
+| `hero.php` | Hero banner | `$slides` (`headline,sub,media,cta[],overlay`), `$opts` |
+| `news-card.php` | News teaser | `$post` (`title,url,excerpt,cover,category{name,color,icon}`) |
 | `panel.php` | Panel wrapper | `$panel` (`key,title,collapsed`), `$html` |
 | `pagination.php`, `breadcrumb.php`, `alert.php` | Components | component-specific |
 
@@ -261,10 +318,10 @@ body.mcms {
 
 1. Create `themes/<slug>/`.
 2. Write `theme.json` (set `"parent": "magic-red"` unless building from scratch).
-3. Write `tokens.css` overriding tokens from §3 (colours first, then radius/fonts).
+3. Write `tokens.css` overriding tokens from §3 (colours first, then radius/fonts) — **dark and `[data-theme="light"]` variants** (§3.1).
 4. Optionally add `theme.css` for extra effects using only `var(--…)`.
 5. Style the class contract (§4) if not inheriting.
-6. Verify: 360px, 768px, 1280px; layouts `none/left/right/both`; forum page; a form; a table.
+6. Verify: dark + light mode, an admin-changed primary colour (§3.2), nav dropdowns, hero, news cards with and without covers; 360px, 768px, 1280px; layouts `none/left/right/both`; forum page; a form; a table.
 7. Verify contrast and reduced-motion (§7).
 8. Activate in **Admin → Themes** (or set `theme.active`).
 
@@ -277,7 +334,7 @@ You are creating a theme for MagicCMS. Read docs/THEMING.md fully.
 Create a theme named "<NAME>" with slug "<slug>".
 Mood/style: <e.g. cold cyberpunk, neon blue/purple on near-black, sharp 6px corners>.
 Use "parent": "magic-red" and override tokens (§3) first; add theme.css only for
-extra effects. Keep the class contract (§4), be responsive (§6), obey §7.
+extra effects. Provide dark AND light tokens (§3.1), derive all colours from tokens so admin colour schemes work (§3.2), keep the class contract (§4) incl. navigation, hero and news, be responsive (§6), obey §7.
 Output exactly these files, each in its own fenced code block labelled with its path:
 themes/<slug>/theme.json
 themes/<slug>/tokens.css

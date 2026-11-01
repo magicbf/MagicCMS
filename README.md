@@ -23,16 +23,20 @@
 7. [Database schema](#7-database-schema)
 8. [Users, roles & permissions](#8-users-roles--permissions)
 9. [Layout system & panels](#9-layout-system--panels)
-10. [Built-in panels & modules](#10-built-in-panels--modules)
-11. [Forum](#11-forum)
-12. [Avatars & uploads](#12-avatars--uploads)
-13. [Security](#13-security)
-14. [Theming](#14-theming)
-15. [Plugin / panel development](#15-plugin--panel-development)
-16. [Configuration reference](#16-configuration-reference)
-17. [Roadmap](#17-roadmap)
-18. [Brand & logo](#18-brand--logo)
-19. [License](#19-license)
+10. [Navigation & menu builder](#10-navigation--menu-builder)
+11. [Appearance: light/dark mode & colour schemes](#11-appearance-lightdark-mode--colour-schemes)
+12. [Hero module](#12-hero-module)
+13. [News & categories](#13-news--categories)
+14. [Built-in panels & modules](#14-built-in-panels--modules)
+15. [Forum](#15-forum)
+16. [Avatars & uploads](#16-avatars--uploads)
+17. [Security](#17-security)
+18. [Theming](#18-theming)
+19. [Plugin / panel development](#19-plugin--panel-development)
+20. [Configuration reference](#20-configuration-reference)
+21. [Roadmap](#21-roadmap)
+22. [Brand & logo](#22-brand--logo)
+23. [License](#23-license)
 
 ---
 
@@ -61,12 +65,14 @@ MagicCMS is a small, dependency-free content management system in the spirit of 
 - **Registration & login** with email verification (optional), password reset, "remember me"
 - **Roles & permissions**: Superadministrator, Administrator, Moderator, Member, Guest — plus custom roles
 - **Admin panel** for settings, users, content, layout, panels, themes, plugins
-- **Theme engine** with live theme switching and per-user theme preference (optional)
+- **Theme engine** with live theme switching, **user light/dark mode toggle** and an **admin colour-scheme editor** (presets + custom colours)
+- **Menu builder**: flashy gradient nav buttons, unlimited custom items, dropdowns, links to built-in modules, custom pages or external URLs
+- **Hero module**: configurable banner / slider / video / animated gradient with CTA buttons
 - **Plugin system** for panels, pages and widgets
 - **User profiles** with avatars, signature, bio, social links, game IDs (Steam, Discord, Battle.net, …)
 
 ### Built-in modules
-- 📰 **News** with categories, comments, featured posts
+- 📰 **News** with custom categories (colour, icon, picture or auto-generated abstract covers), tags, comments, featured posts
 - 🗨️ **Forum** (categories → boards → topics → posts) — phpBB-style
 - ⚔️ **Matches** — upcoming & recent results, opponents, maps, scores, VOD links
 - 👥 **Team / Roster** — players, roles, stats, social links
@@ -81,7 +87,7 @@ MagicCMS is a small, dependency-free content management system in the spirit of 
 - 🔎 **Site search**
 
 ### Built-in panels (sidebar widgets)
-`Login / User box` · `Navigation` · `Shoutbox / Chat` · `Recent Matches` · `Next Match countdown` · `Online Users` · `Latest Forum Topics` · `Latest News` · `Top Posters` · `Birthdays` · `Poll` · `Server Status` (game server query) · `Discord Widget` · `Twitch/YouTube Live` · `Sponsors` · `Site Stats` · `Custom HTML`
+`Hero` · `Login / User box` · `Navigation` · `Shoutbox / Chat` · `Recent Matches` · `Next Match countdown` · `Online Users` · `Latest Forum Topics` · `Latest News` · `Top Posters` · `Birthdays` · `Poll` · `Server Status` (game server query) · `Discord Widget` · `Twitch/YouTube Live` · `Sponsors` · `Site Stats` · `Custom HTML`
 
 ---
 
@@ -186,7 +192,7 @@ MagicCMS/
 ├── lang/                     # en.php, de.php, … (translations)
 ├── assets/                   # Core CSS/JS/images (logo.svg)
 ├── uploads/                  # avatars/, gallery/, downloads/  (non-executable!)
-├── cache/
+├── cache/                    # incl. covers/ (generated SVG covers)
 ├── migrations/
 └── docs/
     └── THEMING.md            # Complete theme guide (AI-friendly)
@@ -218,7 +224,7 @@ All tables use the configurable prefix (default `mcms_`), InnoDB, `utf8mb4_unico
 
 | Table | Purpose |
 |---|---|
-| `users` | id, username, email, password_hash, role_id, avatar, signature, bio, timezone, lang, theme, status (`active/pending/banned`), created_at, last_login, last_seen |
+| `users` | id, username, email, password_hash, role_id, avatar, signature, bio, timezone, lang, theme, theme_mode (`dark/light/auto`), status (`active/pending/banned`), created_at, last_login, last_seen |
 | `roles` | id, name, slug, level, is_system |
 | `permissions` / `role_permissions` | Granular permission keys (e.g. `forum.moderate`, `admin.users`) |
 | `sessions` | Optional DB sessions: id, user_id, ip, user_agent, last_activity |
@@ -227,9 +233,14 @@ All tables use the configurable prefix (default `mcms_`), InnoDB, `utf8mb4_unico
 | `settings` | `key`, `value` (JSON), `autoload` |
 | `modules` / `plugins` | Installed + enabled state, version |
 | `panels` | id, `panel_key`, title, position (`left/right/top/bottom`), sort_order, enabled, visibility rules (JSON), settings (JSON) |
-| `menu_items` | Navigation tree |
+| `menus` | id, `key` (main/footer/custom), title, style options (JSON) |
+| `menu_items` | id, menu_id, parent_id, label, icon, target_type (`module/page/category/url/action`), target_ref, new_tab, visibility (JSON), badge, style (JSON), sort_order |
+| `hero_slides` | id, headline, subline, media, cta (JSON), overlay, placement (JSON), starts_at, ends_at, sort_order, enabled |
 | `pages` | Custom pages |
-| `news`, `news_categories`, `comments` | News system |
+| `news` | id, title, slug, category_id, cover, excerpt, body, status, featured, publish_at, author_id, views, seo (JSON) |
+| `news_categories` | id, parent_id, name, slug, color, icon, image, cover_style, sort_order, visibility |
+| `news_tags` / `news_tag_map` | Tags |
+| `comments` | Comments (news and other content) |
 | `forum_categories`, `forum_boards`, `forum_topics`, `forum_posts`, `forum_attachments`, `forum_reads`, `forum_subscriptions`, `forum_reports` | Forum |
 | `matches`, `match_maps`, `opponents`, `games`, `events` | Esports data |
 | `team_members` | Roster |
@@ -321,7 +332,92 @@ Layout uses CSS Grid + custom properties (`--sidebar-w`, `--gap`), no JS require
 
 ---
 
-## 10. Built-in panels & modules
+## 10. Navigation & menu builder
+
+The main menu is **fully data-driven** (`menus` + `menu_items` tables) and edited in **Admin → Navigation** — no code needed.
+
+- **Add / edit / delete / reorder** buttons by drag & drop; unlimited items, with nested **dropdowns** (2 levels).
+- Each item has: label, optional icon, **target**, open in same/new tab, visibility, and optional style override.
+- **Target types**
+  | Type | Example |
+  |---|---|
+  | Built-in module | Forum, News, Matches, Team, Gallery |
+  | **Custom page** | pick any page from **Admin → Pages** (stored by page ID, so renaming a slug never breaks the link) |
+  | News category | "Tournament Reports" |
+  | External URL | `https://twitch.tv/yourteam` |
+  | Anchor / action | `#contact`, "Login/Register" smart button |
+- **Visibility** per item: everyone / guests only / members only / by role / hide on mobile.
+- **Multiple menus**: `main` (header), `footer`, plus custom menus that can be shown in a *Navigation* panel.
+- **Active-state** highlighting and optional **badges** (e.g. unread PMs, "NEW", live-stream dot).
+- **Button style** (Admin → Appearance → Navigation): `gradient` (default), `solid`, `outline`, `glass`, `pill`/`square`, plus hover effect (`glow`, `shine-sweep`, `lift`, `none`). Per-item colour override is optional.
+- **Responsive**: on small screens the menu collapses into an animated hamburger drawer; dropdowns become accordions; touch targets ≥ 44px.
+
+Default look: bold, flashy **red-gradient buttons** with a light "shine sweep" on hover and a glowing underline for the active item (GPU-friendly, honours `prefers-reduced-motion`).
+
+---
+
+## 11. Appearance: light/dark mode & colour schemes
+
+### Light / dark switch
+- The default theme ships with **both a dark (black & red) and a light variant**; the dark one is the default.
+- **Users** toggle with a header button (sun/moon). The choice is saved in their profile (`users.theme_mode`) — and in a cookie/`localStorage` for guests — and applied *before first paint* to avoid flashing.
+- Modes: `dark`, `light`, `auto` (follows the OS via `prefers-color-scheme`).
+- Admin controls: default mode, and whether users may switch at all (Admin → Appearance).
+
+### Colour scheme (admin)
+In **Admin → Appearance → Colour scheme** the site admin can pick the look without touching code:
+
+- **Presets**: *Crimson* (default), *Ember* (orange), *Royal* (blue), *Toxic* (green), *Violet*, *Mono* (greys) … each defining both dark and light palettes.
+- **Custom colours** via colour pickers: primary, highlight, deep shade, accent, backgrounds, surfaces, text — with an automatic **contrast checker** (warns if text/background drops below WCAG AA 4.5:1).
+- **Shape & feel**: corner radius (sharp → very round), animation level (off / subtle / full), gradient intensity, font pair.
+- **Live preview** before saving; one-click **reset to theme defaults**; **export/import** a scheme as JSON.
+- Stored in `settings` (`appearance.*`) and emitted as a small `<style>` block of CSS variables *after* the theme CSS, so it overrides any theme's tokens. Works with every theme that follows the token contract in [`docs/THEMING.md`](docs/THEMING.md).
+
+---
+
+## 12. Hero module
+
+A configurable banner at the top of the home page (or any page / module), managed in **Admin → Hero**.
+
+| Option | Choices |
+|---|---|
+| **Placement** | home only / selected pages / all pages / off |
+| **Type** | Single banner · **Slider** (multiple slides, auto-play, arrows/dots) · Video background · Animated abstract gradient (default, no image needed) |
+| **Content per slide** | headline, sub-headline, up to 2 **call-to-action buttons** (label + target, same target types as the menu), image or video, overlay opacity, text alignment |
+| **Dynamic content** | optional *Next match countdown*, *Latest news* (auto-fills from featured posts), *Live stream* embed, *Join us* CTA |
+| **Layout** | height (compact / normal / full-screen), full-width or contained, content position |
+| **Behaviour** | transition (fade/slide), interval, pause on hover, hide on mobile or use simplified version |
+| **Scheduling** | start/end dates per slide (e.g. tournament announcement) |
+
+Images are auto-resized into responsive `srcset` variants; the hero never blocks first paint (lazy-loaded video, CSS-only default background).
+
+---
+
+## 13. News & categories
+
+Full blog-style news system with **custom categories**.
+
+**Posts**: title, slug, cover image, excerpt, body (Markdown/WYSIWYG-lite), category, tags, author, status (`draft` / `scheduled` / `published`), **featured/sticky** flag, comment toggle, SEO title/description, view counter.
+
+**Categories** (Admin → News → Categories) — create as many as you like (e.g. *Match Reports*, *Team News*, *Patch Notes*, *Interviews*):
+
+| Field | Description |
+|---|---|
+| Name / slug / description | Shown on category pages |
+| **Colour** | Used for category badges, title-bar accents and generated covers |
+| **Icon** | Built-in icon set |
+| **Custom picture** | Optional uploaded image (auto-resized) used as category banner & fallback cover |
+| **Default generated picture** | If no picture is uploaded, MagicCMS **procedurally generates an abstract cover** |
+| Parent category | Optional nesting |
+| Visibility / sort order | Per role, drag & drop order |
+
+**Procedural covers.** When a post has no cover image and its category has no picture, an abstract SVG is generated *deterministically* from a seed (post/category ID + category colour): layered gradients, blades, orbit rings, grids or waves in the category's colour on a dark/light base. The same post always gets the same artwork; no external services; output is a few KB, cached in `cache/covers/` and fully theme-aware. Admins can pick the generator style (*blades*, *orbits*, *mesh*, *waves*) per site or per category.
+
+Other: category & tag archives, RSS per category, related posts, "featured" slider (can feed the Hero), and a *Latest News* panel with optional category filter.
+
+---
+
+## 14. Built-in panels & modules
 
 | Panel | Description |
 |---|---|
@@ -347,7 +443,7 @@ Layout uses CSS Grid + custom properties (`--sidebar-w`, `--gap`), no JS require
 
 ---
 
-## 11. Forum
+## 15. Forum
 
 A full phpBB-style forum.
 
@@ -371,7 +467,7 @@ A full phpBB-style forum.
 
 ---
 
-## 12. Avatars & uploads
+## 16. Avatars & uploads
 
 - Members upload avatars on **Profile → Avatar** — JPG, PNG, GIF, WebP, **max 5 MB**.
 - Pipeline (server-side, `gd`/`imagick`):
@@ -385,7 +481,7 @@ A full phpBB-style forum.
 
 ---
 
-## 13. Security
+## 17. Security
 
 | Area | Measure |
 |---|---|
@@ -405,11 +501,11 @@ Found a vulnerability? Please report it privately to the maintainers rather than
 
 ---
 
-## 14. Theming
+## 18. Theming
 
 MagicCMS themes are **self-contained folders** that define a design via **CSS variables (design tokens)** and, if needed, **template overrides**. A theme can be a 30-line colour swap or a total redesign.
 
-The default theme **Magic Red** is: black surfaces, crimson accents, bold gradient title-bars, large rounded corners (16–24px), subtle animated gradients, glow hovers, and abstract geometric backgrounds — all CSS-only (GPU-friendly transforms/opacity), respecting `prefers-reduced-motion`.
+The default theme **Magic Red** is: black surfaces, crimson accents, bold gradient title-bars, large rounded corners (16–24px), subtle animated gradients, glow hovers, and abstract geometric backgrounds — all CSS-only (GPU-friendly transforms/opacity), respecting `prefers-reduced-motion`. It includes a **light variant** (`[data-theme="light"]`) and honours the **admin colour scheme** overrides (see [§11](#11-appearance-lightdark-mode--colour-schemes)).
 
 👉 **Full guide, including an AI prompt template: [`docs/THEMING.md`](docs/THEMING.md)**
 
@@ -425,13 +521,13 @@ Quick taste of a theme manifest:
   "requires": "1.0",
   "stylesheets": ["tokens.css", "theme.css"],
   "scripts": ["theme.js"],
-  "supports": { "darkLight": false, "panels": ["left", "right"] }
+  "supports": { "darkLight": true, "panels": ["left", "right"] }
 }
 ```
 
 ---
 
-## 15. Plugin / panel development
+## 19. Plugin / panel development
 
 ### Creating a panel
 
@@ -497,7 +593,7 @@ Hooks::on('user.registered', function (array $user) {
 
 ---
 
-## 16. Configuration reference
+## 20. Configuration reference
 
 `config/config.php` (generated):
 
@@ -527,6 +623,14 @@ Key settings:
 | `site.name` | `MagicCMS` | Site title |
 | `layout.mode` | `both` | `none` / `left` / `right` / `both` |
 | `theme.active` | `magic-red` | Active theme slug |
+| `appearance.mode_default` | `dark` | `dark` / `light` / `auto` |
+| `appearance.allow_user_mode` | `1` | Let users switch light/dark |
+| `appearance.scheme` | `crimson` | Preset key or `custom` |
+| `appearance.colors` | `{}` | JSON of custom token overrides |
+| `appearance.radius` / `appearance.motion` | `16` / `full` | Corner radius px; `off/subtle/full` |
+| `nav.button_style` / `nav.hover_fx` | `gradient` / `shine` | Menu look |
+| `hero.enabled` / `hero.placement` | `1` / `home` | Hero module |
+| `news.cover_style` | `blades` | Generated cover style (`blades/orbits/mesh/waves`) |
 | `auth.registration` | `open` | `open` / `approval` / `closed` |
 | `auth.email_verify` | `0` | Require email verification |
 | `upload.avatar_max_mb` | `5` | Avatar size cap |
@@ -536,18 +640,19 @@ Key settings:
 
 ---
 
-## 17. Roadmap
+## 21. Roadmap
 
 **v0.1 – Foundation:** setup wizard, DB layer, auth, roles, settings, router, theme engine, layout/panels, admin shell
+**v0.1 also:** menu builder, appearance (light/dark + colour schemes), hero module
 **v0.2 – Community:** profiles & avatars, forum, private messages, shoutbox, online users
 **v0.3 – Esports:** matches, roster, events, recent-matches & next-match panels, recruitment form
-**v0.4 – Content:** news, pages, gallery, downloads, polls, search
+**v0.4 – Content:** news + categories + generated covers, pages, gallery, downloads, polls, search
 **v0.5 – Polish:** notifications, audit log UI, SEO/RSS/sitemap, GDPR tools, i18n packs
 **v1.0 – Stable:** security review, docs, theme & plugin marketplace-ready manifests
 
 ---
 
-## 18. Brand & logo
+## 22. Brand & logo
 
 The MagicCMS mark is an abstract **"M"** formed from two crimson blades meeting at a point, crowned by a bright diamond "spark" — set on a black rounded tile with faint orbital rings. Wordmark: **Magic** in off-white, **CMS** in red gradient.
 
@@ -556,7 +661,7 @@ The MagicCMS mark is an abstract **"M"** formed from two crimson blades meeting 
 
 ---
 
-## 19. License
+## 23. License
 
 To be decided by the project owner (suggested: MIT or GPL-3.0, as is common among PHP CMSs).
 
