@@ -97,6 +97,10 @@ final class Panels
                 continue;
             }
             $v = json_decode((string) $p['visibility'], true) ?: [];
+            if ($position === 'footer') { // footer column: plain heading + content, no card
+                $out[] = render('panel_footer', ['panel' => ['key' => $p['panel_key'], 'title' => $p['title']], 'html' => $html]);
+                continue;
+            }
             $out[] = render('panel', [
                 'panel' => ['id' => (int) $p['id'], 'key' => $p['panel_key'], 'title' => $p['title'], 'icon' => (string) ($reg['meta']['icon'] ?? ''), 'hideMobile' => empty($v['mobile'] ?? true)],
                 'html' => $html,

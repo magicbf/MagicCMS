@@ -46,6 +46,7 @@
 | **Recruitment plugin** (application form, positions, custom questions, status tracking, notes, applicant notifications) | ✅ | `plugins/recruit` |
 | **Bundled themes**: Magic Red (default), **Hazard Protocol** (terminal / hazard-yellow) **Aurora Glass** (bright frosted glass, light by default) and **Mint Facet** (sharp chamfered mint on graphite) – each with light + dark variants and an auto-applied colour scheme | ✅ | `themes/`, see [THEMING](docs/THEMING.md) |
 | **Backups & safe updates** (db / full backups, restore, automatic + cron, validated update packages, automatic rollback, CLI tools) | ✅ | see [§4.5](#45-updating--backups) |
+| **Footer builder** (5 styles, own link columns, social buttons, scrolling ticker, live strip, giant wordmark, top decoration, panels in footer columns) and **logo-only header** option | ✅ | Admin → Footer, Admin → Settings |
 | **Partners strip** (full-width panel above the footer, logos scroll right → left, hideable in Admin → Panels) | ✅ | Admin → Partners |
 
 ---
@@ -381,6 +382,15 @@ One site setting rearranges the logo, menu and account area – and it works wit
 | `rail` | **Side rail** (≥ 1360 px): fixed vertical menu with the logo on top and the account area at the bottom; narrower screens fall back to the classic header |
 
 Two more switches: **Rhythm** (`layout.rhythm`: `even` / `stagger` – staggered offsets the sidebars, alternates panel insets and lifts every second stat tile, wide screens only) and **Mirror the side panels** (`layout.mirror`, swaps left ↔ right). All header styles collapse to a burger menu on phones. Themes can recommend a style with `"defaults": {"header": "hanging", "rhythm": "stagger"}` in `theme.json`.
+
+### Footer (Admin → Footer) & logo-only header
+
+Everything is structure + theme tokens, so it works with every theme:
+- **Style**: *Columns*, *Centered*, *Minimal* (one slim line) or *Poster* (columns plus a giant outlined site name).
+- **Blocks**: logo/name/short text, Explore (main menu), Community (footer menu), Latest news, up to **3 own link columns** (`Label | URL` per line), round **social buttons** (Discord, Twitch, YouTube, X, Instagram, TikTok, Steam, Kick, Facebook, Telegram, GitHub, e-mail – each lights up in its network colour), copyright line with `{year}`, back-to-top, "Powered by".
+- **Vibrant extras**: a **scrolling ticker** of headlines, results/next match and upcoming events (direction and speed adjustable, pauses on hover), a **live strip** (online now · members · next match), a **giant wordmark**, and a top decoration (*animated aurora line*, *diagonal tape*, *none* or the theme's own).
+- **Footer columns for panels**: in **Admin → Panels** add any panel (Custom HTML, Navigation, Latest news, Online users, Recent matches, …) to the position *Footer columns*; it is rendered as a plain column with a heading.
+- **Logo-only header**: untick *Show the site name next to the logo* in Admin → Settings – header, rail, hanging badge and footer then show just the logo (the name stays as its alt text).
 
 ### Panel management (Admin → Panels)
 

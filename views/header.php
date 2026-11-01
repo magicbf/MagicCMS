@@ -1,8 +1,8 @@
-<?php /** @var array $layout */ $u = user(); $custom = has_custom_logo(); $showName = !$custom || setting('site.logo_show_name', true);
+<?php /** @var array $layout */ $u = user(); $custom = has_custom_logo(); $showName = show_site_name();
 $style = MagicCMS\Core\Layout::header();
 $navItems = MagicCMS\Core\Nav::tree('main');
 $brandHtml = static function (string $extra = '') use ($custom, $showName): string { ob_start(); ?>
-<a class="brand brand-xl<?= $extra ? ' ' . e($extra) : '' ?>" href="<?= e(url('')) ?>">
+<a class="brand brand-xl<?= $showName ? '' : ' brand-only' ?><?= $extra ? ' ' . e($extra) : '' ?>" href="<?= e(url('')) ?>">
       <img class="<?= $custom ? 'brand-logo' : 'brand-mark' ?>" src="<?= e(site_logo()) ?>" alt="<?= !$showName ? e(setting('site.name', 'MagicCMS')) : '' ?>" height="64"<?= $custom ? '' : ' width="64"' ?>>
       <?php if ($showName): ?><span class="brand-text"><b class="brand-name"><?= e(setting('site.name', 'MagicCMS')) ?></b><?php if ((string) setting('site.tagline', '') !== ''): ?><small class="brand-sub"><?= e(setting('site.tagline')) ?></small><?php endif ?></span><?php endif ?>
     </a>

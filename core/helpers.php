@@ -279,6 +279,12 @@ function pm_enabled(): bool
     return $on ??= (bool) (user() && db()->val("SELECT 1 FROM {modules} WHERE module_key = 'messages' AND enabled = 1"));
 }
 
+/** Show the site name next to the logo? (Admin → Settings → "Show the site name"; off = logo-only header.) */
+function show_site_name(): bool
+{
+    return (bool) setting('site.show_name', true);
+}
+
 /** Strict e-mail check: valid per PHP AND plain RFC-5322 "dot-atom" characters only (no quoted local parts, no IDN tricks). */
 function valid_email(string $e): bool
 {

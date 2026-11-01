@@ -19,7 +19,7 @@
   <div class="form-row"><label class="label"><?= e(t('"Online" window (minutes)')) ?></label><input class="input" type="number" min="1" max="60" name="online_min" value="<?= (int) setting('online.window_min', 5) ?>"></div>
   <label class="checkbox"><input type="checkbox" name="email_verify" value="1" <?= setting('auth.email_verify') ? 'checked' : '' ?>> <?= e(t('Require e-mail verification before members can log in')) ?></label>
   <?php $unv = (int) db()->val('SELECT COUNT(*) FROM {users} WHERE email_verified_at IS NULL'); if ($unv): ?><small class="help"><?= e(t('{n} existing account(s) are unverified and would have to confirm their address first (you can mark them verified in Admin → Users).', ['n' => $unv])) ?></small><?php endif ?>
-  <label class="checkbox"><input type="checkbox" name="logo_show_name" value="1" <?= setting('site.logo_show_name', true) ? 'checked' : '' ?>> <?= e(t('Show the site name next to a custom logo')) ?></label>
+  <label class="checkbox"><input type="checkbox" name="show_name" value="1" <?= show_site_name() ? 'checked' : '' ?>> <?= e(t('Show the site name next to the logo in the header (untick for a logo-only header)')) ?></label>
   <label class="checkbox"><input type="checkbox" name="maintenance" value="1" <?= setting('site.maintenance') ? 'checked' : '' ?>> <?= e(t('Maintenance mode (only staff can see the site)')) ?></label>
   <h3 class="section-title"><?= e(t('Header & layout style')) ?></h3>
   <p class="muted"><?= e(t('Rearranges logo, menu and account area. Works with every theme – the theme still decides colours, shapes and fonts.')) ?></p>

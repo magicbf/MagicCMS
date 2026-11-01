@@ -69,7 +69,7 @@ final class Controller
         Settings::set('online.window_min', max(1, min(60, (int) input('online_min', 5))));
         Settings::set('auth.email_verify', !empty($_POST['email_verify']));
         Settings::set('site.maintenance', !empty($_POST['maintenance']));
-        Settings::set('site.logo_show_name', !empty($_POST['logo_show_name']));
+        Settings::set('site.show_name', !empty($_POST['show_name']));
         audit('settings.save');
         flash('success', t('Settings saved.'));
         $this->back('/admin/settings');
@@ -180,6 +180,21 @@ final class Controller
         $this->back('/admin/appearance');
     }
 
+    // ---------------------------------------------------------------- footer
+    public function footer(): string
+    {
+        return $this->page(t('Footer'), 'footer', 'footer', ['f' => \MagicCMS\Core\Footer::config(), 'copy' => (string) setting('site.footer', '')]);
+    }
+
+    public function footerSave(): void
+    {
+        Settings::set('footer.config', \MagicCMS\Core\Footer::clean($_POST));
+        Settings::set('site.footer', mb_substr((string) input('copyright'), 0, 200));
+        audit('footer.save');
+        flash('success', t('Footer saved.'));
+        $this->back('/admin/footer');
+    }
+
     // ---------------------------------------------------------------- users
     public function users(): string
     {
@@ -247,7 +262,7 @@ final class Controller
             flash('danger', t('This panel can only be added once.'));
             $this->back('/admin/panels');
         }
-        $pos = self::pick((string) input('position'), ['left', 'right', 'above_footer'], 'left');
+        $pos = self::pick((string) input('position'), ['left', 'right', 'above_footer', 'footer'], 'left');
         if (isset($reg['meta']['positions']) && !in_array($pos, $reg['meta']['positions'], true)) {
             $pos = (string) $reg['meta']['positions'][0];
         }
@@ -265,7 +280,7 @@ final class Controller
     {
         db()->exec(
             'UPDATE {panels} SET title = ?, position = ?, sort_order = ?, enabled = ?, visibility = ? WHERE id = ?',
-            [mb_substr((string) input('title'), 0, 120) ?: 'Panel', self::pick((string) input('position'), ['left', 'right', 'above_footer'], 'left'), (int) input('sort_order'), empty($_POST['enabled']) ? 0 : 1, self::visibilityJson(), (int) $p['id']]
+            [mb_substr((string) input('title'), 0, 120) ?: 'Panel', self::pick((string) input('position'), ['left', 'right', 'above_footer', 'footer'], 'left'), (int) input('sort_order'), empty($_POST['enabled']) ? 0 : 1, self::visibilityJson(), (int) $p['id']]
         );
         flash('success', t('Panel saved.'));
         $this->back('/admin/panels');

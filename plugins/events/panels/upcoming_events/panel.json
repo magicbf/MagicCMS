@@ -1,2 +1,2 @@
-{ "key": "upcoming_events", "title": "Upcoming Events", "icon": "🗓️", "version": "1.0.0", "positions": ["left", "right"],
+{ "key": "upcoming_events", "title": "Upcoming Events", "icon": "🗓️", "version": "1.0.0", "positions": ["left", "right", "footer"],
   "settings": { "count": { "type": "number", "label": "Events to show", "default": 4 } } }
