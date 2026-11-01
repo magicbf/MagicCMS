@@ -49,8 +49,9 @@ final class Forum
     public static function topic(int $id): ?array
     {
         $t = db()->one(
-            'SELECT t.*, b.title AS board_title, b.read_level, b.post_level, b.is_locked AS board_locked, b.category_id, c.title AS category_title
-             FROM {forum_topics} t JOIN {forum_boards} b ON b.id = t.board_id JOIN {forum_categories} c ON c.id = b.category_id WHERE t.id = ?',
+            'SELECT t.*, b.title AS board_title, b.read_level, b.post_level, b.is_locked AS board_locked, b.category_id, c.title AS category_title, ar.level AS author_level
+             FROM {forum_topics} t JOIN {forum_boards} b ON b.id = t.board_id JOIN {forum_categories} c ON c.id = b.category_id
+             JOIN {users} au ON au.id = t.user_id JOIN {roles} ar ON ar.id = au.role_id WHERE t.id = ?',
             [$id]
         );
         return $t && (int) $t['read_level'] <= Auth::level() ? $t : null;

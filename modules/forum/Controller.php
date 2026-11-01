@@ -139,7 +139,7 @@ final class Controller
         $pages = max(1, (int) ceil($total / Forum::PER_PAGE_POSTS));
         $page = self::pageNo($pages);
         $posts = db()->all(
-            'SELECT p.*, u.username, u.avatar, u.signature, u.created_at AS joined, u.forum_posts, u.status, r.slug AS role_slug, r.name AS role_name, eb.username AS edited_by_name
+            'SELECT p.*, u.username, u.avatar, u.signature, u.created_at AS joined, u.forum_posts, u.status, r.slug AS role_slug, r.name AS role_name, r.level AS role_level, eb.username AS edited_by_name
              FROM {forum_posts} p JOIN {users} u ON u.id = p.user_id JOIN {roles} r ON r.id = u.role_id LEFT JOIN {users} eb ON eb.id = p.edited_by
              WHERE p.topic_id = ? ORDER BY p.id LIMIT ' . Forum::PER_PAGE_POSTS . ' OFFSET ' . (($page - 1) * Forum::PER_PAGE_POSTS),
             [$t['id']]
@@ -265,7 +265,8 @@ final class Controller
             return $this->nf();
         }
         $isOwner = (int) $post['user_id'] === (int) user()['id'];
-        if (!Forum::isMod() && !($isOwner && !$post['topic_locked'] && can('forum.post'))) {
+        $modOk = Forum::isMod() && Auth::mayAffect((int) $post['user_id']);
+        if (!$modOk && !($isOwner && !$post['topic_locked'] && can('forum.post'))) {
             return $this->deny();
         }
         $first = (int) $post['id'] === (int) $post['first_post_id'];
@@ -301,7 +302,8 @@ final class Controller
         }
         $first = (int) $post['id'] === (int) $post['first_post_id'];
         $isOwner = (int) $post['user_id'] === (int) user()['id'];
-        if (!Forum::isMod() && !($isOwner && !$first && !$post['topic_locked'])) {
+        $modOk = Forum::isMod() && Auth::mayAffect((int) $post['user_id']);
+        if (!$modOk && !($isOwner && !$first && !$post['topic_locked'])) {
             flash('danger', t('You cannot delete this post.'));
             redirect('/forum/post/' . $post['id']);
         }
@@ -328,8 +330,9 @@ final class Controller
     public function mod(array $p): never
     {
         $t = Forum::topic((int) $p['id']);
-        if (!$t || !Forum::isMod()) {
-            redirect('/forum');
+        if (!$t || !Forum::isMod() || !Auth::mayAffect((int) $t['user_id'], (int) $t['author_level'])) {
+            flash('danger', t('You cannot moderate this topic.'));
+            redirect($t ? '/forum/topic/' . (int) $t['id'] : '/forum');
         }
         $id = (int) $t['id'];
         switch ((string) input('action')) {

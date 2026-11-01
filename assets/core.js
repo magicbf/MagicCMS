@@ -24,6 +24,12 @@
     if (root.dataset.themeSetting === 'auto') root.dataset.theme = e.matches ? 'light' : 'dark';
   });
 
+  /* ---- sticky menu bar: show the mini logo once the tall header has scrolled away ---- */
+  var sentinel = $('.nav-sentinel'), bar = $('.site-navbar');
+  if (sentinel && bar && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (en) { bar.classList.toggle('is-stuck', !en[0].isIntersecting); }, { threshold: 0 }).observe(sentinel);
+  }
+
   /* ---- nav burger + touch dropdowns ---- */
   $$('.nav-burger').forEach(function (b) {
     b.addEventListener('click', function () {
@@ -83,7 +89,7 @@
       var t = d.createElement('time'); t.textContent = m.time;
       var txt = d.createElement('span'); txt.className = 'chat-text'; txt.textContent = m.message;   // textContent: never HTML
       row.appendChild(img); row.appendChild(who); row.appendChild(t); row.appendChild(txt);
-      if (canDel) {
+      if (m.can_delete) {
         var x = d.createElement('button'); x.className = 'chat-del'; x.type = 'button'; x.textContent = '✕'; x.setAttribute('aria-label', 'Delete');
         x.addEventListener('click', function () { post(box.dataset.delete + m.id).then(function () { row.remove(); }); });
         row.appendChild(x);

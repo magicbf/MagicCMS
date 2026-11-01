@@ -1,2 +1,17 @@
-{ "key": "online_users", "title": "Online Users", "version": "1.0.0", "positions": ["left", "right"],
-  "settings": { "max": { "type": "number", "label": "Max names shown", "default": 20 } } }
+{
+  "key": "online_users",
+  "title": "Online Users",
+  "version": "1.0.0",
+  "positions": [
+    "left",
+    "right"
+  ],
+  "settings": {
+    "max": {
+      "type": "number",
+      "label": "Max names shown",
+      "default": 20
+    }
+  },
+  "icon": "🟢"
+}

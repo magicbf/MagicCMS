@@ -31,6 +31,9 @@ return function (Router $r): void {
     $r->post('/admin/navigation/delete/{id:\d+}', [$c, 'navDelete'], ['perm' => 'admin.navigation']);
     $r->post('/admin/navigation/move/{id:\d+}/{dir:up|down}', [$c, 'navMove'], ['perm' => 'admin.navigation']);
 
+    $r->get('/admin/modules', [$c, 'modules'], ['perm' => 'admin.modules', 'layout' => 'none']);
+    $r->post('/admin/modules/toggle/{key:[a-z0-9_]+}', [$c, 'moduleToggle'], ['perm' => 'admin.modules']);
+
     $r->get('/admin/pages', [$c, 'pages'], ['perm' => 'admin.pages', 'layout' => 'none']);
     $r->get('/admin/pages/new', [$c, 'pageEdit'], ['perm' => 'admin.pages', 'layout' => 'none']);
     $r->get('/admin/pages/{id:\d+}', [$c, 'pageEdit'], ['perm' => 'admin.pages', 'layout' => 'none']);

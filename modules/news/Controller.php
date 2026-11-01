@@ -53,7 +53,7 @@ final class Controller
             db()->exec('UPDATE {news} SET views = views + 1 WHERE id = ?', [$post['id']]);
         }
         $comments = db()->all(
-            'SELECT c.*, u.username, u.avatar, r.slug AS role_slug FROM {news_comments} c JOIN {users} u ON u.id = c.user_id JOIN {roles} r ON r.id = u.role_id WHERE c.news_id = ? ORDER BY c.id LIMIT 200',
+            'SELECT c.*, u.username, u.avatar, r.slug AS role_slug, r.level AS role_level FROM {news_comments} c JOIN {users} u ON u.id = c.user_id JOIN {roles} r ON r.id = u.role_id WHERE c.news_id = ? ORDER BY c.id LIMIT 200',
             [$post['id']]
         );
         $related = db()->all(
@@ -93,7 +93,7 @@ final class Controller
     public function deleteComment(array $p): never
     {
         $c = db()->one('SELECT c.id, c.news_id, c.user_id, n.slug FROM {news_comments} c JOIN {news} n ON n.id = c.news_id WHERE c.id = ?', [(int) $p['id']]);
-        if ($c && (can('news.moderate') || (int) $c['user_id'] === (int) user()['id'])) {
+        if ($c && ((can('news.moderate') && \MagicCMS\Core\Auth::mayAffect((int) $c['user_id'])) || (int) $c['user_id'] === (int) user()['id'])) {
             db()->exec('DELETE FROM {news_comments} WHERE id = ?', [$c['id']]);
             db()->exec('UPDATE {news} SET comment_count = (SELECT COUNT(*) FROM {news_comments} WHERE news_id = ?) WHERE id = ?', [$c['news_id'], $c['news_id']]);
             flash('success', t('Comment deleted.'));

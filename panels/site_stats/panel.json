@@ -1,1 +1,11 @@
-{ "key": "site_stats", "title": "Site Stats", "version": "1.0.0", "positions": ["left", "right"], "settings": {} }
+{
+  "key": "site_stats",
+  "title": "Site Stats",
+  "version": "1.0.0",
+  "positions": [
+    "left",
+    "right"
+  ],
+  "settings": {},
+  "icon": "📊"
+}

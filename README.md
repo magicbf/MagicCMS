@@ -31,11 +31,14 @@
 | Custom pages | ✅ | Sanitized HTML editor; Markdown/WYSIWYG planned |
 | Theme engine (parent themes, tokens, overrides) | ✅ | Theme upload UI planned |
 | Plugins / modules loader | ✅ (modules) | Core modules are loaded from the `modules` table; admin UI for enabling/installing planned |
+| Plugin system (load/enable/disable from `plugins/`, own routes/views/panels/admin tab) | ✅ | Admin → Modules (superadmin) – see [§19](#19-plugin--panel-development) |
+| **Matches plugin**: results & schedule, record stats, detail pages, **Recent Matches panel** (last 5/8/10, admin setting) | ✅ | `plugins/matches`, Admin → Matches |
+| Two-tier header (dominant logo + sticky full-width menu), footer with logo, refined animated title bars | ✅ | |
 | Hero module (slider, effects, buttons, scheduling) | ✅ | Admin → Hero – see [§12](#12-hero-module) |
 | News + categories + generated covers + comments + RSS | ✅ | Admin → News – see [§13](#13-news--categories) |
 | Forum (category → subcategory → topics → posts) | ✅ | Own side-panel layout (none by default; admin can enable left/right/both), BBCode, per-subcategory read/post levels, sticky/announce/lock/move/delete, reports queue, search, unread tracking, ranks – see [§15](#15-forum). Attachments, polls, subscriptions/e-mail notifications, reactions: planned |
 | Versioned migrations + auto-upgrade | ✅ | `migrations/NNNN_*.sql` (+ optional `.php` seed); new code upgrades an older database automatically |
-| Matches / roster / events panels | ⏳ | planned (v0.3) |
+| Roster / events / tournaments | ⏳ | planned |
 | Private messages, email verification, password reset | ⏳ | need a mail layer – planned |
 | Update/migration runner UI | ⏳ | planned |
 
@@ -104,7 +107,7 @@ MagicCMS is a small, dependency-free content management system in the spirit of 
 ### Built-in modules
 - 📰 **News** with custom categories (colour, icon, picture or auto-generated abstract covers), tags, comments, featured posts
 - 🗨️ **Forum** (category → subcategory → topics → posts) — phpBB-style, shown inside the site with its own configurable side-panel layout
-- ⚔️ **Matches** — upcoming & recent results, opponents, maps, scores, VOD links
+- ⚔️ **Matches** *(plugin)* — results & upcoming fixtures, opponent tag, competition, map, VOD link, match report; public page `/matches` with record (W–L–D, win rate, streak), filters and pagination; detail pages; Admin → Matches
 - 👥 **Team / Roster** — players, roles, stats, social links
 - 🏆 **Tournaments / Events** — brackets-lite, calendar
 - 🖼️ **Gallery** — albums & screenshots
@@ -117,7 +120,7 @@ MagicCMS is a small, dependency-free content management system in the spirit of 
 - 🔎 **Site search**
 
 ### Built-in panels (sidebar widgets)
-`Hero` · `Login / User box` · `Navigation` · `Shoutbox / Chat` · `Recent Matches` · `Next Match countdown` · `Online Users` · `Latest Forum Topics` · `Latest News` · `Top Posters` · `Birthdays` · `Poll` · `Server Status` (game server query) · `Discord Widget` · `Twitch/YouTube Live` · `Sponsors` · `Site Stats` · `Custom HTML`
+`Hero` · `Login / User box` · `Navigation` · `Shoutbox / Chat` · `Recent Matches` (plugin) · `Next Match countdown` · `Online Users` · `Latest Forum Topics` · `Latest News` · `Top Posters` · `Birthdays` · `Poll` · `Server Status` (game server query) · `Discord Widget` · `Twitch/YouTube Live` · `Sponsors` · `Site Stats` · `Custom HTML`
 
 ---
 
@@ -273,15 +276,19 @@ Migrations live in `migrations/NNNN_description.sql` and are idempotent per vers
 
 ## 8. Users, roles & permissions
 
-### Default roles
+### Default roles & permissions
 
-| Role | Level | Description |
+| Role | Level | What they can do |
 |---|---|---|
-| **Superadministrator** | 100 | The account created in setup. Full, unrestricted access. Cannot be demoted or deleted by anyone else. Only a Superadmin can create other Administrators. |
-| **Administrator** | 80 | Manages site content, users, panels, themes. No access to DB/config-level settings or Superadmin management. |
-| **Moderator** | 50 | Moderates forum, comments, chat; can ban/warn. |
-| **Member** | 10 | Standard registered user. |
-| **Guest** | 0 | Not logged in. |
+| **Superadministrator** | 100 | The account created in setup. Everything, including **Admin → Modules** (enable/disable plugins). Cannot be demoted, banned, edited or moderated by anyone else. Only the Superadministrator can create Administrators. |
+| **Administrator** | 80 | Everything in the admin area (settings, appearance, navigation, panels, pages, forum, news, hero, matches, users) and all moderation (forum, shoutbox, news comments) — **except anything that touches the Superadministrator**: cannot ban/demote/edit that account, cannot edit, lock or delete that user's forum posts/topics, shouts, comments or news posts, cannot create or change other Administrators, cannot open Admin → Modules. |
+| **Moderator** | 50 | **Moderates the forum only**: lock/sticky/move/delete topics and posts, handle reports. No admin area at all, no shoutbox or news-comment moderation, no banning. Can only moderate users at or below their own rank (not Administrators or the Superadministrator). |
+| **Member** | 10 | Posts in the forum and shoutbox, comments on news, reports posts, edits own profile/avatar. **Cannot change any theme, layout or site setting** — the only appearance control a member has is the **light/dark switch** (guests too). |
+| **Guest** | 0 | Reads public content and the shoutbox. May also use the light/dark switch. |
+
+**Rank rule (enforced server-side everywhere):** you may moderate content or manage accounts of users *at or below your own rank* (and your own). So Moderators cannot act on Administrators, and Administrators can never act on the Superadministrator.
+
+Default permission keys: Guest `chat.read` · Member `+ chat.post, forum.post, forum.report, news.comment` · Moderator `+ forum.moderate` · Administrator `+ admin.access, admin.settings, admin.appearance, admin.users, admin.panels, admin.navigation, admin.pages, admin.forum, admin.news, admin.hero, admin.matches, chat.moderate, news.moderate` · Superadministrator: all (implicit; also `admin.modules`).
 
 - Roles carry **permissions**; permissions are checked via `can('forum.moderate')`.
 - Create **custom roles** (e.g. "Team Captain", "Coach") and assign any permission mix.
@@ -444,7 +451,7 @@ Deleting a category keeps its posts (they become uncategorised).
 | **User box** | Login form for guests; avatar, PM count, profile & logout for members. |
 | **Navigation** | Menu from `menu_items`, nested, with icons. |
 | **Chat / Shoutbox** | AJAX shoutbox (polling, optional SSE). Emoji, rate limit, flood protection, moderator delete, role-based posting, optional history page. |
-| **Recent Matches** | Last N results with W/L badge, opponent, score, game icon. |
+| **Recent Matches** *(Matches plugin)* | The last **5, 8 or 10** results (admin choice in Admin → Matches) with W/L/D badge, opponent, score and age, an "Up next" card for the next fixture, and an **All matches** button to the full list at `/matches`. |
 | **Next Match** | Countdown to the next fixture. |
 | **Online Users** | Members + guest count currently active (default window: 5 min), with role colours. |
 | **Latest Forum Topics** | Newest/active threads (respects forum permissions). |
@@ -591,6 +598,25 @@ Quick taste of a theme manifest:
 
 Drop the folder in `panels/` (or `plugins/<name>/panels/`), then add it under **Admin → Panels** (settings from `panel.json` get an auto-generated form). The wrapper chrome (title bar, collapse button, rounded card) is provided by the theme — your panel only outputs its inner content.
 
+### Plugins
+
+A **plugin** is a folder in `plugins/<key>/` that adds a feature without touching core. The bundled **Matches** plugin is the reference implementation:
+
+```
+plugins/matches/
+├── plugin.json          # name, version, description, provides…
+├── routes.php           # returns function (Router $r): registers routes + hooks (nav targets, admin tabs)
+├── Matches.php          # namespace MagicCMS\Plugins\Matches  → autoloaded from plugins/matches/*.php
+├── Controller.php  AdminController.php
+├── views/               # render('matches/index') → plugins/matches/views/index.php (themes can override in templates/matches/)
+└── panels/recent_matches/{panel.json, panel.php}   # auto-discovered panel
+```
+
+- **Registration:** a row in the `modules` table with `is_core = 0` (the plugin's migration inserts it). The **Superadministrator** can enable/disable plugins in **Admin → Modules**; disabled plugins add no routes, panels or admin tabs.
+- **Database:** add `migrations/NNNN_name.sql` (+ optional `.php` seed returning `function (Database $db): void`); they run automatically on install and upgrade.
+- **Hooks used:** `nav.targets` (make the plugin selectable in the menu builder and hero buttons) and `admin.tabs` (add an Admin tab: `$tabs['matches'] = ['/admin/matches', 'Matches', 'admin.matches']`).
+- **Permissions:** insert into `permissions` / `role_permissions` in the seed; guard routes with `['perm' => 'admin.matches']`.
+
 ### Creating a module
 
 A module may add routes, DB tables (via `migrations/`), permissions, admin pages, menu items and panels:
@@ -682,7 +708,7 @@ Key settings:
 **v0.1 – Foundation:** setup wizard, DB layer, auth, roles, settings, router, theme engine, layout/panels, admin shell
 **v0.1 also:** menu builder, appearance (light/dark + colour schemes), hero module
 **v0.2 – Community:** ✅ profiles & avatars, ✅ forum, ✅ shoutbox, ✅ online users · ⏳ private messages
-**v0.3 – Esports:** matches, roster, events, recent-matches & next-match panels, recruitment form
+**v0.3 – Esports:** ✅ matches + recent-matches panel · ⏳ roster, events, recruitment form
 **v0.4 – Content:** ✅ news + categories + generated covers, ✅ hero, pages, gallery, downloads, polls, search
 **v0.5 – Polish:** notifications, audit log UI, SEO/RSS/sitemap, GDPR tools, i18n packs
 **v1.0 – Stable:** security review, docs, theme & plugin marketplace-ready manifests

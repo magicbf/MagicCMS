@@ -69,6 +69,9 @@ final class View
         if (str_contains($name, '/')) {
             [$mod, $view] = explode('/', $name, 2);
             $f = MCMS_ROOT . '/modules/' . $mod . '/views/' . $view . '.php';
+            if (!is_file($f)) { // plugins ship views the same way
+                $f = MCMS_ROOT . '/plugins/' . $mod . '/views/' . $view . '.php';
+            }
         } else {
             $f = MCMS_ROOT . '/views/' . $name . '.php';
         }

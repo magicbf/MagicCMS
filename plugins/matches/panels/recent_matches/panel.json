@@ -1,0 +1,2 @@
+{ "key": "recent_matches", "title": "Recent Matches", "icon": "⚔️", "version": "1.0.0", "positions": ["left", "right"], "settings": {},
+  "note": "How many matches are shown (5, 8 or 10) is set in Admin → Matches." }

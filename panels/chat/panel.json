@@ -1,2 +1,17 @@
-{ "key": "chat", "title": "Shoutbox", "version": "1.0.0", "positions": ["left", "right"],
-  "settings": { "interval": { "type": "number", "label": "Refresh every (seconds)", "default": 5 } } }
+{
+  "key": "chat",
+  "title": "Shoutbox",
+  "version": "1.0.0",
+  "positions": [
+    "left",
+    "right"
+  ],
+  "settings": {
+    "interval": {
+      "type": "number",
+      "label": "Refresh every (seconds)",
+      "default": 5
+    }
+  },
+  "icon": "💬"
+}

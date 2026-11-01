@@ -187,6 +187,27 @@ final class Auth
         );
     }
 
+    public static function userLevel(int $userId): int
+    {
+        return (int) db()->val('SELECT r.level FROM {users} u JOIN {roles} r ON r.id = u.role_id WHERE u.id = ?', [$userId]);
+    }
+
+    /**
+     * Rank rule for moderating someone's CONTENT (posts, topics, comments, shouts):
+     * you may act on content from users at or below your own rank, and on your own.
+     * Consequence: moderators cannot touch admins, admins cannot touch the superadministrator in any way.
+     */
+    public static function mayAffect(int $targetUserId, ?int $targetLevel = null): bool
+    {
+        if (self::$user === null) {
+            return false;
+        }
+        if ($targetUserId === (int) self::$user['id']) {
+            return true;
+        }
+        return self::level() >= ($targetLevel ?? self::userLevel($targetUserId));
+    }
+
     /** May the current user manage (edit role/status of) this target user? */
     public static function canManage(array $target): bool
     {

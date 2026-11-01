@@ -146,10 +146,14 @@ MagicCMS core markup uses stable, BEM-ish class names. A theme **should style at
 | Selector | Element |
 |---|---|
 | `body.mcms` | `<body>`; also has `layout-none\|left\|right\|both` and `page-<module>` classes |
-| `.site-header`, `.site-nav`, `.site-footer` | Chrome. Header brand: `.brand` containing `img.brand-mark` (bundled emblem, 40×40) **or** `img.brand-logo` (admin-uploaded logo, any aspect ratio, `height:40px;width:auto`) plus optional `.brand-text` |
+| `.site-header` (tall brand row), `.site-navbar` (full-width sticky menu bar; gets `.is-stuck` once the header has scrolled away), `.site-nav`, `.site-footer` | Chrome. Header brand: `.brand` containing `img.brand-mark` (bundled emblem, 40×40) **or** `img.brand-logo` (admin-uploaded logo, any aspect ratio, `height:40px;width:auto`) plus optional `.brand-text` |
 | `.site-grid` | CSS grid wrapper: `[left] [main] [right]` |
 | `.col-left`, `.col-main`, `.col-right` | Columns (absent when the layout mode hides them) |
 | `.drawer-toggle`, `.drawer` | Mobile sidebar controls |
+
+### Header & footer
+Header (`views/header.php`): `header.site-header#top > .container.header-top` with `.brand.brand-xl` (the logo is the dominant element: 64 px) and `.header-actions`; then `.nav-sentinel` (an invisible marker watched by core.js) and `div.site-navbar > .container.navbar-inner` containing `.nav-mini-brand` (shown only while `.is-stuck`) and the `nav.site-nav`. The menu list stretches over the full width and its items share the space equally.
+Footer (`views/footer.php`): `.site-footer > .footer-glow`, `.footer-grid` with `.fcol` columns (`.fbrand`, Explore, Community, Latest news; `h4` headings), and `.footer-bottom` (`.powered`, `.to-top`).
 
 ### Panels
 ```html
@@ -158,7 +162,7 @@ MagicCMS core markup uses stable, BEM-ish class names. A theme **should style at
   <div class="panel-body"> …panel output… </div>
 </section>
 ```
-Selectors: `.panel`, `.panel-title`, `.panel-body`, `.panel-toggle`, `.panel.is-collapsed`
+Selectors: `.panel`, `.panel-title` (optionally containing `.panel-icon` – an emoji chip from the panel's `icon` in `panel.json`), `.panel-body`, `.panel-toggle`, `.panel.is-collapsed`. Title bars are decorated with `::before` (hatching) and `::after` (travelling glint); the default theme also animates a flowing gradient (`tb-flow`). The text colour/shadow come from `--c-on-bar` / `--bar-text-shadow`, which core computes from the colour scheme.
 
 ### Content blocks
 `.card`, `.card-title` (bold title-bar), `.btn`, `.btn-primary`, `.btn-ghost`, `.btn-danger`, `.badge`, `.alert.alert-{success|warning|danger|info}`, `.table`, `.pagination`, `.breadcrumb`, `.tabs`, `.avatar` (+ `.avatar-xs|sm|md|lg|xl`; **always circular – core.css forces `border-radius:50%`, do not fight it; style only border/shadow**), `.role-{superadmin|admin|mod|member}`

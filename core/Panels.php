@@ -94,7 +94,7 @@ final class Panels
             }
             $v = json_decode((string) $p['visibility'], true) ?: [];
             $out[] = render('panel', [
-                'panel' => ['id' => (int) $p['id'], 'key' => $p['panel_key'], 'title' => $p['title'], 'hideMobile' => empty($v['mobile'] ?? true)],
+                'panel' => ['id' => (int) $p['id'], 'key' => $p['panel_key'], 'title' => $p['title'], 'icon' => (string) ($reg['meta']['icon'] ?? ''), 'hideMobile' => empty($v['mobile'] ?? true)],
                 'html' => $html,
             ]);
         }

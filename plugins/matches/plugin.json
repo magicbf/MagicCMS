@@ -1,0 +1,9 @@
+{
+  "key": "matches",
+  "name": "Matches",
+  "version": "1.0.0",
+  "description": "Match results & schedule, plus the Recent Matches panel.",
+  "author": "MagicCMS",
+  "requires": "0.1",
+  "provides": { "routes": ["/matches", "/matches/{id}", "/admin/matches"], "panels": ["recent_matches"], "permissions": ["admin.matches"], "settings": ["matches.panel_count"] }
+}

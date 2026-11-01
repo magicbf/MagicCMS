@@ -1,2 +1,23 @@
-{ "key": "latest_news", "title": "Latest News", "version": "1.0.0", "positions": ["left", "right"], "multiple": true,
-  "settings": { "count": { "type": "number", "label": "Posts to show", "default": 4 }, "category": { "type": "text", "label": "Only this category (slug, optional)", "default": "" } } }
+{
+  "key": "latest_news",
+  "title": "Latest News",
+  "version": "1.0.0",
+  "positions": [
+    "left",
+    "right"
+  ],
+  "multiple": true,
+  "settings": {
+    "count": {
+      "type": "number",
+      "label": "Posts to show",
+      "default": 4
+    },
+    "category": {
+      "type": "text",
+      "label": "Only this category (slug, optional)",
+      "default": ""
+    }
+  },
+  "icon": "📰"
+}

@@ -20,6 +20,8 @@ final class Bootstrap
                 $f = MCMS_ROOT . '/core/' . substr($class, 14) . '.php';
             } elseif (preg_match('/^MagicCMS\\\\Modules\\\\(\w+)\\\\(\w+)$/', $class, $m)) {
                 $f = MCMS_ROOT . '/modules/' . strtolower($m[1]) . '/' . $m[2] . '.php';
+            } elseif (preg_match('/^MagicCMS\\\\Plugins\\\\(\w+)\\\\(\w+)$/', $class, $m)) {
+                $f = MCMS_ROOT . '/plugins/' . strtolower($m[1]) . '/' . $m[2] . '.php';
             } else {
                 return;
             }
@@ -124,8 +126,8 @@ final class Bootstrap
     /** Enabled modules (modules table) that exist on disk register their routes. */
     private static function loadModules(Router $router): void
     {
-        foreach (db()->all('SELECT module_key FROM {modules} WHERE enabled = 1 ORDER BY id') as $m) {
-            $dir = MCMS_ROOT . '/modules/' . $m['module_key'];
+        foreach (db()->all('SELECT module_key, is_core FROM {modules} WHERE enabled = 1 ORDER BY id') as $m) {
+            $dir = MCMS_ROOT . ($m['is_core'] ? '/modules/' : '/plugins/') . $m['module_key'];
             if (preg_match('/^[a-z0-9_]+$/', $m['module_key']) && is_file($dir . '/routes.php')) {
                 (require $dir . '/routes.php')($router);
             }

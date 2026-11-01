@@ -66,7 +66,8 @@ final class Appearance
         }
         // Text colour for gradient title bars / hero: dark on bright gradients, white on deep ones.
         $lum = (self::luminance($colors['primary_hi']) + self::luminance($colors['primary'])) / 2;
-        $css .= '--c-on-bar:' . ($lum > 0.24 ? '#1a0703' : '#ffffff') . ';';
+        $dark = $lum > 0.24;
+        $css .= '--c-on-bar:' . ($dark ? '#1a0703' : '#ffffff') . ';--bar-text-shadow:' . ($dark ? '0 1px 0 rgba(255,255,255,.35)' : '0 1px 2px rgba(60,0,0,.45)') . ';';
         $r = max(0, min(32, (int) setting('appearance.radius', 16)));
         $css .= '--radius:' . $r . 'px;--radius-sm:' . intdiv($r, 2) . 'px;--radius-lg:' . intdiv($r * 3, 2) . 'px;}';
         return $css;

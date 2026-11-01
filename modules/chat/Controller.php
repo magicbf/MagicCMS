@@ -10,12 +10,15 @@ final class Controller
         $after = max(0, (int) input('after', 0));
         $rows = db()->all(
             'SELECT * FROM (
-                SELECT m.id, m.message, m.created_at, u.id AS uid, u.username, u.avatar, r.slug AS role
+                SELECT m.id, m.message, m.created_at, u.id AS uid, u.username, u.avatar, r.level AS lvl, r.slug AS role
                 FROM {chat_messages} m JOIN {users} u ON u.id = m.user_id JOIN {roles} r ON r.id = u.role_id
                 WHERE m.id > ? ORDER BY m.id DESC LIMIT 40) t ORDER BY id ASC',
             [$after]
         );
+        $myLevel = \MagicCMS\Core\Auth::level();
         foreach ($rows as &$r) {
+            $r['can_delete'] = can('chat.moderate') && ($myLevel >= (int) $r['lvl'] || (user() && (int) user()['id'] === (int) $r['uid']));
+            unset($r['lvl']);
             $r['avatar_url'] = avatar_url(['id' => $r['uid'], 'avatar' => $r['avatar']], 32);
             $r['time'] = fmt_date($r['created_at'], 'H:i');
             $r['profile'] = url('user/' . $r['username']);
@@ -44,6 +47,10 @@ final class Controller
 
     public function delete(array $p): void
     {
+        $m = db()->one('SELECT user_id FROM {chat_messages} WHERE id = ?', [(int) $p['id']]);
+        if ($m && !\MagicCMS\Core\Auth::mayAffect((int) $m['user_id'])) {
+            json_out(['ok' => false, 'error' => 'rank'], 403);
+        }
         db()->exec('DELETE FROM {chat_messages} WHERE id = ?', [(int) $p['id']]);
         audit('chat.delete', 'message #' . (int) $p['id']);
         json_out(['ok' => true]);

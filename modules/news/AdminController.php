@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace MagicCMS\Modules\News;
 
-use MagicCMS\Core\{Cover, Sanitizer, Settings, Uploads, View};
+use MagicCMS\Core\{Auth, Cover, Sanitizer, Settings, Uploads, View};
 
 /** Admin → News: posts and categories. */
 final class AdminController
@@ -51,6 +51,10 @@ final class AdminController
         if (isset($p['id']) && !$row) {
             redirect('/admin/news');
         }
+        if ($row && !Auth::mayAffect((int) $row['author_id'])) {
+            flash('danger', t('You cannot edit a post by a higher-ranked user.'));
+            redirect('/admin/news');
+        }
         $tags = $row ? implode(', ', array_column(News::tags((int) $row['id']), 'name')) : '';
         return $this->page($row ? t('Edit post') : t('New post'), 'admin_edit', ['row' => $row, 'cats' => News::categories(), 'tags' => $tags]);
     }
@@ -59,6 +63,10 @@ final class AdminController
     {
         $id = (int) input('id', 0);
         $old = $id ? db()->one('SELECT * FROM {news} WHERE id = ?', [$id]) : null;
+        if ($old && !Auth::mayAffect((int) $old['author_id'])) {
+            flash('danger', t('You cannot edit a post by a higher-ranked user.'));
+            redirect('/admin/news');
+        }
         $title = mb_substr((string) input('title'), 0, 160);
         $back = $id ? '/admin/news/' . $id : '/admin/news/new';
         if ($title === '') {
@@ -105,7 +113,11 @@ final class AdminController
 
     public function delete(array $p): never
     {
-        $row = db()->one('SELECT id, cover, title FROM {news} WHERE id = ?', [(int) $p['id']]);
+        $row = db()->one('SELECT id, cover, title, author_id FROM {news} WHERE id = ?', [(int) $p['id']]);
+        if ($row && !Auth::mayAffect((int) $row['author_id'])) {
+            flash('danger', t('You cannot delete a post by a higher-ranked user.'));
+            redirect('/admin/news');
+        }
         if ($row) {
             Uploads::deletePicture('news', $row['cover']);
             db()->exec('DELETE FROM {news_comments} WHERE news_id = ?', [$row['id']]);

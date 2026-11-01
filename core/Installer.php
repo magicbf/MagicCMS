@@ -128,7 +128,7 @@ final class Installer
         $grant = [
             'guest' => ['chat.read'],
             'member' => ['chat.read', 'chat.post'],
-            'moderator' => ['chat.read', 'chat.post', 'chat.moderate'],
+            'moderator' => ['chat.read', 'chat.post'],
             'admin' => array_keys($perms),
         ];
         foreach ($grant as $role => $keys) {

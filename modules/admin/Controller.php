@@ -359,6 +359,33 @@ final class Controller
         $this->back('/admin/navigation?menu=' . ($i['menu_key'] ?? 'main'));
     }
 
+    // ---------------------------------------------------------------- modules & plugins (superadmin only)
+    public function modules(): string
+    {
+        $rows = db()->all('SELECT * FROM {modules} ORDER BY is_core DESC, id');
+        foreach ($rows as &$r) {
+            $dir = MCMS_ROOT . ($r['is_core'] ? '/modules/' : '/plugins/') . $r['module_key'];
+            $meta = is_file($dir . '/module.json') ? json_decode((string) file_get_contents($dir . '/module.json'), true) : (is_file($dir . '/plugin.json') ? json_decode((string) file_get_contents($dir . '/plugin.json'), true) : []);
+            $r['name'] = $meta['name'] ?? $r['module_key'];
+            $r['description'] = $meta['description'] ?? '';
+            $r['present'] = is_dir($dir);
+        }
+        return $this->page(t('Modules & plugins'), 'modules', 'modules', ['rows' => $rows]);
+    }
+
+    public function moduleToggle(array $p): void
+    {
+        $m = db()->one('SELECT * FROM {modules} WHERE module_key = ?', [$p['key']]);
+        if ($m && !$m['is_core']) {
+            db()->exec('UPDATE {modules} SET enabled = 1 - enabled WHERE id = ?', [$m['id']]);
+            audit('module.toggle', $m['module_key'] . ' → ' . ($m['enabled'] ? 'off' : 'on'));
+            flash('success', t('Saved. The change is active immediately.'));
+        } else {
+            flash('danger', t('Core modules cannot be disabled.'));
+        }
+        $this->back('/admin/modules');
+    }
+
     // ---------------------------------------------------------------- pages
     public function pages(): string
     {

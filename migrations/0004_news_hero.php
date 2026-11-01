@@ -9,7 +9,7 @@ return function (MagicCMS\Core\Database $db): void {
         $db->exec('INSERT IGNORE INTO {modules} (module_key, enabled, is_core) VALUES (?,1,1)', [$m]);
     }
     $perms = ['news.comment' => 'Comment on news', 'news.moderate' => 'Delete news comments', 'admin.news' => 'Manage news', 'admin.hero' => 'Manage the hero banner'];
-    $grant = ['member' => ['news.comment'], 'moderator' => ['news.comment', 'news.moderate'], 'admin' => array_keys($perms)];
+    $grant = ['member' => ['news.comment'], 'moderator' => ['news.comment'], 'admin' => array_keys($perms)];
     foreach ($perms as $k => $label) {
         $db->exec('INSERT IGNORE INTO {permissions} (perm_key, label) VALUES (?,?)', [$k, $label]);
     }
