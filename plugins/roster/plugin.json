@@ -1,0 +1,2 @@
+{ "key": "roster", "name": "Team roster", "version": "1.0.0", "description": "Players and staff with photos, roles, countries, socials and stats, plus the Our Squad panel.", "author": "MagicCMS", "requires": "0.1",
+  "provides": { "routes": ["/roster", "/roster/{id}", "/admin/roster"], "panels": ["roster_squad"], "permissions": ["admin.roster"] } }
