@@ -22,8 +22,8 @@
 | Passwords | ✅ | Argon2id (bcrypt fallback), rehash on login |
 | Roles & permissions | ✅ | Guest, Member, Moderator, Administrator, Superadministrator; privilege-escalation guarded |
 | Admin: dashboard, settings, users, panels, navigation, pages, appearance | ✅ | |
-| Layout: none / left / right / both (+ per-page override) | ✅ | Empty columns collapse automatically |
-| Panels: Account, Online Users, Shoutbox, Site Stats, Custom HTML, Navigation | ✅ | Multiple instances of Custom HTML / Navigation |
+| Layout: **one right-hand panel column by default**; left / both / none optional (+ per-page override) | ✅ | Empty columns collapse automatically; existing sites are migrated without losing panels |
+| Panels: Online Users, Shoutbox, Site Stats, Custom HTML, Navigation, Partners strip (+ optional Account panel) | ✅ | The login/register/account area is in the header; the Account panel is **off by default** – switch it on in Admin → Panels if a custom theme has no account area on top (a theme can declare `"supports": {"accountInHeader": false}` to switch it on automatically) |
 | Menu builder (gradient buttons, dropdowns, page/URL/module targets) | ✅ | Emoji icons; SVG icon set planned |
 | Light/dark mode + admin colour scheme | ✅ | 6 presets + custom colours, contrast warning, live preview |
 | Avatars (≤ 5 MB, auto-resize, re-encode) | ✅ | 32/64/128/256 px, WebP (JPEG fallback). **Always rendered circular** (enforced in core CSS, themes cannot change it – also in the forum) |
@@ -366,7 +366,7 @@ Configured in **Admin → Settings → Layout** and overridable **per page/modul
 | `right` | Content + right panels |
 | `both` | Left + content + right |
 
-Examples: show both sidebars on the home page, but use *none* on the forum for maximum width, and *right* on news articles.
+The CMS default is **`right`** – a single panel column on the right for a wide, modern look; the left column is optional. Examples: *both* sidebars on the home page, *none* on the forum for maximum width.
 
 ### Header & layout styles (Admin → Settings)
 
@@ -632,6 +632,15 @@ Found a vulnerability? Please report it privately to the maintainers rather than
 
 ---
 
+**Hardening notes (security review)**
+- **Sessions**: a password change or reset ends every other session and remember-me token; a fresh CSRF token is issued at login; changing the e-mail address requires the current password; current-password guessing is rate-limited.
+- **Abuse limits**: registration per connection per hour (admin setting, default 5), login failures per connection (10 / 15 min) and per account (30 – high enough that a stranger cannot lock the owner out), password/e-mail change attempts; unknown accounts cost the same as real ones (no timing oracle); password-reset and verification e-mails are sent after the response.
+- **E-mail**: strict address validation (no quoted local parts / SMTP-significant characters), header-injection-safe mailer, signed unsubscribe links.
+- **Uploads**: images re-encoded (metadata stripped, pixel caps), SVG logos scanned, forum attachments stored outside direct web access and served by a permission-checking controller with `nosniff`, forced download and a sandboxing CSP, per-member storage quota; the nginx sample adds `nosniff` + a locked-down CSP for `/uploads/`.
+- **Forum**: read levels are enforced for moderation, editing, reporting and subscribing, not only for viewing; poll votes and event sign-ups are serialised with row locks (no double votes or oversold capacity); bare URLs in posts are linked only in text nodes (never inside tags).
+- **Backups/updates**: a restore only accepts the statements MagicCMS itself writes (single statements, own table prefix, no `DROP DATABASE`/`INTO OUTFILE`/chained queries); update packages are validated, checksummed and rolled back automatically on failure. Update feeds are fetched over HTTPS only. Packages are not cryptographically signed – only install packages from sources you trust.
+- Cookie-less clients (bots) are not tracked in "who is online".
+
 ## 18. Theming
 
 MagicCMS themes are **self-contained folders** that define a design via **CSS variables (design tokens)** and, if needed, **template overrides**. A theme can be a 30-line colour swap or a total redesign.
@@ -772,7 +781,7 @@ Key settings:
 | Key | Default | Description |
 |---|---|---|
 | `site.name` | `MagicCMS` | Site title |
-| `layout.mode` | `both` | `none` / `left` / `right` / `both` |
+| `layout.mode` | `right` | `none` / `left` / `right` / `both` – one right-hand column is the default |
 | `layout.header` | `classic` | `classic` / `inline` / `hanging` / `float` / `rail` |
 | `layout.rhythm` | `even` | `even` / `stagger` |
 | `layout.mirror` | `false` | Swap left/right side panels |

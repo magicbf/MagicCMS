@@ -158,6 +158,9 @@ final class Bootstrap
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET' || str_contains($_SERVER['REQUEST_URI'] ?? '', '/chat/')) {
             return;
         }
+        if (empty($_COOKIE[session_name()])) {
+            return; // cookie-less clients (bots, scrapers) are not tracked: one session per request must not become one DB write per request
+        }
         if (time() - (int) ($_SESSION['online_ts'] ?? 0) < 60) {
             return;
         }
