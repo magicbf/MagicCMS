@@ -72,7 +72,7 @@ img,svg,video{max-width:100%;height:auto}
 .input,.select,.textarea{width:100%;font:inherit}
 .btn-block{display:block;width:100%;text-align:center}
 .inline-form{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
-.inline-form .select{width:auto}
+.inline-form .select{width:auto}.inline-form .input{width:auto;flex:1 1 200px}.inline-form .input.narrow{flex:none}
 .actions{display:flex;gap:.3rem;flex-wrap:wrap}.actions form{margin:0}
 .pagination{display:flex;gap:.3rem;flex-wrap:wrap;justify-content:center;margin:1rem 0}
 .tabs{display:flex;gap:.4rem;flex-wrap:wrap}
@@ -88,3 +88,32 @@ img,svg,video{max-width:100%;height:auto}
 /* Avatars are ALWAYS circular, everywhere (forum, chat, profiles…). !important so no theme can change it. */
 .avatar{border-radius:50%!important;object-fit:cover;aspect-ratio:1/1;flex:none}.avatar-xs{width:24px;height:24px}.avatar-sm{width:32px;height:32px}.avatar-md{width:48px;height:48px}.avatar-lg{width:64px;height:64px}.avatar-xl{width:96px;height:96px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* forum structure */
+.forum-head{display:flex;gap:1rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.forum-bar{display:flex;gap:.6rem;justify-content:space-between;align-items:center;flex-wrap:wrap;margin:.6rem 0 1rem}
+.forum-bar-links,.forum-search{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap}.forum-search .input{width:220px}
+form.inline{display:inline;margin:0}
+.forum-table{display:flex;flex-direction:column}
+.forum-row{display:grid;grid-template-columns:34px minmax(0,1fr) 70px 70px minmax(150px,230px);gap:.6rem;align-items:center;padding:.7rem 1rem}
+.board-row{grid-template-columns:34px minmax(0,1fr) 70px 70px minmax(180px,260px)}
+.fr-icon{text-align:center}.fr-stat{display:flex;flex-direction:column;align-items:center;line-height:1.2}
+.fr-last{display:flex;gap:.5rem;align-items:center;min-width:0}.fr-last>div{min-width:0}
+.clip{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini-pages a{margin-left:.25rem}
+.post{display:grid;grid-template-columns:170px minmax(0,1fr);overflow:visible}
+.post-author{display:flex;flex-direction:column;align-items:center;gap:.25rem;text-align:center;padding:1rem .8rem}
+.post-main{padding:1rem 1.2rem;min-width:0;display:flex;flex-direction:column;gap:.6rem}
+.post-body{overflow-wrap:anywhere}.post-body img.bb-img{max-height:480px}
+.post-actions{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:auto;align-items:flex-start}.post-actions form{margin:0}
+.report form{display:flex;gap:.4rem;margin-top:.4rem}
+.editor-toolbar{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.4rem}
+.bb-code{overflow-x:auto}
+@media (max-width:767.98px){
+  .forum-row,.board-row{grid-template-columns:28px minmax(0,1fr) 56px}
+  .forum-row .fr-last{grid-column:2/4}
+  .post{grid-template-columns:1fr}
+  .post-author{flex-direction:row;flex-wrap:wrap;justify-content:flex-start;text-align:left;padding:.8rem 1rem;border-bottom:1px solid var(--c-border,#333)}
+  .post-author .avatar-xl{width:48px;height:48px}
+  .forum-search .input{width:100%;flex:1}.forum-search{flex:1}
+}

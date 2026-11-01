@@ -1,0 +1,2 @@
+{ "key": "latest_topics", "title": "Latest Topics", "version": "1.0.0", "positions": ["left", "right"],
+  "settings": { "count": { "type": "number", "label": "Topics to show", "default": 6 } } }

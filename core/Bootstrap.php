@@ -65,6 +65,10 @@ final class Bootstrap
         self::session();
         self::$db = new Database(self::$config['db']);
         Settings::load();
+        if (Migrator::latest() > (int) Settings::get('schema.version', 1)) { // new code, older DB: upgrade automatically
+            Migrator::upgrade(self::$db);
+            Settings::load();
+        }
         Auth::init();
 
         $router = new Router();

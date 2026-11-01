@@ -7,7 +7,7 @@
   Black &amp; red by default. Fast. Modular. Easy to extend (by humans <i>or</i> AI).
 </p>
 
-> **Status: v0.1 "Foundation" is implemented and tested.** The installer, auth, roles, layout/panels, menu builder, appearance (light/dark + colour schemes),
+> **Status: v0.1 "Foundation" + the Forum are implemented and tested.** The installer, auth, roles, layout/panels, menu builder, appearance (light/dark + colour schemes),
 > custom pages, shoutbox, avatars, theme engine and admin shell all work. Everything marked **(planned)** below is specified but not built yet —
 > see [Implementation status](#implementation-status).
 
@@ -33,7 +33,8 @@
 | Plugins / modules loader | ✅ (modules) | Core modules are loaded from the `modules` table; admin UI for enabling/installing planned |
 | Hero module | ⏳ | v0.1 ships a static "hero-lite" intro on the home page; full module planned |
 | News + categories + generated covers | ⏳ | planned (v0.4) |
-| Forum | ⏳ | planned (v0.2) |
+| Forum (categories → boards → topics → posts) | ✅ | BBCode, per-board read/post levels, sticky/announce/lock/move/delete, reports queue, search, unread tracking, ranks – see [§15](#15-forum). Attachments, polls, subscriptions/e-mail notifications, reactions: planned |
+| Versioned migrations + auto-upgrade | ✅ | `migrations/NNNN_*.sql` (+ optional `.php` seed); new code upgrades an older database automatically |
 | Matches / roster / events panels | ⏳ | planned (v0.3) |
 | Private messages, email verification, password reset | ⏳ | need a mail layer – planned |
 | Update/migration runner UI | ⏳ | planned |
@@ -255,7 +256,7 @@ All tables use the configurable prefix (default `mcms_`), InnoDB, `utf8mb4_unico
 | `news_categories` | id, parent_id, name, slug, color, icon, image, cover_style, sort_order, visibility |
 | `news_tags` / `news_tag_map` | Tags |
 | `comments` | Comments (news and other content) |
-| `forum_categories`, `forum_boards`, `forum_topics`, `forum_posts`, `forum_attachments`, `forum_reads`, `forum_subscriptions`, `forum_reports` | Forum |
+| `forum_categories`, `forum_boards`, `forum_topics`, `forum_posts`, `forum_reads`, `forum_markread`, `forum_reports` | Forum (attachments & subscriptions tables arrive with those features) |
 | `matches`, `match_maps`, `opponents`, `games`, `events` | Esports data |
 | `team_members` | Roster |
 | `chat_messages` | Shoutbox |
@@ -460,25 +461,26 @@ Other: category & tag archives, RSS per category, related posts, "featured" slid
 
 ## 15. Forum
 
-A full phpBB-style forum.
+A phpBB-style forum, built as the `forum` module. Open it from the **Forum** menu button, the *Latest Topics* panel, or `/forum`.
 
-**Structure:** Categories → Boards (with sub-boards) → Topics → Posts
+**Structure:** Categories → Boards (with one level of sub-boards) → Topics → Posts. Create and arrange them in **Admin → Forum**.
 
-**Features**
-- Topics: sticky, announcement, locked, moved, merged/split (moderators)
-- Posting: BBCode **or** Markdown (admin choice) with live preview, quoting, edit history, emoji
-- Attachments (images/files) with size & type limits
-- Per-board **permissions** per role (view / read / post / reply / edit own / delete own / moderate)
-- Private/hidden boards (e.g. *Team-only*, *Admin lounge*)
-- Unread tracking, "new posts since last visit", mark-all-read
-- Topic subscriptions & email notifications
-- Polls in topics
-- Reputation / "thanks" / reactions *(planned)*
-- Report post → moderation queue
-- Moderator tools: warn, mute, ban, move, lock, prune, IP view
-- User post counts, ranks (by post count or custom), signatures
-- Search (MySQL FULLTEXT) with filters
-- Pagination, breadcrumbs, jump-to-last-post, RSS per board
+**Implemented**
+- **Board permissions** – each board has a *read level* and a *post level* (Everyone/guests, Members, Moderators, Administrators) and an optional *locked* flag. Boards a user may not read are completely hidden (index, topic URLs, search, panels).
+- **Topics** – normal, **sticky** and **announcement** types; locked topics; move between boards; view counter; reply counter; mini page links; jump to last post / jump to a post (`/forum/post/ID`).
+- **Posting** – BBCode with a toolbar, keyboard shortcuts (Ctrl+B/I/U), **live preview**, quoting, quick-reply, edit (with "edited by" marker), flood protection (10 s), length limits.
+- **BBCode** – `[b] [i] [u] [s] [quote] [quote=Name] [code] [url] [url=…] [img] (https only) [list] [list=1] [*] [spoiler]`, auto-links and emoticons. Input is HTML-escaped *first*, so no markup or script can get through.
+- **Unread tracking** – unread dots on boards/topics, *Unread topics* page, *Mark all read*. New members only see content posted after they joined as "unread".
+- **Moderation** – lock/unlock, sticky/announce/normal, move, delete topic or post; **report post → moderator queue** (`/forum/reports`) with a badge counter; all actions are written to the audit log.
+- **Rules for members** – may edit their own posts (unless the topic is locked), delete their own replies (not the opening post).
+- **Search** – MySQL FULLTEXT on posts + title match, filtered by what the searcher may read.
+- **Author box** – circular avatar, role badge, rank (Newcomer → Legend by post count), post count, join date, signature.
+- **Latest Topics panel** and a forum **menu entry** are installed automatically.
+- Fully responsive: on phones the author box collapses above each post and topic rows become compact.
+
+**Planned:** attachments, polls, topic subscriptions & e-mail notifications, reactions/"thanks", merge/split topics, per-user mute/warn, RSS feeds.
+
+**Permissions:** `forum.post`, `forum.report` (Members and up), `forum.moderate` (Moderators and up), `admin.forum` (Administrators). Change them per role in the `role_permissions` table (role editor UI planned).
 
 ---
 
@@ -661,7 +663,7 @@ Key settings:
 
 **v0.1 – Foundation:** setup wizard, DB layer, auth, roles, settings, router, theme engine, layout/panels, admin shell
 **v0.1 also:** menu builder, appearance (light/dark + colour schemes), hero module
-**v0.2 – Community:** profiles & avatars, forum, private messages, shoutbox, online users
+**v0.2 – Community:** ✅ profiles & avatars, ✅ forum, ✅ shoutbox, ✅ online users · ⏳ private messages
 **v0.3 – Esports:** matches, roster, events, recent-matches & next-match panels, recruitment form
 **v0.4 – Content:** news + categories + generated covers, pages, gallery, downloads, polls, search
 **v0.5 – Polish:** notifications, audit log UI, SEO/RSS/sitemap, GDPR tools, i18n packs

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MagicCMS\Core;
 
 require_once __DIR__ . '/Database.php';
+require_once __DIR__ . '/Migrator.php';
 
 /** Logic behind setup.php. Works without a config file (it creates it). */
 final class Installer
@@ -79,6 +80,7 @@ final class Installer
             $db->transaction(function (Database $db) use ($site, $admin) {
                 self::seed($db, $site, $admin);
             });
+            Migrator::upgrade($db); // 0002+ (forum, …): same path as a later upgrade
         } catch (\Throwable $e) {
             return 'Installation failed: ' . $e->getMessage();
         }
@@ -189,7 +191,7 @@ final class Installer
             );
         }
 
-        $db->exec('INSERT INTO {meta} (`key`, `value`) VALUES (?,?)', ['schema_version', '1']);
+        $db->exec("INSERT INTO {settings} (`key`, `value`) VALUES ('schema.version', '1')");
     }
 
     /** Try to remove the installer. @return bool true if setup.php is gone */
