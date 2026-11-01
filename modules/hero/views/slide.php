@@ -1,5 +1,6 @@
 <?php /** @var ?array $row @var array $targets @var array $pages */
-$r = $row ?? ['id' => 0, 'enabled' => 1, 'eyebrow' => '', 'headline' => '', 'subline' => '', 'image' => null, 'overlay' => 45, 'align' => 'left', 'color_from' => '', 'color_to' => '', 'starts_at' => null, 'ends_at' => null];
+$r = $row ?? ['id' => 0, 'enabled' => 1, 'eyebrow' => '', 'headline' => '', 'subline' => '', 'image' => null, 'overlay' => 45, 'align' => 'left', 'color_from' => '', 'color_to' => '', 'starts_at' => null, 'ends_at' => null, 'media_type' => 'none', 'media_side' => 'right', 'media_image' => null, 'media_youtube' => ''];
+$mimg = upload_url('hero', $r['media_image']);
 $img = upload_url('hero', $r['image']); ?>
 <form class="card" method="post" action="<?= e(url('admin/hero/slide/save')) ?>" enctype="multipart/form-data"><?= csrf_field() ?><input type="hidden" name="id" value="<?= (int) $r['id'] ?>">
 <h2 class="card-title"><?= e($r['id'] ? t('Edit slide') : t('New slide')) ?></h2><div class="card-body">
@@ -16,6 +17,20 @@ $img = upload_url('hero', $r['image']); ?>
     <small class="help"><?= e(t('Optional (up to 5 MB, resized to 1920 px wide). Without a picture the slide uses the animated colour gradient.')) ?></small>
     <?php if ($img): ?><label class="checkbox"><input type="checkbox" name="remove_image" value="1"> <?= e(t('Remove the picture')) ?></label><?php endif ?></div>
   <div class="form-row"><label class="label"><?= e(t('Darkening overlay on pictures')) ?>: <output id="ovv"><?= (int) $r['overlay'] ?></output>%</label><input type="range" name="overlay" min="0" max="90" value="<?= (int) $r['overlay'] ?>" data-out="ovv"></div>
+  <fieldset class="btn-fields media-fields"><legend class="label"><?= e(t('Featured media (rounded, next to the text)')) ?></legend>
+    <div class="form-grid">
+      <div class="form-row"><label class="label"><?= e(t('Show')) ?></label><select class="select" name="media_type" data-ref-switch>
+        <?php foreach (['none' => 'Nothing', 'image' => 'A rectangular image', 'youtube' => 'A YouTube video'] as $k => $l): ?><option value="<?= $k ?>" <?= $r['media_type'] === $k ? 'selected' : '' ?>><?= e(t($l)) ?></option><?php endforeach ?></select></div>
+      <div class="form-row"><label class="label"><?= e(t('Side')) ?></label><select class="select" name="media_side"><option value="right" <?= $r['media_side'] === 'right' ? 'selected' : '' ?>><?= e(t('Right of the text')) ?></option><option value="left" <?= $r['media_side'] === 'left' ? 'selected' : '' ?>><?= e(t('Left of the text')) ?></option></select></div>
+    </div>
+    <div class="form-row" data-ref="youtube"><label class="label"><?= e(t('YouTube link')) ?></label><input class="input" name="media_youtube" maxlength="200" value="<?= e($r['media_youtube'] ? 'https://youtu.be/' . $r['media_youtube'] : '') ?>" placeholder="https://www.youtube.com/watch?v=…">
+      <small class="help"><?= e(t('Plays in the banner after a click, via youtube-nocookie.com. Nothing is requested from YouTube until a visitor presses play – unless you leave the poster empty, in which case YouTube\'s thumbnail is shown.')) ?></small></div>
+    <div class="form-row cover-edit" data-ref="image youtube"><label class="label"><span data-label-image><?= e(t('Image')) ?></span> / <?= e(t('video poster (optional)')) ?></label>
+      <?php if ($mimg): ?><img class="cover-preview" src="<?= e($mimg) ?>" alt="" width="240" height="135"><?php endif ?>
+      <input class="input" type="file" name="media_image" accept="image/jpeg,image/png,image/gif,image/webp">
+      <small class="help"><?= e(t('Cropped to 16:9 with rounded corners. For a video this is the poster; leave empty to use the YouTube thumbnail.')) ?></small>
+      <?php if ($mimg): ?><label class="checkbox"><input type="checkbox" name="remove_media_image" value="1"> <?= e(t('Remove this picture')) ?></label><?php endif ?></div>
+  </fieldset>
   <?= render('hero/_btn', ['n' => '1', 'r' => $r, 'targets' => $targets, 'pages' => $pages]) ?>
   <?= render('hero/_btn', ['n' => '2', 'r' => $r, 'targets' => $targets, 'pages' => $pages]) ?>
   <fieldset class="btn-fields"><legend class="label"><?= e(t('Gradient colours (no picture)')) ?></legend><div class="inline-form">

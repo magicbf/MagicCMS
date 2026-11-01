@@ -13,7 +13,7 @@ final class Hero
     public const DEFAULTS = [
         'enabled' => true, 'placement' => 'home', 'source' => 'slides', 'height' => 'normal', 'width' => 'contained',
         'transition' => 'fade', 'interval' => 7, 'autoplay' => true, 'pause' => true, 'arrows' => true, 'dots' => true,
-        'effect' => 'embers', 'parallax' => true,
+        'effect' => 'embers', 'parallax' => true, 'news_media' => 'background',
     ];
     public const OPTIONS = [
         'placement' => ['home' => 'Home page only', 'all' => 'All public pages (compact)', 'off' => 'Off'],
@@ -22,8 +22,27 @@ final class Hero
         'width' => ['contained' => 'Contained (rounded card)', 'full' => 'Full width (edge to edge)'],
         'transition' => ['fade' => 'Fade', 'slide' => 'Slide', 'zoom' => 'Zoom'],
         'effect' => ['embers' => 'Rising embers', 'aurora' => 'Aurora glow', 'grid' => 'Moving grid', 'none' => 'None'],
+        'news_media' => ['background' => 'Background picture', 'right' => 'Rounded image on the right', 'left' => 'Rounded image on the left'],
     ];
     private static bool $scriptDone = false;
+
+    /** YouTube watch / short / embed / youtu.be URL (or a bare 11-char id) → video id, or null. */
+    public static function youtubeId(string $input): ?string
+    {
+        $input = trim($input);
+        if (preg_match('/^[A-Za-z0-9_-]{11}$/', $input)) {
+            return $input;
+        }
+        if (!preg_match('#^https?://(?:www\.|m\.|music\.)?(youtube\.com|youtube-nocookie\.com|youtu\.be)/#i', $input)) {
+            return null;
+        }
+        if (preg_match('#youtu\.be/([A-Za-z0-9_-]{11})#i', $input, $m)
+            || preg_match('#[?&]v=([A-Za-z0-9_-]{11})#', $input, $m)
+            || preg_match('#/(?:embed|shorts|live|v)/([A-Za-z0-9_-]{11})#i', $input, $m)) {
+            return $m[1];
+        }
+        return null;
+    }
 
     public static function config(): array
     {
@@ -62,7 +81,13 @@ final class Hero
                         $btns[] = [$s["btn{$n}_label"], $url];
                     }
                 }
+                $mType = $s['media_type'];
+                $mImg = upload_url('hero', $s['media_image']);
+                $yt = $mType === 'youtube' && preg_match('/^[A-Za-z0-9_-]{11}$/', (string) $s['media_youtube']) ? $s['media_youtube'] : null;
+                if ($mType === 'image' && !$mImg) { $mType = 'none'; }
+                if ($mType === 'youtube' && !$yt) { $mType = 'none'; }
                 $out[] = [
+                    'media' => $mType === 'none' ? null : ['type' => $mType, 'side' => $s['media_side'] === 'left' ? 'left' : 'right', 'image' => $mImg, 'youtube' => $yt],
                     'eyebrow' => $s['eyebrow'], 'headline' => $s['headline'], 'subline' => $s['subline'], 'image' => upload_url('hero', $s['image']),
                     'overlay' => (int) $s['overlay'], 'align' => $s['align'], 'buttons' => $btns,
                     'from' => is_hex((string) $s['color_from']) ? $s['color_from'] : '', 'to' => is_hex((string) $s['color_to']) ? $s['color_to'] : '',
@@ -71,9 +96,11 @@ final class Hero
         }
         if (in_array($cfg['source'], ['news', 'both'], true) && self::moduleOn('news')) {
             foreach (\MagicCMS\Modules\News\News::featured(5) as $p) {
+                $asMedia = in_array($cfg['news_media'], ['right', 'left'], true);
                 $out[] = [
+                    'media' => $asMedia ? ['type' => 'image', 'side' => $cfg['news_media'], 'image' => \MagicCMS\Modules\News\News::coverUrl($p), 'youtube' => null] : null,
                     'eyebrow' => ($p['cat_name'] ?: t('News')), 'headline' => $p['title'], 'subline' => $p['excerpt'],
-                    'image' => \MagicCMS\Modules\News\News::coverUrl($p), 'overlay' => 50, 'align' => 'left',
+                    'image' => $asMedia ? null : \MagicCMS\Modules\News\News::coverUrl($p), 'overlay' => 50, 'align' => 'left',
                     'buttons' => [[t('Read more'), url('news/' . $p['slug'])], [t('All news'), url('news')]],
                     'from' => '', 'to' => '',
                 ];
@@ -100,7 +127,8 @@ final class Hero
         $o .= '<div class="hero-fx" aria-hidden="true">' . self::effect($cfg['effect']) . '</div><div class="hero-slides">';
         foreach ($slides as $i => $s) {
             $style = ($s['from'] ? '--hf:' . $s['from'] . ';' : '') . ($s['to'] ? '--hs:' . $s['to'] . ';' : '') . '--ov:' . max(0, min(90, $s['overlay'])) / 100;
-            $o .= '<article class="hero-slide align-' . e($s['align']) . ($s['image'] ? ' has-image' : '') . ($i === 0 ? ' is-active' : '') . '" style="' . e($style) . '" role="group" aria-roledescription="slide" aria-label="' . ($i + 1) . ' / ' . count($slides) . '"' . ($i === 0 ? '' : ' aria-hidden="true"') . '>';
+            $md = $s['media'] ?? null;
+            $o .= '<article class="hero-slide align-' . e($s['align']) . ($s['image'] ? ' has-image' : '') . ($md ? ' has-media media-' . $md['side'] : '') . ($i === 0 ? ' is-active' : '') . '" style="' . e($style) . '" role="group" aria-roledescription="slide" aria-label="' . ($i + 1) . ' / ' . count($slides) . '"' . ($i === 0 ? '' : ' aria-hidden="true"') . '>';
             $o .= $s['image'] ? '<div class="hero-media" style="background-image:url(\'' . e($s['image']) . '\')"></div><div class="hero-overlay"></div>' : '<div class="hero-bg"></div>';
             $o .= '<div class="hero-content">';
             $o .= $s['eyebrow'] !== '' ? '<span class="eyebrow">' . e($s['eyebrow']) . '</span>' : '';
@@ -113,7 +141,18 @@ final class Hero
                 }
                 $o .= '</div>';
             }
-            $o .= '</div></article>';
+            $o .= '</div>';
+            if ($md) {
+                $o .= '<div class="hero-mediabox ' . ($md['type'] === 'youtube' ? 'is-video' : 'is-image') . '">';
+                if ($md['type'] === 'youtube') {
+                    $poster = $md['image'] ?: 'https://i.ytimg.com/vi/' . $md['youtube'] . '/hqdefault.jpg';
+                    $o .= '<div class="hero-video" data-yt="' . e($md['youtube']) . '"><button type="button" class="hero-videobtn" aria-label="' . e(t('Play video')) . '"' . ($i === 0 ? '' : ' tabindex="-1"') . '><img class="hero-pic" src="' . e($poster) . '" alt="" loading="' . ($i === 0 ? 'eager' : 'lazy') . '" referrerpolicy="no-referrer"><span class="hero-play" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" fill="currentColor"/></svg></span></button></div>';
+                } else {
+                    $o .= '<img class="hero-pic" src="' . e($md['image']) . '" alt="' . e($s['headline']) . '" loading="' . ($i === 0 ? 'eager' : 'lazy') . '">';
+                }
+                $o .= '</div>';
+            }
+            $o .= '</article>';
         }
         $o .= '</div>';
         if ($multi && $cfg['arrows']) {
@@ -127,7 +166,8 @@ final class Hero
             $o .= '</div>';
         }
         $o .= '</section>' . ($cfg['width'] === 'full' ? '' : '</div>') . '</div>';
-        if (!self::$scriptDone && $multi || !self::$scriptDone && $cfg['parallax']) {
+        $hasVideo = (bool) array_filter($slides, fn($x) => ($x['media']['type'] ?? '') === 'youtube');
+        if (!self::$scriptDone && ($multi || $cfg['parallax'] || $hasVideo)) {
             self::$scriptDone = true;
             $o .= '<script src="' . e(asset('hero.js')) . '" defer></script>';
         }

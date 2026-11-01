@@ -106,7 +106,7 @@ final class Bootstrap
         header('X-Frame-Options: SAMEORIGIN');
         header('X-Content-Type-Options: nosniff');
         header('Referrer-Policy: strict-origin-when-cross-origin');
-        header("Content-Security-Policy: default-src 'self'; img-src 'self' data: https:; style-src 'self' 'nonce-$n'; style-src-attr 'unsafe-inline'; script-src 'self' 'nonce-$n'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'");
+        header("Content-Security-Policy: default-src 'self'; img-src 'self' data: https:; style-src 'self' 'nonce-$n'; style-src-attr 'unsafe-inline'; script-src 'self' 'nonce-$n'; base-uri 'self'; form-action 'self'; frame-src https://www.youtube-nocookie.com; frame-ancestors 'self'");
         if (is_https()) {
             header('Strict-Transport-Security: max-age=15552000');
         }

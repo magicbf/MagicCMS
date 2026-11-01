@@ -5,7 +5,7 @@
   // Show only the target field that matches the chosen link type
   d.querySelectorAll('[data-ref-switch]').forEach(function (sel) {
     var form = sel.closest('fieldset') || sel.closest('form');
-    function sync() { form.querySelectorAll('[data-ref]').forEach(function (r) { r.hidden = r.dataset.ref !== sel.value; r.style.display = r.hidden ? 'none' : ''; }); }
+    function sync() { form.querySelectorAll('[data-ref]').forEach(function (r) { var show = r.dataset.ref.split(' ').indexOf(sel.value) > -1; r.hidden = !show; r.style.display = show ? '' : 'none'; }); }
     sel.addEventListener('change', sync); sync();
   });
   // Range → <output> (CSP forbids inline handlers)

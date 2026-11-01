@@ -204,12 +204,14 @@ Markup (from `core/Hero.php`; the theme only paints it):
     <article class="hero-slide align-{left|center|right} [has-image] [is-active|is-leaving]" style="--hf;--hs;--ov">
       <div class="hero-bg"></div>  <!-- or: .hero-media (background-image) + .hero-overlay -->
       <div class="hero-content"><span class="eyebrow"> <h2 class="hero-title"> <p class="lead"> <div class="hero-cta"><a class="btn btn-dark"> <a class="btn btn-glass"></div></div>
+      <!-- optional featured media; the slide then also has .has-media .media-left|.media-right -->
+      <div class="hero-mediabox is-image|is-video"> <img class="hero-pic">  |  <div class="hero-video" data-yt="ID"><button class="hero-videobtn"><img class="hero-pic"><span class="hero-play"></span></button> (+ <iframe class="hero-iframe"> after click)</div> </div>
     </article> …
   </div>
   <button class="hero-arrow prev|next"> <div class="hero-dots"><button class="hero-dot is-active"> …
 </section></div></div>
 ```
-Custom properties set by core: `--hh` (height, on `.hero`), `--hf`/`--hs` (optional slide gradient colours), `--ov` (overlay 0–.9), `--iv` (autoplay interval, drives the dot progress fill), `--px`/`--py` (parallax offsets from `hero.js`). Slides are stacked in one grid cell and switched with `.is-active` / `.is-leaving`, so a theme animates them with plain CSS transitions. Use `var(--c-on-bar)` for text on the gradient and white on picture slides.
+Custom properties set by core: `--hh` (height, on `.hero`), `--hf`/`--hs` (optional slide gradient colours), `--ov` (overlay 0–.9), `--iv` (autoplay interval, drives the dot progress fill), `--px`/`--py` (parallax offsets from `hero.js`). Slides are stacked in one grid cell and switched with `.is-active` / `.is-leaving`, so a theme animates them with plain CSS transitions. Use `var(--c-on-bar)` for text on the gradient and white on picture slides. `.hero-mediabox` must keep rounded corners (`border-radius: var(--radius-lg)`, `overflow:hidden`, 16:9) in every theme; below 900 px it should stack under the text.
 
 ### News & categories
 `.news-grid`, `.news-card` (+`.news-featured`), `.news-cover`, `.news-flag`, `.news-body`, `.news-meta`, `.news-title`, `.news-excerpt`, `.news-foot`, `.cat-badge`, `.chip-row` / `.chip`, `.tag`; article: `.article`, `.article-cover`, `.article-head`, `.article-title`, `.article-lead`, `.article-body`; comments: `.comment`; panel: `.news-mini`.

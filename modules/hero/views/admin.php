@@ -11,6 +11,7 @@ $chk = fn(string $k, string $label) => '<label class="checkbox"><input type="che
     <div class="form-row"><label class="label"><?= e(t('Width')) ?></label><?= $sel('width') ?></div>
     <div class="form-row"><label class="label"><?= e(t('Transition')) ?></label><?= $sel('transition') ?></div>
     <div class="form-row"><label class="label"><?= e(t('Background effect')) ?></label><?= $sel('effect') ?></div>
+    <div class="form-row"><label class="label"><?= e(t('Featured news pictures')) ?></label><?= $sel('news_media') ?></div>
     <div class="form-row"><label class="label"><?= e(t('Seconds per slide')) ?> (3–30)</label><input class="input" type="number" min="3" max="30" name="interval" value="<?= (int) $cfg['interval'] ?>"></div>
   </div>
   <div class="check-grid"><?= $chk('autoplay', 'Autoplay') ?><?= $chk('pause', 'Pause on hover / focus') ?><?= $chk('arrows', 'Show arrows') ?><?= $chk('dots', 'Show dots') ?><?= $chk('parallax', 'Mouse parallax (desktop)') ?></div>
@@ -22,7 +23,7 @@ $chk = fn(string $k, string $label) => '<label class="checkbox"><input type="che
 <div class="card"><div class="card-body table-wrap"><table class="table"><thead><tr><th></th><th><?= e(t('Slide')) ?></th><th><?= e(t('Buttons')) ?></th><th><?= e(t('Schedule')) ?></th><th></th></tr></thead><tbody>
 <?php foreach ($slides as $s): $img = upload_url('hero', $s['image']); ?>
 <tr class="<?= $s['enabled'] ? '' : 'is-off' ?>"><td><?php if ($img): ?><img class="slide-thumb" src="<?= e($img) ?>" alt="" width="96" height="48" loading="lazy"><?php else: ?><span class="slide-thumb slide-thumb-grad"></span><?php endif ?></td>
-<td><strong><?= e($s['headline'] ?: '—') ?></strong><div class="muted small"><?= e($s['eyebrow']) ?> · <?= e($s['align']) ?></div></td>
+<td><strong><?= e($s['headline'] ?: '—') ?></strong><div class="muted small"><?= e($s['eyebrow']) ?> · <?= e($s['align']) ?><?= $s['media_type'] !== 'none' ? ' · ' . e($s['media_type'] === 'youtube' ? '▶ video' : '🖼 image') . ' ' . e($s['media_side']) : '' ?></div></td>
 <td class="small"><?= e(trim($s['btn1_label'] . ' / ' . $s['btn2_label'], ' /')) ?: '—' ?></td>
 <td class="small"><?= $s['starts_at'] || $s['ends_at'] ? e(($s['starts_at'] ? fmt_date($s['starts_at'], 'Y-m-d H:i') : '…') . ' → ' . ($s['ends_at'] ? fmt_date($s['ends_at'], 'Y-m-d H:i') : '…')) : '—' ?></td>
 <td class="actions">
