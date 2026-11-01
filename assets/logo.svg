@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 200" role="img" aria-label="MagicCMS">
+  <title>MagicCMS</title>
+  <defs>
+    <linearGradient id="red" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff4d4d"/>
+      <stop offset=".55" stop-color="#e10613"/>
+      <stop offset="1" stop-color="#7a0008"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#e10613" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#e10613" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="tile"><rect x="12" y="12" width="176" height="176" rx="40"/></clipPath>
+  </defs>
+
+  <rect width="640" height="200" rx="44" fill="#0b0b0d"/>
+  <!-- Emblem tile -->
+  <rect x="12" y="12" width="176" height="176" rx="40" fill="#111115"/>
+  <g clip-path="url(#tile)">
+    <circle cx="100" cy="110" r="95" fill="url(#glow)"/>
+    <!-- abstract orbit rings -->
+    <ellipse cx="100" cy="100" rx="84" ry="30" fill="none" stroke="#e10613" stroke-opacity=".35" stroke-width="1.5" transform="rotate(-28 100 100)"/>
+    <ellipse cx="100" cy="100" rx="84" ry="30" fill="none" stroke="#e10613" stroke-opacity=".2" stroke-width="1.5" transform="rotate(28 100 100)"/>
+  </g>
+  <rect x="12.75" y="12.75" width="174.5" height="174.5" rx="39.25" fill="none" stroke="url(#red)" stroke-width="1.5" stroke-opacity=".8"/>
+
+  <!-- Abstract "M": two blades + a rising diamond (the "spark") -->
+  <path d="M42 150 L42 62 Q42 52 52 58 L100 100 L148 58 Q158 52 158 62 L158 150 L134 150 L134 96 L100 126 L66 96 L66 150 Z" fill="url(#red)"/>
+  <path d="M42 150 L42 62 Q42 52 52 58 L100 100 L148 58 Q158 52 158 62 L158 80 L100 128 L42 80 Z" fill="url(#edge)" opacity=".35"/>
+  <path d="M100 30 L112 52 L100 74 L88 52 Z" fill="#ffffff" opacity=".95"/>
+  <path d="M100 30 L112 52 L100 74 L88 52 Z" fill="url(#red)" opacity=".55"/>
+
+  <!-- Wordmark -->
+  <text x="212" y="116" font-family="'Segoe UI','Inter','Helvetica Neue',Arial,sans-serif" font-size="72" font-weight="800" letter-spacing="-1.5" fill="#f4f4f6">Magic<tspan fill="url(#red)">CMS</tspan></text>
+  <rect x="214" y="132" width="180" height="4" rx="2" fill="url(#red)"/>
+  <text x="214" y="162" font-family="'Segoe UI','Inter','Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="600" letter-spacing="5" fill="#9a9aa3">LIGHTWEIGHT · MODULAR · BOLD</text>
+</svg>
