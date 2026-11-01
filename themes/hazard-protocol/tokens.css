@@ -1,0 +1,42 @@
+/* Hazard Protocol – design tokens (overrides Magic Red). Black base, hazard-yellow signal colour. */
+:root {
+  --c-primary:#ffc400; --c-primary-hi:#ffe45c; --c-primary-lo:#a67c00; --c-accent:#ff9f00;
+  --c-text-on-primary:#14110a;
+  --c-on-bar:#14110a;
+
+  --c-bg:#070706; --c-bg-2:#0c0c0a; --c-surface:#0f0f0c; --c-surface-2:#171710; --c-border:#2a2818;
+  --glass:linear-gradient(180deg,rgba(20,20,14,.82) 0%,rgba(10,10,8,.84) 100%);
+  --glass-border:rgba(255,212,0,.14);
+  --glass-hl:rgba(255,240,170,.07);
+  --field-bg:rgba(12,12,9,.78); --field-border:rgba(255,212,0,.20);
+  --pill-bg:rgba(14,14,10,.78);
+  --btn-bg:#0a0a08; --btn-fg:#f3efe2; --btn-border:rgba(255,212,0,.22);
+
+  --c-text:#f3efe2; --c-text-dim:#bdb59c; --c-text-faint:#8f8873;
+  --c-success:#4be08a; --c-warning:#ffae00; --c-danger:#ff5f4a; --c-info:#7cc4ff;
+
+  --g-primary:linear-gradient(135deg,var(--c-primary-hi) 0%,var(--c-primary) 55%,#ffae00 100%);
+  --g-titlebar:linear-gradient(90deg,rgba(255,212,0,.16),rgba(255,212,0,0) 72%);
+
+  --hz-ink:var(--c-primary);          /* yellow text on dark; darkened in the light variant */
+  --hz-line:rgba(255,212,0,.28);
+  --radius-sm:6px; --radius:8px; --radius-lg:12px;
+  --shadow:0 20px 44px rgba(0,0,0,.5);
+
+  --font-body:"Chakra Petch",system-ui,"Segoe UI",Roboto,sans-serif;
+  --font-display:"Chakra Petch","Arial Narrow",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Consolas,monospace;
+  --fs-base:15px; --lh:1.55;
+}
+:root[data-theme="light"] {
+  --c-bg:#f3f0e2; --c-bg-2:#fbf9ef; --c-surface:#fffdf5; --c-surface-2:#efebd6; --c-border:#ddd6b6;
+  --glass:linear-gradient(180deg,rgba(255,254,246,.96) 0%,rgba(255,252,238,.84) 100%);
+  --glass-border:rgba(90,70,0,.18); --glass-hl:rgba(255,255,255,.9);
+  --field-bg:rgba(255,254,246,.95); --field-border:rgba(90,70,0,.25);
+  --pill-bg:rgba(255,253,240,.85);
+  --btn-bg:#fffdf5; --btn-fg:#17150a; --btn-border:rgba(90,70,0,.25);
+  --c-text:#17150a; --c-text-dim:#5c573f; --c-text-faint:#7a745a;
+  --c-success:#12803f; --c-warning:#9a6200; --c-danger:#c42b17; --c-info:#1565a8;
+  --hz-ink:#7a5a00; --hz-line:rgba(122,90,0,.35); --c-accent:#9a5f00;
+  --shadow:0 16px 36px rgba(90,70,0,.14);
+}

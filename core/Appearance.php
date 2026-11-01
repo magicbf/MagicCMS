@@ -24,8 +24,28 @@ final class Appearance
         'royal' => ['Royal', ['primary' => '#2f6bff', 'primary_hi' => '#6e9bff', 'primary_lo' => '#0a2a7a', 'accent' => '#00d4ff', 'on_primary' => '#ffffff']],
         'toxic' => ['Toxic', ['primary' => '#16a34a', 'primary_hi' => '#4ade80', 'primary_lo' => '#064e23', 'accent' => '#bef264', 'on_primary' => '#ffffff']],
         'violet' => ['Violet', ['primary' => '#8b5cf6', 'primary_hi' => '#b794ff', 'primary_lo' => '#3b1a8a', 'accent' => '#f472b6', 'on_primary' => '#ffffff']],
+        'hazard' => ['Hazard', ['primary' => '#ffc400', 'primary_hi' => '#ffe45c', 'primary_lo' => '#a67c00', 'accent' => '#ff9f00', 'on_primary' => '#14110a']],
         'mono' => ['Mono', ['primary' => '#d4d4dc', 'primary_hi' => '#ffffff', 'primary_lo' => '#5d5d68', 'accent' => '#a0a0aa', 'on_primary' => '#0b0b0d']],
     ];
+
+    /**
+     * Themes may ship preferred defaults in theme.json: "defaults": {"scheme": "hazard", "radius": 8}.
+     * Applied when the theme is activated (installer or Admin → Appearance). @return string[] what was changed
+     */
+    public static function applyThemeDefaults(array $meta): array
+    {
+        $changed = [];
+        $d = (array) ($meta['defaults'] ?? []);
+        if (isset($d['scheme']) && isset(self::PRESETS[$d['scheme']])) {
+            Settings::set('appearance.scheme', $d['scheme']);
+            $changed[] = t('colour scheme “{n}”', ['n' => self::PRESETS[$d['scheme']][0]]);
+        }
+        if (isset($d['radius'])) {
+            Settings::set('appearance.radius', max(0, min(32, (int) $d['radius'])));
+            $changed[] = t('corner radius {n}px', ['n' => max(0, min(32, (int) $d['radius']))]);
+        }
+        return $changed;
+    }
 
     /** The mode setting chosen by site/user/guest: dark | light | auto */
     public static function modeSetting(): string

@@ -1,0 +1,13 @@
+{
+  "name": "Hazard Protocol",
+  "slug": "hazard-protocol",
+  "version": "1.0.0",
+  "author": "MagicCMS",
+  "description": "Terminal-inspired black & hazard-yellow theme: monospace labels, caution tape, scanlines, corner brackets and numbered navigation. Builds on Magic Red.",
+  "requires": "0.1",
+  "parent": "magic-red",
+  "stylesheets": ["tokens.css", "theme.css"],
+  "scripts": [],
+  "defaults": { "scheme": "hazard", "radius": 8 },
+  "supports": { "darkLight": true, "panels": ["left", "right"] }
+}

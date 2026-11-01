@@ -165,7 +165,11 @@ final class Controller
         Settings::set('nav.hover_fx', self::pick((string) input('nav_fx'), ['shine', 'glow', 'lift', 'none'], 'shine'));
         $theme = (string) input('theme');
         if (isset(View::themes()[$theme])) {
+            $changed = $theme !== (string) setting('theme.active', 'magic-red');
             Settings::set('theme.active', $theme);
+            if ($changed && ($applied = Appearance::applyThemeDefaults(View::themes()[$theme]))) {
+                flash('info', t('This theme suggests: {what}. Applied – adjust it any time below.', ['what' => implode(', ', $applied)]));
+            }
         }
         audit('appearance.save');
         flash('success', t('Appearance saved.'));

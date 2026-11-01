@@ -53,6 +53,7 @@ themes/my-theme/
 |---|---|---|
 | `name`, `slug`, `version` | ✅ | `slug` = folder name, `[a-z0-9-]+` |
 | `parent` | ❌ | Inherit everything from another theme; only override what you need (**recommended for AI-made themes**) |
+| `defaults` | ❌ | Preferred settings applied when the theme is activated (installer or Admin → Appearance): `{"scheme": "hazard", "radius": 8}` – `scheme` must be a preset key from `Appearance::PRESETS`, `radius` 0–32. Admins can change both afterwards |
 | `stylesheets` | ❌ | Loaded in order. Defaults to `["tokens.css","theme.css"]` |
 | `scripts` | ❌ | Loaded with `defer` |
 | `requires` | ❌ | Minimum MagicCMS version |
@@ -333,6 +334,15 @@ body.mcms {
   font: var(--fs-base)/var(--lh) var(--font-body);
 }
 ```
+
+## 8b. Bundled themes
+
+| Theme | Look | Notes |
+|---|---|---|
+| **Magic Red** (`magic-red`) | Warm black + crimson, aurora glows, glass cards, glossy pill navigation | Default; every other theme can use it as `parent` |
+| **Hazard Protocol** (`hazard-protocol`) | Terminal / hazard-yellow: Chakra Petch + JetBrains Mono, yellow grid and scanlines, caution-tape rules, corner-bracket cards, `// TITLE` bars, numbered navigation (`01 HOME`), blinking cursor in the logo, dark "screen" hero | Child of Magic Red (≈200 lines of CSS); ships the `hazard` colour preset and `defaults` (`scheme: hazard`, `radius: 8`); both light and dark variants. Inspired by the "Terminal Hazard Web" design |
+
+Hazard Protocol is a good template for an AI-made theme: `parent` + `defaults` + a token file + overrides for header, nav, cards/title bars, buttons, hero and footer, with self-hosted fonts in `fonts/`.
 
 ## 9. Checklist for creating a theme (human or AI)
 

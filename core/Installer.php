@@ -155,6 +155,17 @@ final class Installer
             'appearance.colors' => new \stdClass(), 'appearance.radius' => 16, 'appearance.motion' => 'full',
             'nav.button_style' => 'gradient', 'nav.hover_fx' => 'shine',
         ];
+        if (!class_exists(Appearance::class)) {
+            require_once MCMS_ROOT . '/core/Appearance.php';
+        }
+        $themeMeta = json_decode((string) @file_get_contents(MCMS_ROOT . '/themes/' . $site['theme'] . '/theme.json'), true) ?: [];
+        $td = (array) ($themeMeta['defaults'] ?? []);
+        if (isset($td['scheme']) && isset(Appearance::PRESETS[$td['scheme']])) {
+            $settings['appearance.scheme'] = $td['scheme'];
+        }
+        if (isset($td['radius'])) {
+            $settings['appearance.radius'] = max(0, min(32, (int) $td['radius']));
+        }
         foreach ($settings as $k => $v) {
             $db->exec('INSERT INTO {settings} (`key`, `value`) VALUES (?,?)', [$k, json_encode($v, JSON_UNESCAPED_UNICODE)]);
         }
