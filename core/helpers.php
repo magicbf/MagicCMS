@@ -259,3 +259,22 @@ function utc_to_local(?string $utc): string
         return '';
     }
 }
+
+/** Unread private-message conversations for the current user (0 when PMs are off). */
+function pm_unread(): int
+{
+    static $n = null;
+    if ($n === null) {
+        $n = 0;
+        if (user() && db()->val("SELECT 1 FROM {modules} WHERE module_key = 'messages' AND enabled = 1")) {
+            $n = \MagicCMS\Modules\Messages\Messages::unread((int) user()['id']);
+        }
+    }
+    return $n;
+}
+
+function pm_enabled(): bool
+{
+    static $on = null;
+    return $on ??= (bool) (user() && db()->val("SELECT 1 FROM {modules} WHERE module_key = 'messages' AND enabled = 1"));
+}

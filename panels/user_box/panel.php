@@ -6,6 +6,7 @@
   <span class="muted"><?= e($user['role_name']) ?></span>
   <div class="userbox-links">
     <a class="btn btn-ghost btn-sm" href="<?= e(url('profile')) ?>"><?= e(t('Profile')) ?></a>
+    <?php if (pm_enabled()): ?><a class="btn btn-ghost btn-sm" href="<?= e(url('messages')) ?>">✉ <?= e(t('Messages')) ?><?php if (pm_unread()): ?> <span class="badge"><?= pm_unread() ?></span><?php endif ?></a><?php endif ?>
     <?php if (can('admin.access')): ?><a class="btn btn-ghost btn-sm" href="<?= e(url('admin')) ?>"><?= e(t('Admin')) ?></a><?php endif ?>
     <form method="post" action="<?= e(url('logout')) ?>"><?= csrf_field() ?><button class="btn btn-sm btn-primary"><?= e(t('Logout')) ?></button></form>
   </div>

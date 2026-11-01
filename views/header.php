@@ -8,6 +8,7 @@
     <div class="header-actions">
       <?php if ($layout['left']): ?><button class="icon-btn drawer-toggle" data-drawer="left" aria-label="<?= e(t('Open left panels')) ?>" aria-controls="drawer-left">◧</button><?php endif ?>
       <?php if ($layout['right']): ?><button class="icon-btn drawer-toggle" data-drawer="right" aria-label="<?= e(t('Open right panels')) ?>" aria-controls="drawer-right">◨</button><?php endif ?>
+      <?php if (pm_enabled()): $pmn = pm_unread(); ?><a class="icon-btn pm-link" href="<?= e(url('messages')) ?>" aria-label="<?= e(t('Messages')) ?><?= $pmn ? ' (' . $pmn . ')' : '' ?>" title="<?= e(t('Messages')) ?>">✉<?php if ($pmn): ?><b class="pm-dot"><?= $pmn > 9 ? '9+' : $pmn ?></b><?php endif ?></a><?php endif ?>
       <?php if (setting('appearance.allow_user_mode', true)): ?><button class="icon-btn mode-toggle" aria-label="<?= e(t('Switch light/dark mode')) ?>" title="<?= e(t('Switch light/dark mode')) ?>"><span class="mode-icon" aria-hidden="true"></span></button><?php endif ?>
       <?php if ($u): ?>
         <a class="header-user" href="<?= e(url('profile')) ?>"><img class="avatar avatar-md" src="<?= e(avatar_url($u, 64)) ?>" alt="" width="44" height="44"><span class="hu-text"><b><?= e($u['username']) ?></b><small><?= e($u['role_name']) ?></small></span></a>
