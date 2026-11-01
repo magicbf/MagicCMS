@@ -246,7 +246,10 @@ final class Controller
             flash('danger', t('This panel can only be added once.'));
             $this->back('/admin/panels');
         }
-        $pos = self::pick((string) input('position'), ['left', 'right'], 'left');
+        $pos = self::pick((string) input('position'), ['left', 'right', 'above_footer'], 'left');
+        if (isset($reg['meta']['positions']) && !in_array($pos, $reg['meta']['positions'], true)) {
+            $pos = (string) $reg['meta']['positions'][0];
+        }
         $ord = (int) db()->val('SELECT COALESCE(MAX(sort_order),0)+1 FROM {panels} WHERE position = ?', [$pos]);
         db()->exec(
             'INSERT INTO {panels} (panel_key, title, position, sort_order, enabled, visibility) VALUES (?,?,?,?,1,?)',
@@ -261,7 +264,7 @@ final class Controller
     {
         db()->exec(
             'UPDATE {panels} SET title = ?, position = ?, sort_order = ?, enabled = ?, visibility = ? WHERE id = ?',
-            [mb_substr((string) input('title'), 0, 120) ?: 'Panel', self::pick((string) input('position'), ['left', 'right'], 'left'), (int) input('sort_order'), empty($_POST['enabled']) ? 0 : 1, self::visibilityJson(), (int) $p['id']]
+            [mb_substr((string) input('title'), 0, 120) ?: 'Panel', self::pick((string) input('position'), ['left', 'right', 'above_footer'], 'left'), (int) input('sort_order'), empty($_POST['enabled']) ? 0 : 1, self::visibilityJson(), (int) $p['id']]
         );
         flash('success', t('Panel saved.'));
         $this->back('/admin/panels');

@@ -27,6 +27,7 @@
 </div>
 </div>
 <div class="drawer-overlay" data-drawer-close></div>
+<?php if (!empty($layout['above']) && !str_contains($bodyClass, 'page-admin') && !str_contains($bodyClass, 'page-auth')): ?><div class="above-footer"><?= implode("\n", $layout['above']) ?></div><?php endif ?>
 <?= render('footer') ?>
 <?= hook('layout.render.footer') ?>
 <?= theme_assets('foot') ?>

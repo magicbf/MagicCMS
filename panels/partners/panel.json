@@ -1,0 +1,15 @@
+{
+  "key": "partners",
+  "title": "Our partners",
+  "version": "1.0.0",
+  "positions": ["above_footer"],
+  "bare": true,
+  "settings": {
+    "heading": { "type": "text", "label": "Heading above the logos (empty = none)", "default": "Our partners" },
+    "speed": { "type": "number", "label": "Scroll speed (1 = slow … 10 = fast)", "default": 5 },
+    "height": { "type": "number", "label": "Logo height in px (24–120)", "default": 56 },
+    "grayscale": { "type": "checkbox", "label": "Show logos muted – full colour on hover", "default": true },
+    "pause": { "type": "checkbox", "label": "Pause the scrolling while the mouse is over the strip", "default": true }
+  },
+  "icon": "🤝"
+}
