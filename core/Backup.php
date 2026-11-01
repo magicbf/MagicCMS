@@ -28,6 +28,16 @@ final class Backup
         return $d;
     }
 
+    /** Remove abandoned temporary files (interrupted uploads/downloads). */
+    public static function cleanTemp(): void
+    {
+        foreach (glob(self::dir() . '/.*') ?: [] as $f) {
+            if (is_file($f) && preg_match('/^\.(incoming|upload|restore|tmp)-/', basename($f)) && filemtime($f) < time() - 6 * 3600) {
+                @unlink($f);
+            }
+        }
+    }
+
     public static function validName(string $n): bool
     {
         return (bool) preg_match(self::NAME, $n);
@@ -122,8 +132,12 @@ final class Backup
     {
         $label = trim(preg_replace('/[^a-z0-9]+/', '-', strtolower($label)), '-') ?: 'manual';
         $label = substr($label, 0, 24);
-        $stamp = gmdate('Ymd-His');
         $dir = self::dir();
+        $t = time();
+        while (glob("$dir/*-" . gmdate('Ymd-His', $t) . "-$label.*")) { // never overwrite an existing backup
+            $t++;
+        }
+        $stamp = gmdate('Ymd-His', $t);
         if (!is_dir($dir) || !is_writable($dir)) {
             throw new \RuntimeException(t('The backup folder is not writable: {d}', ['d' => $dir]));
         }
@@ -162,6 +176,7 @@ final class Backup
     /** @return array<int,array{name:string,size:int,time:int,type:string,label:string}> newest first */
     public static function all(): array
     {
+        self::cleanTemp();
         $out = [];
         foreach (glob(self::dir() . '/*') ?: [] as $f) {
             $n = basename($f);

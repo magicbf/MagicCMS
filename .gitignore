@@ -8,3 +8,4 @@ uploads/*
 *.log
 backups/*
 !backups/.gitkeep
+config/code-manifest.json

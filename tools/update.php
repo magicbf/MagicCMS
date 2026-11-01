@@ -27,7 +27,7 @@ try {
     if ($arg === '--rollback') {
         $m = Updater::pending() ?: (function () {
             $h = ((array) setting('update.history', []))[0] ?? null;
-            return $h ? ['codeBackup' => $h['codeBackup'], 'dbBackup' => $h['dbBackup'], 'created' => [], 'maintenance' => false] : null;
+            return $h ? ['codeBackup' => $h['codeBackup'], 'dbBackup' => $h['dbBackup'], 'created' => $h['created'] ?? [], 'maintenance' => false] : null;
         })();
         if (!$m) {
             fwrite(STDERR, "Nothing to roll back.\n");

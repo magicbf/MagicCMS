@@ -295,7 +295,11 @@ final class Updater
         $prefix = (string) $insp['_prefix'];
         self::baseline(); // make sure "locally modified" can be reported later
         $db = Backup::create('pre-update')['name'];
-        $stamp = gmdate('Ymd-His');
+        $t = time();
+        while (is_file(Backup::dir() . '/code-' . MCMS_VERSION . '-' . gmdate('Ymd-His', $t) . '.zip')) {
+            $t++;
+        }
+        $stamp = gmdate('Ymd-His', $t);
         $codeBackup = 'code-' . MCMS_VERSION . "-$stamp.zip";
         $cb = new \ZipArchive();
         if ($cb->open(Backup::dir() . '/' . $codeBackup, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
@@ -416,7 +420,7 @@ final class Updater
         }
         Settings::set('site.maintenance', (bool) ($m['maintenance'] ?? false));
         $hist = (array) setting('update.history', []);
-        array_unshift($hist, ['from' => $m['from'], 'to' => MCMS_VERSION, 'at' => gmdate('c'), 'dbBackup' => $m['dbBackup'], 'codeBackup' => $m['codeBackup']]);
+        array_unshift($hist, ['from' => $m['from'], 'to' => MCMS_VERSION, 'at' => gmdate('c'), 'dbBackup' => $m['dbBackup'], 'codeBackup' => $m['codeBackup'], 'created' => $m['created'] ?? []]);
         Settings::set('update.history', array_slice($hist, 0, 10));
         @unlink(self::marker());
         return $m;

@@ -148,6 +148,10 @@ final class Controller
     public function prepare(): never
     {
         $tmp = null;
+        if ($old = $this->incoming()) { // only one prepared package at a time
+            @unlink($old);
+            unset($_SESSION['upd_file']);
+        }
         try {
             if (input('source') === 'online') {
                 $l = $_SESSION['upd_latest'] ?? null;
@@ -237,7 +241,7 @@ final class Controller
                 flash('danger', t('There is no update to undo.'));
                 $this->back('/admin/maintenance/update');
             }
-            $m = ['codeBackup' => $h['codeBackup'], 'dbBackup' => $h['dbBackup'], 'created' => [], 'maintenance' => false];
+            $m = ['codeBackup' => $h['codeBackup'], 'dbBackup' => $h['dbBackup'], 'created' => $h['created'] ?? [], 'maintenance' => false];
         }
         try {
             Updater::rollback($m);
