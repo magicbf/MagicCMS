@@ -1,0 +1,13 @@
+{
+  "name": "Dark gel",
+  "slug": "dark-gel",
+  "version": "1.0.0",
+  "author": "MagicCMS",
+  "description": "Ink-navy ground with glossy azure gel: tube-shaped title bars with a carbon-weave texture, bead icons, a polished menu bar and a single orange call-to-action. Dark and light variants. Builds on Magic Red.",
+  "requires": "0.1",
+  "parent": "magic-red",
+  "stylesheets": ["tokens.css", "theme.css"],
+  "scripts": [],
+  "defaults": { "scheme": "gel", "radius": 14, "mode": "dark" },
+  "supports": { "darkLight": true, "panels": ["left", "right"] }
+}

@@ -1,0 +1,41 @@
+/* Dark gel – tokens (overrides Magic Red). Ink-navy ground, azure gel, one orange accent for the main call to action. */
+:root {
+  --c-primary:#1f86e0; --c-primary-hi:#58d0ff; --c-primary-lo:#0b3f86; --c-accent:#ff7a2b;
+  --c-text-on-primary:#ffffff; --c-on-bar:#ffffff;
+
+  --c-bg:#050a14; --c-bg-2:#081226; --c-surface:#0b1630; --c-surface-2:#112245; --c-border:#1a3157;
+  --glass:linear-gradient(180deg,rgba(17,36,72,.92) 0%,rgba(8,18,40,.94) 100%);
+  --glass-border:rgba(96,176,255,.17); --glass-hl:rgba(160,215,255,.10);
+  --field-bg:rgba(3,8,20,.72); --field-border:rgba(96,176,255,.24);
+  --pill-bg:rgba(20,44,88,.6);
+  --btn-bg:#0d1b3a; --btn-fg:#e6f0ff; --btn-border:rgba(96,176,255,.26);
+
+  --c-text:#e4eefc; --c-text-dim:#97add0; --c-text-faint:#6f88b0;
+  --c-success:#35e0a0; --c-warning:#ffb347; --c-danger:#ff5d6c; --c-info:#58d0ff;
+
+  --dg-azure:#1f86e0; --dg-cyan:#58d0ff; --dg-deep:#0b3f86; --dg-orange:#ff7a2b; --dg-orange-hi:#ffa45c;
+  --g-primary:linear-gradient(180deg,#4aa8f5 0%,#1f86e0 48%,#1465b8 100%);
+  --dg-orange-g:linear-gradient(180deg,#ffa45c 0%,#ff7a2b 48%,#d9560f 100%);
+  --g-titlebar:none;
+  --dg-gloss:linear-gradient(180deg,rgba(255,255,255,.34) 0%,rgba(255,255,255,.1) 49%,rgba(255,255,255,0) 51%);
+  --dg-weave:repeating-linear-gradient(45deg,rgba(255,255,255,.045) 0 2px,transparent 2px 4px),repeating-linear-gradient(-45deg,rgba(0,10,40,.28) 0 2px,transparent 2px 4px);
+  --dg-glow:0 0 0 1px rgba(96,176,255,.14),0 18px 44px -20px rgba(31,134,224,.55);
+  --shadow:0 20px 44px -22px rgba(0,0,0,.8);
+
+  --radius-sm:8px; --radius:14px; --radius-lg:20px;
+  --font-body:"Inter",system-ui,"Segoe UI",Roboto,sans-serif;
+  --font-display:"Exo 2","Inter",system-ui,sans-serif;
+  --fs-base:15px; --lh:1.6;
+}
+:root[data-theme="light"] {
+  --c-bg:#d9e6f6; --c-bg-2:#eaf2fc; --c-surface:#ffffff; --c-surface-2:#e8f1fb; --c-border:#bdd3ee;
+  --glass:linear-gradient(180deg,rgba(255,255,255,.97) 0%,rgba(241,247,255,.92) 100%);
+  --glass-border:rgba(31,110,200,.22); --glass-hl:#ffffff;
+  --field-bg:#ffffff; --field-border:rgba(31,110,200,.3);
+  --pill-bg:rgba(255,255,255,.85);
+  --btn-bg:#ffffff; --btn-fg:#0e2447; --btn-border:rgba(31,110,200,.28);
+  --c-text:#0e2447; --c-text-dim:#44628f; --c-text-faint:#6a84ad;
+  --c-success:#0b9b6a; --c-warning:#a86300; --c-danger:#cc2a3d; --c-info:#0f6fc2;
+  --dg-glow:0 0 0 1px rgba(31,110,200,.14),0 16px 38px -22px rgba(31,110,200,.5);
+  --shadow:0 16px 36px -22px rgba(20,60,120,.45);
+}
