@@ -5,7 +5,7 @@ server {
     root /var/www/magiccms;
     index index.php;
 
-    location ~ ^/(core|config|migrations|lang|cache)/ { deny all; }
+    location ~ ^/(core|config|migrations|lang|cache|tools|backups)/ { deny all; }
     location ~ ^/(modules|panels|plugins|views)/.*\.php$ { deny all; }
     location ~ ^/themes/.*/templates/ { deny all; }
     location ^~ /uploads/ { location ~ \.php$ { deny all; } }

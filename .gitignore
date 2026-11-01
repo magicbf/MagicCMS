@@ -6,3 +6,5 @@ uploads/*
 !uploads/.gitkeep
 !uploads/.htaccess
 *.log
+backups/*
+!backups/.gitkeep

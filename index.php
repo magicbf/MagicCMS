@@ -6,7 +6,7 @@ declare(strict_types=1);
 if (PHP_SAPI === 'cli-server') {
     $p = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     $f = __DIR__ . $p;
-    if ($p !== '/' && is_file($f) && ($f !== __FILE__) && !preg_match('#/(core|modules|panels|views|config)/#', $p)) {
+    if ($p !== '/' && is_file($f) && ($f !== __FILE__) && !preg_match('#/(core|modules|panels|views|config|tools|backups)/#', $p)) {
         return false;
     }
 }

@@ -68,10 +68,28 @@ final class Bootstrap
         self::$db = new Database(self::$config['db']);
         Settings::load();
         if (Migrator::latest() > (int) Settings::get('schema.version', 1)) { // new code, older DB: upgrade automatically
-            Migrator::upgrade(self::$db);
+            try {
+                Migrator::upgrade(self::$db);
+            } catch (\Throwable $e) {
+                // a freshly installed update whose migrations fail is rolled back (code + database)
+                if (class_exists(Updater::class) && Updater::rollbackPending($e)) {
+                    http_response_code(503);
+                    exit('<!doctype html><meta charset="utf-8"><body style="font:16px system-ui;padding:3rem"><h1>Update rolled back</h1><p>The update could not be completed and the previous version and data were restored. Details are in the server error log.</p><p><a href="">Reload</a></p>');
+                }
+                throw $e;
+            }
             Settings::load();
         }
         Auth::init();
+        // opportunistic automatic backup: only when an administrator is browsing the admin area, after the page was sent
+        if (Auth::level() >= 100 && Backup::autoDue() && str_starts_with((string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), self::$base . '/admin') && ($_SERVER['REQUEST_METHOD'] ?? '') === 'GET') {
+            register_shutdown_function(static function (): void {
+                if (function_exists('fastcgi_finish_request')) {
+                    fastcgi_finish_request();
+                }
+                Backup::autoRun();
+            });
+        }
 
         $router = new Router();
         self::loadModules($router);

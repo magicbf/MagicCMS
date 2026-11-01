@@ -35,6 +35,12 @@ final class Database
         ]);
     }
 
+    /** Raw connection (backup/restore streaming only). */
+    public function pdo(): PDO
+    {
+        return $this->pdo;
+    }
+
     public function prefix(): string
     {
         return $this->prefix;

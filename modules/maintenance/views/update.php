@@ -1,0 +1,22 @@
+<?php /** @var ?array $latest @var ?array $pending @var array $history @var array $modified @var bool $zip @var array $codeBackups */ ?>
+<p><a class="btn btn-ghost" href="<?= e(url('admin/maintenance')) ?>">← <?= e(t('Backups')) ?></a></p>
+<div class="card"><h2 class="card-title"><?= e(t('Updates')) ?> <small>v<?= e(MCMS_VERSION) ?></small></h2><div class="card-body">
+  <p><?= e(t('Updates replace only the program files. Your settings, members, posts, uploads, config and your own themes/plugins are never touched – a database backup and a copy of every replaced file are made first, and any failure rolls everything back automatically.')) ?></p>
+  <?php if ($pending): ?><div class="alert alert-warning"><?= e(t('An update ({a} → {b}) was started but not finished.', ['a' => $pending['from'], 'b' => $pending['to']])) ?> <a href="<?= e(url('admin/maintenance/update/finish')) ?>"><?= e(t('Finish it')) ?></a></div><?php endif ?>
+  <?php if (!$zip): ?><div class="alert alert-danger"><?= e(t('The PHP zip extension is missing – updates and full backups are unavailable.')) ?></div><?php endif ?>
+  <div class="inline-form">
+    <form method="post" action="<?= e(url('admin/maintenance/update/check')) ?>"><?= csrf_field() ?><button class="btn btn-primary">🔍 <?= e(t('Check for updates')) ?></button></form>
+  </div>
+  <?php if ($latest): ?><div class="mt"><strong><?= $latest['newer'] ? e(t('Version {v} is available', ['v' => $latest['version']])) : e(t('You are up to date (latest: {v})', ['v' => $latest['version']])) ?></strong>
+    <?php if ($latest['notes'] !== ''): ?><pre class="rc-msg" style="white-space:pre-wrap"><?= e($latest['notes']) ?></pre><?php endif ?>
+    <?php if ($latest['newer'] && $latest['url']): ?><form method="post" action="<?= e(url('admin/maintenance/update/prepare')) ?>"><?= csrf_field() ?><input type="hidden" name="source" value="online"><button class="btn btn-primary">⬇ <?= e(t('Download and review')) ?></button> <small class="muted"><?= $latest['sha256'] ? e(t('checksum published and verified')) : e(t('no checksum published')) ?></small></form><?php endif ?></div><?php endif ?>
+</div></div>
+<form class="card" method="post" action="<?= e(url('admin/maintenance/update/prepare')) ?>" enctype="multipart/form-data"><?= csrf_field() ?><h2 class="card-title"><?= e(t('Install from a zip file')) ?></h2><div class="card-body">
+  <p class="muted"><?= e(t('Upload an official MagicCMS release package (it contains release.json). You will see what changes before anything is installed.')) ?></p>
+  <input type="hidden" name="source" value="upload"><input class="input" type="file" name="package" accept=".zip" required><p class="mt"><button class="btn btn-ghost"><?= e(t('Upload and review')) ?></button></p></div></form>
+<?php if ($modified): ?><div class="card"><h2 class="card-title"><?= e(t('Customised bundled files')) ?></h2><div class="card-body"><p class="muted"><?= e(t('These bundled files differ from the installed release. An update would replace them (copies are kept in the code backup). Put customisations in a child theme or plugin to keep them safe.')) ?></p><ul><?php foreach (array_slice($modified, 0, 40) as $f): ?><li><code><?= e($f) ?></code></li><?php endforeach ?></ul></div></div><?php endif ?>
+<?php if ($history): ?><div class="card"><h2 class="card-title"><?= e(t('Update history')) ?></h2><div class="card-body table-wrap"><table class="table"><thead><tr><th><?= e(t('When')) ?></th><th><?= e(t('Version')) ?></th><th><?= e(t('Backups')) ?></th></tr></thead><tbody>
+<?php foreach ($history as $h): ?><tr><td><?= e(fmt_date(gmdate('Y-m-d H:i:s', (int) strtotime($h['at'])))) ?></td><td><?= e($h['from']) ?> → <?= e($h['to']) ?></td><td><small><code><?= e($h['dbBackup']) ?></code><br><code><?= e($h['codeBackup']) ?></code></small></td></tr><?php endforeach ?></tbody></table>
+  <details class="report"><summary class="btn btn-sm btn-danger"><?= e(t('Undo the last update')) ?></summary>
+    <form method="post" action="<?= e(url('admin/maintenance/update/rollback')) ?>"><?= csrf_field() ?><p class="small"><?= e(t('Puts the program files AND the database back to the state before the last update. Anything posted since the update is lost. Type ROLLBACK:')) ?></p><input class="input" name="confirm" placeholder="ROLLBACK" required autocomplete="off"><button class="btn btn-sm btn-danger"><?= e(t('Undo')) ?></button></form></details>
+</div></div><?php endif ?>
