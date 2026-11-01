@@ -365,7 +365,7 @@ The main menu is **fully data-driven** (`menus` + `menu_items` tables) and edite
 - **Visibility** per item: everyone / guests only / members only / by role / hide on mobile.
 - **Multiple menus**: `main` (header), `footer`, plus custom menus that can be shown in a *Navigation* panel.
 - **Active-state** highlighting and optional **badges** (e.g. unread PMs, "NEW", live-stream dot).
-- **Button style** (Admin → Appearance → Navigation): `gradient` (default), `solid`, `outline`, `glass`, `pill`/`square`, plus hover effect (`glow`, `shine-sweep`, `lift`, `none`). Per-item colour override is optional.
+- **Button style** (Admin → Appearance → Navigation): `gradient` (default: pill group, active item glossy), `flash` (every button a gradient), `solid`, `outline`, `glass`, `pill`/`square`, plus hover effect (`glow`, `shine-sweep`, `lift`, `none`). Per-item colour override is optional.
 - **Responsive**: on small screens the menu collapses into an animated hamburger drawer; dropdowns become accordions; touch targets ≥ 44px.
 
 Default look: bold, flashy **red-gradient buttons** with a light "shine sweep" on hover and a glowing underline for the active item (GPU-friendly, honours `prefers-reduced-motion`).
@@ -383,7 +383,7 @@ Default look: bold, flashy **red-gradient buttons** with a light "shine sweep" o
 ### Colour scheme (admin)
 In **Admin → Appearance → Colour scheme** the site admin can pick the look without touching code:
 
-- **Presets**: *Crimson* (default), *Ember* (orange), *Royal* (blue), *Toxic* (green), *Violet*, *Mono* (greys) … each defining both dark and light palettes.
+- **Presets**: *Crimson* (default), *Ember* (orange→red; title bars automatically switch to dark text on bright schemes), *Royal* (blue), *Toxic* (green), *Violet*, *Mono* (greys) … each defining both dark and light palettes.
 - **Custom colours** via colour pickers: primary, highlight, deep shade, accent, backgrounds, surfaces, text — with an automatic **contrast checker** (warns if text/background drops below WCAG AA 4.5:1).
 - **Shape & feel**: corner radius (sharp → very round), animation level (off / subtle / full), gradient intensity, font pair.
 - **Live preview** before saving; one-click **reset to theme defaults**; **export/import** a scheme as JSON.
@@ -523,7 +523,7 @@ Found a vulnerability? Please report it privately to the maintainers rather than
 
 MagicCMS themes are **self-contained folders** that define a design via **CSS variables (design tokens)** and, if needed, **template overrides**. A theme can be a 30-line colour swap or a total redesign.
 
-The default theme **Magic Red** is: black surfaces, crimson accents, bold gradient title-bars, large rounded corners (16–24px), subtle animated gradients, glow hovers, and abstract geometric backgrounds — all CSS-only (GPU-friendly transforms/opacity), respecting `prefers-reduced-motion`. It includes a **light variant** (`[data-theme="light"]`) and honours the **admin colour scheme** overrides (see [§11](#11-appearance-lightdark-mode--colour-schemes)).
+The default theme **Magic Red** ("Ember" look) is: warm-black surfaces with drifting aurora glows, a masked grid and film grain; frosted-glass cards with large rounded corners; **glossy gradient title bars** with a slow shine sweep; a pill-group navigation whose active item is a glossy gradient; Unbounded display type over Inter body text (both self-hosted); live stat tiles and a gradient hero on the home page — all CSS-only (GPU-friendly transforms/opacity), respecting `prefers-reduced-motion` and the admin's animation setting ("Off" also drops the blur effects for slow devices). It includes a **light variant** (`[data-theme="light"]`) and honours the **admin colour scheme** overrides (see [§11](#11-appearance-lightdark-mode--colour-schemes)).
 
 👉 **Full guide, including an AI prompt template: [`docs/THEMING.md`](docs/THEMING.md)**
 

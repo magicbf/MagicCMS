@@ -1,31 +1,60 @@
-/* Magic Red – design tokens. Everything visual derives from these (see docs/THEMING.md §3). */
+/* Magic Red – design tokens (docs/THEMING.md §3). Warm-black "ember" palette; every colour is overridable by the admin. */
 :root {
-  --c-primary:#e10613; --c-primary-hi:#ff4d4d; --c-primary-lo:#7a0008; --c-accent:#ff7a59;
-  --c-bg:#0b0b0d; --c-bg-2:#121216; --c-surface:#17171c; --c-surface-2:#1f1f26; --c-border:#2a2a33;
-  --c-text:#f4f4f6; --c-text-dim:#a0a0aa; --c-text-on-primary:#ffffff;
-  --c-success:#2ecc71; --c-warning:#f5a623; --c-danger:#ff3b3b; --c-info:#3aa0ff;
+  /* Brand – the gradient runs  --c-primary-hi → --c-primary  (the admin colour scheme overrides these) */
+  --c-primary:#e5091f; --c-primary-hi:#ff5238; --c-primary-lo:#8c0012; --c-accent:#ff9a3d;
+  --c-text-on-primary:#ffffff;
+  --c-on-bar:#ffffff;                 /* text on gradient title bars – picked automatically for contrast */
 
-  --g-primary:linear-gradient(135deg,var(--c-primary-hi),var(--c-primary) 55%,var(--c-primary-lo));
-  --g-titlebar:linear-gradient(90deg,var(--c-primary-lo),var(--c-primary) 55%,var(--c-primary-hi),var(--c-primary) 90%,var(--c-primary-lo));
-  --g-surface:linear-gradient(180deg,var(--c-surface),var(--c-bg-2));
+  /* Surfaces */
+  --c-bg:#0a0706; --c-bg-2:#120c0a; --c-surface:#18110e; --c-surface-2:#221814; --c-border:#2d211b;
+  --glass:linear-gradient(180deg,rgba(34,24,20,.72) 0%,rgba(18,13,11,.72) 100%);
+  --glass-border:rgba(255,255,255,.07);
+  --glass-hl:rgba(255,200,160,.07);   /* inset top highlight on glass */
+  --field-bg:rgba(24,17,14,.62); --field-border:rgba(255,255,255,.09);
+  --pill-bg:rgba(24,17,14,.6);        /* nav group, tabs, chips */
+  --btn-bg:#0e0907; --btn-fg:#fff4ec; --btn-border:rgba(255,255,255,.10);
 
+  /* Text */
+  --c-text:#fff4ec; --c-text-dim:#b5a196; --c-text-faint:#8f7d73;
+
+  /* Status */
+  --c-success:#3ddc84; --c-warning:#f5a623; --c-danger:#ff5a5a; --c-info:#7cc4ff;
+
+  /* Gradients */
+  --g-primary:linear-gradient(135deg,var(--c-primary-hi) 0%,var(--c-primary) 100%);
+  --g-gloss:linear-gradient(180deg,rgba(255,255,255,.26) 0%,rgba(255,255,255,0) 55%);
+  --g-titlebar:
+    linear-gradient(180deg,rgba(255,255,255,.30) 0%,rgba(255,255,255,.08) 46%,rgba(255,255,255,0) 52%,rgba(40,0,0,.14) 100%),
+    radial-gradient(120% 160% at 0% 0%,rgba(255,226,170,.42) 0%,rgba(255,226,170,0) 55%),
+    linear-gradient(90deg,var(--c-primary-hi) 0%,var(--c-primary) 100%);
+  --g-surface:var(--glass);
+
+  /* Shape (the admin radius slider sets --radius; the others follow) */
   --radius-sm:8px; --radius:16px; --radius-lg:24px;
-  --shadow:0 8px 24px rgba(0,0,0,.45);
-  --glow:0 0 0 1px var(--c-primary),0 0 24px color-mix(in srgb,var(--c-primary) 45%,transparent);
 
-  --font-body:system-ui,"Segoe UI",Inter,Roboto,"Helvetica Neue",sans-serif;
-  --font-display:"Segoe UI Black","Arial Black",Impact,system-ui,sans-serif;
-  --fs-base:16px; --lh:1.55;
+  /* Elevation */
+  --shadow:0 24px 48px rgba(0,0,0,.35);
+  --glow:0 0 0 1px color-mix(in srgb,var(--c-primary) 80%,transparent),0 0 26px color-mix(in srgb,var(--c-primary) 45%,transparent);
 
-  --container-w:1320px; --sidebar-w:280px; --gap:20px; --header-h:68px;
+  /* Type – self-hosted variable fonts (themes/magic-red/fonts) */
+  --font-body:"Inter",system-ui,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  --font-display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --fs-base:15px; --lh:1.6;
+
+  /* Layout */
+  --container-w:1360px; --sidebar-w:300px; --gap:22px; --header-h:68px;
   --ease:cubic-bezier(.2,.8,.2,1); --t-fast:.15s; --t:.3s;
   color-scheme:dark;
 }
 :root[data-theme="light"] {
-  --c-bg:#f3f3f6; --c-bg-2:#ffffff; --c-surface:#ffffff; --c-surface-2:#f0f0f4; --c-border:#dcdce4;
-  --c-text:#17171c; --c-text-dim:#5a5a66;
-  --shadow:0 6px 18px rgba(20,20,40,.12);
-  --glow:0 0 0 1px var(--c-primary),0 0 18px color-mix(in srgb,var(--c-primary) 28%,transparent);
-  --g-surface:linear-gradient(180deg,#ffffff,#f7f7fa);
+  --c-bg:#f6f0ec; --c-bg-2:#ffffff; --c-surface:#ffffff; --c-surface-2:#f3ebe6; --c-border:#e3d7cf;
+  --glass:linear-gradient(180deg,rgba(255,255,255,.94) 0%,rgba(255,255,255,.78) 100%);
+  --glass-border:rgba(70,25,10,.09); --glass-hl:rgba(255,255,255,.95);
+  --field-bg:rgba(255,255,255,.85); --field-border:rgba(70,25,10,.15);
+  --pill-bg:rgba(255,255,255,.72);
+  --btn-bg:#ffffff; --btn-fg:#1d110c; --btn-border:rgba(70,25,10,.16);
+  --c-text:#1d110c; --c-text-dim:#6b5a50; --c-text-faint:#8d7c72;
+  --c-success:#16a34a; --c-warning:#c77700; --c-danger:#d92d2d; --c-info:#1d78c9;
+  --shadow:0 18px 40px rgba(80,30,10,.12);
   color-scheme:light;
 }

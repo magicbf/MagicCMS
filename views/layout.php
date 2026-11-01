@@ -13,6 +13,7 @@
 <?= hook('layout.render.head') ?>
 </head>
 <body class="mcms layout-<?= e($layout['mode']) ?> <?= e($bodyClass) ?>" data-csrf="<?= e(MagicCMS\Core\Csrf::token()) ?>" data-base="<?= e(url('')) ?>">
+<div class="bg-fx" aria-hidden="true"><span class="fx-a"></span><span class="fx-b"></span><span class="fx-c"></span><span class="fx-grid"></span><span class="fx-grain"></span><span class="fx-vig"></span></div>
 <a class="skip-link" href="#main"><?= e(t('Skip to content')) ?></a>
 <?= render('header', ['layout' => $layout]) ?>
 <div class="container">

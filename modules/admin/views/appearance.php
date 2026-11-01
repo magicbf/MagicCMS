@@ -30,7 +30,7 @@ $presets = []; foreach (A::PRESETS as $k => [$n, $c]) { $presets[$k] = $c; } ?>
 </div>
 <h2 class="card-title"><?= e(t('Navigation buttons')) ?></h2>
 <div class="card-body"><div class="form-grid">
-  <div class="form-row"><label class="label"><?= e(t('Style')) ?></label><select class="select" name="nav_style"><?php foreach (['gradient' => 'Gradient', 'solid' => 'Solid', 'outline' => 'Outline', 'glass' => 'Glass'] as $k => $l): ?><option value="<?= $k ?>" <?= setting('nav.button_style', 'gradient') === $k ? 'selected' : '' ?>><?= e(t($l)) ?></option><?php endforeach ?></select></div>
+  <div class="form-row"><label class="label"><?= e(t('Style')) ?></label><select class="select" name="nav_style"><?php foreach (['gradient' => 'Pill group (active = gradient)', 'flash' => 'Flashy (every button gradient)', 'solid' => 'Solid', 'outline' => 'Outline', 'glass' => 'Glass'] as $k => $l): ?><option value="<?= $k ?>" <?= setting('nav.button_style', 'gradient') === $k ? 'selected' : '' ?>><?= e(t($l)) ?></option><?php endforeach ?></select></div>
   <div class="form-row"><label class="label"><?= e(t('Hover effect')) ?></label><select class="select" name="nav_fx"><?php foreach (['shine' => 'Shine sweep', 'glow' => 'Glow', 'lift' => 'Lift', 'none' => 'None'] as $k => $l): ?><option value="<?= $k ?>" <?= setting('nav.hover_fx', 'shine') === $k ? 'selected' : '' ?>><?= e(t($l)) ?></option><?php endforeach ?></select></div>
 </div></div>
 <h2 class="card-title"><?= e(t('Theme')) ?></h2>

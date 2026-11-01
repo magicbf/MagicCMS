@@ -121,7 +121,7 @@ final class Controller
         Settings::set('appearance.allow_user_mode', !empty($_POST['allow_user_mode']));
         Settings::set('appearance.radius', max(0, min(32, (int) input('radius', 16))));
         Settings::set('appearance.motion', self::pick((string) input('motion'), ['off', 'subtle', 'full'], 'full'));
-        Settings::set('nav.button_style', self::pick((string) input('nav_style'), ['gradient', 'solid', 'outline', 'glass'], 'gradient'));
+        Settings::set('nav.button_style', self::pick((string) input('nav_style'), ['gradient', 'flash', 'solid', 'outline', 'glass'], 'gradient'));
         Settings::set('nav.hover_fx', self::pick((string) input('nav_fx'), ['shine', 'glow', 'lift', 'none'], 'shine'));
         $theme = (string) input('theme');
         if (isset(View::themes()[$theme])) {

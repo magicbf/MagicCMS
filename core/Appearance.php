@@ -19,8 +19,8 @@ final class Appearance
     ];
 
     public const PRESETS = [
-        'crimson' => ['Crimson', ['primary' => '#e10613', 'primary_hi' => '#ff4d4d', 'primary_lo' => '#7a0008', 'accent' => '#ff7a59', 'on_primary' => '#ffffff']],
-        'ember' => ['Ember', ['primary' => '#ff6a00', 'primary_hi' => '#ffa34d', 'primary_lo' => '#8a3200', 'accent' => '#ffd23f', 'on_primary' => '#ffffff']],
+        'crimson' => ['Crimson', ['primary' => '#e5091f', 'primary_hi' => '#ff5238', 'primary_lo' => '#8c0012', 'accent' => '#ff9a3d', 'on_primary' => '#ffffff']],
+        'ember' => ['Ember', ['primary' => '#ff2e3b', 'primary_hi' => '#ff8a1f', 'primary_lo' => '#9a1020', 'accent' => '#ffb27a', 'on_primary' => '#ffffff']],
         'royal' => ['Royal', ['primary' => '#2f6bff', 'primary_hi' => '#6e9bff', 'primary_lo' => '#0a2a7a', 'accent' => '#00d4ff', 'on_primary' => '#ffffff']],
         'toxic' => ['Toxic', ['primary' => '#16a34a', 'primary_hi' => '#4ade80', 'primary_lo' => '#064e23', 'accent' => '#bef264', 'on_primary' => '#ffffff']],
         'violet' => ['Violet', ['primary' => '#8b5cf6', 'primary_hi' => '#b794ff', 'primary_lo' => '#3b1a8a', 'accent' => '#f472b6', 'on_primary' => '#ffffff']],
@@ -58,11 +58,15 @@ final class Appearance
     public static function css(): string
     {
         $css = ':root{';
-        foreach (self::colors() as $k => $hex) {
+        $colors = self::colors();
+        foreach ($colors as $k => $hex) {
             if (isset(self::TOKENS[$k])) {
                 $css .= self::TOKENS[$k][0] . ':' . $hex . ';';
             }
         }
+        // Text colour for gradient title bars / hero: dark on bright gradients, white on deep ones.
+        $lum = (self::luminance($colors['primary_hi']) + self::luminance($colors['primary'])) / 2;
+        $css .= '--c-on-bar:' . ($lum > 0.24 ? '#1a0703' : '#ffffff') . ';';
         $r = max(0, min(32, (int) setting('appearance.radius', 16)));
         $css .= '--radius:' . $r . 'px;--radius-sm:' . intdiv($r, 2) . 'px;--radius-lg:' . intdiv($r * 3, 2) . 'px;}';
         return $css;

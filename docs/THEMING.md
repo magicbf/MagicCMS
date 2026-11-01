@@ -59,69 +59,53 @@ themes/my-theme/
 
 ## 3. Design tokens — `tokens.css`
 
-All tokens are defined on `:root`. **Never hard-code colours in `theme.css`; use `var(--token)`.** Complete list:
+All tokens are defined on `:root`. **Never hard-code colours in `theme.css`; use `var(--token)`** (derive translucent variants with `color-mix(in srgb, var(--c-primary) 40%, transparent)`). The default theme ("Ember" look) defines:
 
 ```css
 :root {
-  /* Brand */
-  --c-primary:        #e10613;   /* main accent */
-  --c-primary-hi:     #ff4d4d;   /* highlight / hover */
-  --c-primary-lo:     #7a0008;   /* deep shade */
-  --c-accent:         #ff7a59;   /* secondary accent */
+  /* Brand — the signature gradient runs  --c-primary-hi → --c-primary.  Admin colour schemes override these. */
+  --c-primary:#e5091f;  --c-primary-hi:#ff5238;  --c-primary-lo:#8c0012;  --c-accent:#ff9a3d;
+  --c-text-on-primary:#ffffff;
+  --c-on-bar:#ffffff;            /* text on gradient title bars & hero. Set by core: dark on bright schemes, white on deep ones */
 
-  /* Surfaces (dark → light layering) */
-  --c-bg:             #0b0b0d;   /* page background */
-  --c-bg-2:           #121216;   /* header/footer */
-  --c-surface:        #17171c;   /* cards, panels */
-  --c-surface-2:      #1f1f26;   /* inputs, hover rows */
-  --c-border:         #2a2a33;
+  /* Surfaces */
+  --c-bg:#0a0706; --c-bg-2:#120c0a; --c-surface:#18110e; --c-surface-2:#221814; --c-border:#2d211b;
+  --glass:linear-gradient(180deg,rgba(34,24,20,.72),rgba(18,13,11,.72));   /* card/panel background */
+  --glass-border:rgba(255,255,255,.07);  --glass-hl:rgba(255,200,160,.07); /* hairline + inset top highlight */
+  --field-bg:…; --field-border:…;  --pill-bg:…;                            /* inputs; nav group, tabs, chips */
+  --btn-bg:#0e0907; --btn-fg:#fff4ec; --btn-border:rgba(255,255,255,.10);  /* default (dark) button */
 
   /* Text */
-  --c-text:           #f4f4f6;
-  --c-text-dim:       #a0a0aa;
-  --c-text-on-primary:#ffffff;
+  --c-text:#fff4ec; --c-text-dim:#b5a196; --c-text-faint:#8f7d73;
 
   /* Status */
-  --c-success:        #2ecc71;
-  --c-warning:        #f5a623;
-  --c-danger:         #ff3b3b;
-  --c-info:           #3aa0ff;
+  --c-success:#3ddc84; --c-warning:#f5a623; --c-danger:#ff5a5a; --c-info:#7cc4ff;
 
   /* Gradients */
-  --g-primary:        linear-gradient(135deg, var(--c-primary-hi), var(--c-primary) 55%, var(--c-primary-lo));
-  --g-titlebar:       linear-gradient(90deg, var(--c-primary-lo), var(--c-primary) 60%, var(--c-primary-hi));
-  --g-surface:        linear-gradient(180deg, var(--c-surface), var(--c-bg-2));
+  --g-primary:linear-gradient(135deg,var(--c-primary-hi),var(--c-primary));
+  --g-gloss:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,0) 55%);  /* layered on top of --g-primary for the glossy button look */
+  --g-titlebar:/* glossy highlight + warm radial + horizontal gradient */;
 
-  /* Shape */
-  --radius-sm:        8px;
-  --radius:           16px;
-  --radius-lg:        24px;
+  /* Shape — the admin "corner radius" slider sets --radius; -sm / -lg follow (½× and 1.5×) */
+  --radius-sm:8px; --radius:16px; --radius-lg:24px;
 
-  /* Elevation & glow */
-  --shadow:           0 8px 24px rgba(0,0,0,.45);
-  --glow:             0 0 0 1px var(--c-primary), 0 0 24px rgba(225,6,19,.45);
+  --shadow:0 24px 48px rgba(0,0,0,.35);  --glow:…;
 
-  /* Type */
-  --font-body:        system-ui, "Segoe UI", Inter, Roboto, sans-serif;
-  --font-display:     "Segoe UI Black", "Arial Black", Impact, system-ui, sans-serif;
-  --fs-base:          16px;
-  --fs-title:         1.15rem;
-  --lh:               1.55;
+  /* Type — Unbounded (display) + Inter (body), self-hosted in themes/magic-red/fonts (SIL OFL) */
+  --font-body:"Inter",system-ui,sans-serif;  --font-display:"Unbounded","Arial Black",sans-serif;
+  --fs-base:15px; --lh:1.6;
 
-  /* Layout */
-  --container-w:      1280px;
-  --sidebar-w:        280px;
-  --gap:              20px;
-  --header-h:         64px;
-
-  /* Motion */
-  --ease:             cubic-bezier(.2,.8,.2,1);
-  --t-fast:           .15s;
-  --t:                .3s;
+  /* Layout & motion */
+  --container-w:1360px; --sidebar-w:300px; --gap:22px; --header-h:68px;
+  --ease:cubic-bezier(.2,.8,.2,1); --t-fast:.15s; --t:.3s;
 }
 ```
 
 Changing only these values re-skins the entire CMS.
+
+**Fonts:** ship font files inside the theme (`themes/<slug>/fonts/*.woff2`) and declare them with `@font-face` using a *relative* `url(fonts/…)`. External font CDNs are blocked by the site's Content-Security-Policy on purpose (privacy, speed).
+
+**Decor layer:** the core layout outputs `<div class="bg-fx" aria-hidden="true">` with six empty spans (`.fx-a .fx-b .fx-c .fx-grid .fx-grain .fx-vig`). Core only positions them; a theme paints them (the default theme draws aurora glows, a masked grid, film grain and a vignette) or sets `.bg-fx{display:none}`.
 
 ### 3.1 Light & dark mode
 
@@ -150,7 +134,7 @@ Admins can choose a preset or custom colours in **Admin → Appearance**. Core s
 </style>
 ```
 
-Overridable tokens: `--c-primary`, `--c-primary-hi`, `--c-primary-lo`, `--c-accent`, `--c-bg`, `--c-bg-2`, `--c-surface`, `--c-surface-2`, `--c-border`, `--c-text`, `--c-text-dim`, `--radius*`, `--font-*`, and the motion level (`<html data-motion="off|subtle|full">`).
+Overridable tokens (emitted by core): `--c-primary`, `--c-primary-hi`, `--c-primary-lo`, `--c-accent`, `--c-text-on-primary`, **`--c-on-bar`** (computed from the gradient's brightness), `--radius`, `--radius-sm`, `--radius-lg`, and the motion level (`<html data-motion="off|subtle|full">`).
 
 **Consequence for theme authors:** derive gradients, glows and shadows from tokens (`color-mix(in srgb, var(--c-primary) 45%, transparent)` for translucent variants) instead of hard-coded RGB, so scheme changes recolour everything. Honour `[data-motion="off"]` by disabling animations.
 
@@ -204,7 +188,7 @@ editor: `.editor`, `.editor-toolbar`, `.editor-preview`; moderation: `.mod-tools
   </ul>
 </nav>
 ```
-Selectors: `.nav-list`, `.nav-item`, `.nav-btn`, `.nav-btn-sub`, `.nav-sub`, `.nav-badge`, `.nav-burger`, `.is-active`, `.is-open`, `.nav-vertical` (sidebar variant), `.hide-mobile`. The burger/dropdown *behaviour* is in core.js + core.css; the theme only paints it. The `<html>` carries `data-nav-style="gradient|solid|outline|glass"` and `data-nav-fx="shine|glow|lift|none"` (admin choice) — style each combination. Items may carry an inline `--btn-color` override: derive the button from it, e.g. `--btn: var(--btn-color, var(--c-primary))` (see Magic Red).
+Selectors: `.nav-list`, `.nav-item`, `.nav-btn`, `.nav-btn-sub`, `.nav-sub`, `.nav-badge`, `.nav-burger`, `.is-active`, `.is-open`, `.nav-vertical` (sidebar variant), `.hide-mobile`. The burger/dropdown *behaviour* is in core.js + core.css; the theme only paints it. The `<html>` carries `data-nav-style="gradient|flash|solid|outline|glass"` (gradient = pill group with a gradient active item; flash = every button gradient) and `data-nav-fx="shine|glow|lift|none"` (admin choice) — style each combination. Items may carry an inline `--btn-color` override: derive the button from it, e.g. `--btn: var(--btn-color, var(--c-primary))` (see Magic Red).
 
 ### Hero
 v0.1 ships `.hero-lite`, `.hero-lite-inner`, `.eyebrow`, `.lead`, `.grad-text`, `.hero-cta` (home intro). The full hero module (planned) will use `.hero`, `.hero-slide`, `.hero-media`, `.hero-overlay`, `.hero-content`, `.hero-title`, `.hero-sub`, `.hero-cta`, `.hero-dots`, `.hero-arrow`. Modifiers: `.hero-compact|normal|full`, `.align-left|center|right`. Height via `--hero-h`, overlay via `--hero-overlay` (set inline by core).
@@ -212,6 +196,9 @@ v0.1 ships `.hero-lite`, `.hero-lite-inner`, `.eyebrow`, `.lead`, `.grad-text`, 
 ### News & categories *(module planned for v0.4 — class names reserved)*
 `.news-grid`, `.news-card`, `.news-cover`, `.news-meta`, `.news-title`, `.news-excerpt`, `.news-featured`, `.cat-badge`, `.cat-banner`, `.tag`.
 Each category-coloured element gets `style="--cat-color:#hex"` — use `var(--cat-color, var(--c-primary))` for badges, borders and title-bar accents. Covers are `<img class="news-cover">` pointing to an uploaded image **or** a generated SVG (`/cover/<id>.svg`); style both identically (`object-fit:cover; aspect-ratio:16/9`).
+
+### Home & stats (default theme)
+`.page-intro`, `.page-title`, `.eyebrow`, `.live-dot`, `.hero-lite` (`.hero-mark`, `.hero-title`, `.lead`, `.hero-cta` with `.btn-dark` / `.btn-glass`), `.stat-grid` / `.stat-tile` (`.is-hot` highlights one tile), `.grad-text`.
 
 ### Mode toggle
 `.mode-toggle` (button), with `[data-theme]` on `<html>`.
