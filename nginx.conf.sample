@@ -1,0 +1,19 @@
+# MagicCMS nginx sample (adjust root / fastcgi_pass)
+server {
+    listen 80;
+    server_name example.com;
+    root /var/www/magiccms;
+    index index.php;
+
+    location ~ ^/(core|config|migrations|lang|cache)/ { deny all; }
+    location ~ ^/(modules|panels|plugins|views)/.*\.php$ { deny all; }
+    location ~ ^/themes/.*/templates/ { deny all; }
+    location ^~ /uploads/ { location ~ \.php$ { deny all; } }
+
+    location / { try_files $uri $uri/ /index.php?$query_string; }
+    location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_pass unix:/run/php/php-fpm.sock;
+    }
+}

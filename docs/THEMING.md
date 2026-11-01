@@ -202,12 +202,12 @@ Selectors: `.panel`, `.panel-title`, `.panel-body`, `.panel-toggle`, `.panel.is-
   </ul>
 </nav>
 ```
-Selectors: `.nav-list`, `.nav-item`, `.nav-btn`, `.nav-btn-sub`, `.nav-sub`, `.nav-badge`, `.nav-burger`, `.is-active`, `.is-open`. The `<html>` carries `data-nav-style="gradient|solid|outline|glass"` and `data-nav-fx="shine|glow|lift|none"` (admin choice) — style each combination. Items may carry an inline `--btn-color` override: use `background: var(--btn-color, var(--g-primary))`.
+Selectors: `.nav-list`, `.nav-item`, `.nav-btn`, `.nav-btn-sub`, `.nav-sub`, `.nav-badge`, `.nav-burger`, `.is-active`, `.is-open`, `.nav-vertical` (sidebar variant), `.hide-mobile`. The burger/dropdown *behaviour* is in core.js + core.css; the theme only paints it. The `<html>` carries `data-nav-style="gradient|solid|outline|glass"` and `data-nav-fx="shine|glow|lift|none"` (admin choice) — style each combination. Items may carry an inline `--btn-color` override: derive the button from it, e.g. `--btn: var(--btn-color, var(--c-primary))` (see Magic Red).
 
 ### Hero
-`.hero`, `.hero-slide`, `.hero-media`, `.hero-overlay`, `.hero-content`, `.hero-title`, `.hero-sub`, `.hero-cta` (contains `.btn`), `.hero-dots`, `.hero-arrow`. Modifiers: `.hero-compact|normal|full`, `.align-left|center|right`. Height via `--hero-h`, overlay via `--hero-overlay` (set inline by core).
+v0.1 ships `.hero-lite`, `.hero-lite-inner`, `.eyebrow`, `.lead`, `.grad-text`, `.hero-cta` (home intro). The full hero module (planned) will use `.hero`, `.hero-slide`, `.hero-media`, `.hero-overlay`, `.hero-content`, `.hero-title`, `.hero-sub`, `.hero-cta`, `.hero-dots`, `.hero-arrow`. Modifiers: `.hero-compact|normal|full`, `.align-left|center|right`. Height via `--hero-h`, overlay via `--hero-overlay` (set inline by core).
 
-### News & categories
+### News & categories *(module planned for v0.4 — class names reserved)*
 `.news-grid`, `.news-card`, `.news-cover`, `.news-meta`, `.news-title`, `.news-excerpt`, `.news-featured`, `.cat-badge`, `.cat-banner`, `.tag`.
 Each category-coloured element gets `style="--cat-color:#hex"` — use `var(--cat-color, var(--c-primary))` for badges, borders and title-bar accents. Covers are `<img class="news-cover">` pointing to an uploaded image **or** a generated SVG (`/cover/<id>.svg`); style both identically (`object-fit:cover; aspect-ratio:16/9`).
 
@@ -222,36 +222,48 @@ Place a file with the same name in `themes/<slug>/templates/` to replace the cor
 |---|---|---|
 | `layout.php` | Whole page shell | `$title`, `$content`, `$layoutMode`, `$panels` (`['left'=>[…],'right'=>[…]]`), `$user`, `$meta` |
 | `header.php` / `footer.php` | Chrome | `$user`, `$menu`, `$siteName` |
-| `nav.php` | Menu markup | `$items` (tree: `label,url,icon,badge,active,children,color`) |
-| `hero.php` | Hero banner | `$slides` (`headline,sub,media,cta[],overlay`), `$opts` |
-| `news-card.php` | News teaser | `$post` (`title,url,excerpt,cover,category{name,color,icon}`) |
-| `panel.php` | Panel wrapper | `$panel` (`key,title,collapsed`), `$html` |
+| `nav.php` | Menu markup | `$items` (tree: `label,url,icon,badge,active,children,color,new_tab,hideMobile`), `$class` |
+| `hero.php` *(planned)* | Hero banner | `$slides` (`headline,sub,media,cta[],overlay`), `$opts` |
+| `news-card.php` *(planned)* | News teaser | `$post` (`title,url,excerpt,cover,category{name,color,icon}`) |
+| `panel.php` | Panel wrapper | `$panel` (`id,key,title,hideMobile`), `$html` |
 | `pagination.php`, `breadcrumb.php`, `alert.php` | Components | component-specific |
 
-Skeleton of `layout.php`:
+Skeleton of `layout.php` (this mirrors the core `views/layout.php`; copy it and edit):
 
 ```php
+<?php /** @var string $title,$content,$bodyClass,$description,$mode,$modeSetting  @var array $layout */ ?>
 <!doctype html>
-<html lang="<?= e($lang) ?>">
+<html lang="<?= e(setting('site.lang', 'en')) ?>" data-theme="<?= e($mode) ?>" data-theme-setting="<?= e($modeSetting) ?>"
+      data-motion="<?= e(MagicCMS\Core\Appearance::motion()) ?>" data-nav-style="<?= e(setting('nav.button_style', 'gradient')) ?>" data-nav-fx="<?= e(setting('nav.hover_fx', 'shine')) ?>">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= e($title) ?> · <?= e(setting('site.name')) ?></title>
-  <?= theme_assets('head') ?>        <!-- outputs <link>s from theme.json -->
+  <!-- keep: resolves "auto" light/dark before first paint (CSP nonce required) -->
+  <script nonce="<?= e(MagicCMS\Core\Bootstrap::$nonce) ?>">(function(){var d=document.documentElement;if(d.dataset.themeSetting==='auto'){d.dataset.theme=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}})();</script>
+  <?= theme_assets('head') ?>          <!-- core.css + theme stylesheets + admin colour-scheme <style> -->
   <?= hook('layout.render.head') ?>
 </head>
-<body class="mcms layout-<?= e($layoutMode) ?> page-<?= e($page) ?>">
-  <?= render('header') ?>
-  <div class="site-grid">
-    <?php if (!empty($panels['left'])):  ?><aside class="col-left"><?= render_panels($panels['left']) ?></aside><?php endif ?>
-    <main class="col-main"><?= $content ?></main>
-    <?php if (!empty($panels['right'])): ?><aside class="col-right"><?= render_panels($panels['right']) ?></aside><?php endif ?>
+<body class="mcms layout-<?= e($layout['mode']) ?> <?= e($bodyClass) ?>" data-csrf="<?= e(MagicCMS\Core\Csrf::token()) ?>" data-base="<?= e(url('')) ?>">
+  <?= render('header', ['layout' => $layout]) ?>
+  <div class="container">
+    <?php foreach (flashes() as [$type, $msg]): ?><div class="alert alert-<?= e($type) ?>"><?= e($msg) ?></div><?php endforeach ?>
+    <div class="site-grid">
+      <?php if ($layout['left']): ?><aside class="col-left" id="drawer-left"><?= implode("\n", $layout['left']) ?></aside><?php endif ?>
+      <main class="col-main" id="main"><?= $content ?></main>
+      <?php if ($layout['right']): ?><aside class="col-right" id="drawer-right"><?= implode("\n", $layout['right']) ?></aside><?php endif ?>
+    </div>
   </div>
+  <div class="drawer-overlay" data-drawer-close></div>
   <?= render('footer') ?>
-  <?= theme_assets('foot') ?>
+  <?= hook('layout.render.footer') ?>
+  <?= theme_assets('foot') ?>          <!-- core.js (+ theme scripts): drawers, mode toggle, chat … -->
 </body>
 </html>
 ```
+
+`$layout` = `['mode' => 'none|left|right|both', 'left' => [rendered panel HTML…], 'right' => [...]]` — the mode is already the *effective* one (a column with no visible panels is dropped).
+
+> **Structure vs. look:** `assets/core.css` (always loaded first) provides only structure — grid, drawers, nav mechanics, utilities. Colours, gradients, shadows, typography and animation belong to the theme. A theme without a `parent` must therefore style everything in §4; a theme with `"parent": "magic-red"` inherits it all.
 
 Rules for template overrides: keep the class contract (§4), keep `<?= $content ?>`, never echo unescaped user data, don't remove `hook()` calls or `csrf_field()`.
 

@@ -1,0 +1,11 @@
+{
+  "name": "Magic Red",
+  "slug": "magic-red",
+  "version": "1.0.0",
+  "author": "MagicCMS",
+  "description": "Elegant black & red default theme with a light variant.",
+  "requires": "0.1",
+  "stylesheets": ["tokens.css", "theme.css"],
+  "scripts": [],
+  "supports": { "darkLight": true, "panels": ["left", "right"] }
+}

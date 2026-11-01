@@ -1,0 +1,31 @@
+/* Magic Red – design tokens. Everything visual derives from these (see docs/THEMING.md §3). */
+:root {
+  --c-primary:#e10613; --c-primary-hi:#ff4d4d; --c-primary-lo:#7a0008; --c-accent:#ff7a59;
+  --c-bg:#0b0b0d; --c-bg-2:#121216; --c-surface:#17171c; --c-surface-2:#1f1f26; --c-border:#2a2a33;
+  --c-text:#f4f4f6; --c-text-dim:#a0a0aa; --c-text-on-primary:#ffffff;
+  --c-success:#2ecc71; --c-warning:#f5a623; --c-danger:#ff3b3b; --c-info:#3aa0ff;
+
+  --g-primary:linear-gradient(135deg,var(--c-primary-hi),var(--c-primary) 55%,var(--c-primary-lo));
+  --g-titlebar:linear-gradient(90deg,var(--c-primary-lo),var(--c-primary) 55%,var(--c-primary-hi),var(--c-primary) 90%,var(--c-primary-lo));
+  --g-surface:linear-gradient(180deg,var(--c-surface),var(--c-bg-2));
+
+  --radius-sm:8px; --radius:16px; --radius-lg:24px;
+  --shadow:0 8px 24px rgba(0,0,0,.45);
+  --glow:0 0 0 1px var(--c-primary),0 0 24px color-mix(in srgb,var(--c-primary) 45%,transparent);
+
+  --font-body:system-ui,"Segoe UI",Inter,Roboto,"Helvetica Neue",sans-serif;
+  --font-display:"Segoe UI Black","Arial Black",Impact,system-ui,sans-serif;
+  --fs-base:16px; --lh:1.55;
+
+  --container-w:1320px; --sidebar-w:280px; --gap:20px; --header-h:68px;
+  --ease:cubic-bezier(.2,.8,.2,1); --t-fast:.15s; --t:.3s;
+  color-scheme:dark;
+}
+:root[data-theme="light"] {
+  --c-bg:#f3f3f6; --c-bg-2:#ffffff; --c-surface:#ffffff; --c-surface-2:#f0f0f4; --c-border:#dcdce4;
+  --c-text:#17171c; --c-text-dim:#5a5a66;
+  --shadow:0 6px 18px rgba(20,20,40,.12);
+  --glow:0 0 0 1px var(--c-primary),0 0 18px color-mix(in srgb,var(--c-primary) 28%,transparent);
+  --g-surface:linear-gradient(180deg,#ffffff,#f7f7fa);
+  color-scheme:light;
+}

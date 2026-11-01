@@ -1,0 +1,8 @@
+config/config.php
+config/installed.lock
+cache/*
+!cache/.gitkeep
+uploads/*
+!uploads/.gitkeep
+!uploads/.htaccess
+*.log

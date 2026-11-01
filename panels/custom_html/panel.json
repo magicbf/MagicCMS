@@ -1,0 +1,2 @@
+{ "key": "custom_html", "title": "Custom HTML", "version": "1.0.0", "positions": ["left", "right"], "multiple": true,
+  "settings": { "html": { "type": "textarea", "label": "Content (HTML is sanitized)", "default": "<p>Edit me in Admin → Panels.</p>" } } }

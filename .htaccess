@@ -1,0 +1,13 @@
+Options -Indexes
+DirectoryIndex index.php
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Block direct access to internals
+  RewriteRule ^(core|config|migrations|lang|cache)/ - [F,L]
+  RewriteRule ^(modules|panels|plugins|views)/.*\.php$ - [F,L]
+  RewriteRule ^themes/.*/templates/ - [F,L]
+  # Front controller
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.php [L]
+</IfModule>

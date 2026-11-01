@@ -7,13 +7,41 @@
   Black &amp; red by default. Fast. Modular. Easy to extend (by humans <i>or</i> AI).
 </p>
 
-> **Status:** 📐 Design & specification phase. This document is the blueprint for MagicCMS 1.0.
-> Sections marked **(planned)** describe features that are specified but not yet implemented.
+> **Status: v0.1 "Foundation" is implemented and tested.** The installer, auth, roles, layout/panels, menu builder, appearance (light/dark + colour schemes),
+> custom pages, shoutbox, avatars, theme engine and admin shell all work. Everything marked **(planned)** below is specified but not built yet —
+> see [Implementation status](#implementation-status).
+
+---
+
+## Implementation status
+
+| Area | v0.1 | Notes |
+|---|---|---|
+| Setup wizard, lock file, self-delete | ✅ | 4-step wizard; Superadmin created on install |
+| Registration / login / logout | ✅ | open / approval / closed modes, honeypot, brute-force throttle, remember-me |
+| Passwords | ✅ | Argon2id (bcrypt fallback), rehash on login |
+| Roles & permissions | ✅ | Guest, Member, Moderator, Administrator, Superadministrator; privilege-escalation guarded |
+| Admin: dashboard, settings, users, panels, navigation, pages, appearance | ✅ | |
+| Layout: none / left / right / both (+ per-page override) | ✅ | Empty columns collapse automatically |
+| Panels: Account, Online Users, Shoutbox, Site Stats, Custom HTML, Navigation | ✅ | Multiple instances of Custom HTML / Navigation |
+| Menu builder (gradient buttons, dropdowns, page/URL/module targets) | ✅ | Emoji icons; SVG icon set planned |
+| Light/dark mode + admin colour scheme | ✅ | 6 presets + custom colours, contrast warning, live preview |
+| Avatars (≤ 5 MB, auto-resize, re-encode) | ✅ | 32/64/128/256 px, WebP (JPEG fallback) |
+| Custom pages | ✅ | Sanitized HTML editor; Markdown/WYSIWYG planned |
+| Theme engine (parent themes, tokens, overrides) | ✅ | Theme upload UI planned |
+| Plugins / modules loader | ✅ (modules) | Core modules are loaded from the `modules` table; admin UI for enabling/installing planned |
+| Hero module | ⏳ | v0.1 ships a static "hero-lite" intro on the home page; full module planned |
+| News + categories + generated covers | ⏳ | planned (v0.4) |
+| Forum | ⏳ | planned (v0.2) |
+| Matches / roster / events panels | ⏳ | planned (v0.3) |
+| Private messages, email verification, password reset | ⏳ | need a mail layer – planned |
+| Update/migration runner UI | ⏳ | planned |
 
 ---
 
 ## Table of contents
 
+0. [Implementation status](#implementation-status)
 1. [What is MagicCMS?](#1-what-is-magiccms)
 2. [Feature overview](#2-feature-overview)
 3. [Requirements](#3-requirements)
@@ -99,7 +127,8 @@ MagicCMS is a small, dependency-free content management system in the spirit of 
 | PHP extensions | `pdo_mysql`, `mbstring`, `json`, `fileinfo`, `gd` *(or `imagick`)* | + `intl`, `sodium` |
 | Database | MySQL 5.7 / MariaDB 10.4 (`utf8mb4`, InnoDB) | MySQL 8 / MariaDB 10.6+ |
 | Web server | Apache 2.4 (`mod_rewrite`) or Nginx | with HTTPS |
-| Disk | ~5 MB core + uploads | |
+| Disk | ~1 MB core + uploads | |
+| php.ini | `upload_max_filesize` and `post_max_size` ≥ 5M for 5 MB avatars | |
 
 Runs on ordinary shared hosting. No shell access needed.
 
@@ -112,19 +141,17 @@ Runs on ordinary shared hosting. No shell access needed.
 1. Upload the MagicCMS files to your web root (or a sub-folder).
 2. Create an empty MySQL database and a user with full rights on it.
 3. Make these directories writable by PHP: `config/`, `uploads/`, `cache/`.
-4. Open `https://your-site.tld/setup.php` in your browser.
+4. Open `https://your-site.tld/setup.php` in your browser. (Local try-out: `php -S 127.0.0.1:8080 index.php`, then visit `http://127.0.0.1:8080/setup.php`.)
 5. Follow the wizard (below). When finished, MagicCMS **disables the installer automatically**.
 
 ### 4.2 The setup wizard (`setup.php`)
 
 | Step | What happens |
 |---|---|
-| **1. Requirements check** | PHP version, extensions, writable folders. Blocks on hard failures. |
-| **2. Database** | Host, port, DB name, user, password, table prefix (default `mcms_`). Connection is tested live. |
-| **3. Site** | Site name, base URL, default language, timezone, default theme. |
-| **4. Superadministrator** | Username, email, password (strength-checked, entered twice). **This first account becomes the Superadministrator.** |
-| **5. Install** | Creates all tables in a transaction, seeds roles/permissions/default panels/forum categories/theme settings, writes `config/config.php`, creates the Superadmin. |
-| **6. Self-lock & cleanup** | See below. |
+| **1. Requirements check** | PHP version, extensions (PDO MySQL, mbstring, fileinfo, dom, GD/WebP, Argon2id), writable folders, `upload_max_filesize`. Blocks on hard failures, warns on optional ones. |
+| **2. Database** | Host, port, DB name, user, password, table prefix (default `mcms_`). The connection is tested live; an already-populated prefix is refused. |
+| **3. Site & Superadministrator** | Site name, URL, timezone, theme, plus the first account (username, email, password entered twice). **This first account becomes the Superadministrator.** |
+| **4. Install & self-lock** | Creates all tables, seeds roles/permissions/panels/menus/settings and a demo page (in one transaction), writes `config/config.php`, then locks and removes the installer (see below). |
 
 ### 4.3 How the installer removes itself
 
@@ -153,49 +180,35 @@ Upload new files over old ones, open `/admin/update`. Versioned SQL migrations i
 ```
 MagicCMS/
 ├── index.php                 # Front controller (all requests)
-├── setup.php                 # One-time installer (self-removing)
+├── setup.php                 # One-time installer (locks + deletes itself)
 ├── .htaccess / nginx.conf.sample
-├── config/
-│   ├── config.php            # Generated by setup (DB creds, secrets) — NOT web-accessible
-│   └── installed.lock
+├── config/                   # config.php + installed.lock are generated by setup (never web-accessible)
 ├── core/                     # Framework-free core
-│   ├── Bootstrap.php
-│   ├── Router.php
-│   ├── Database.php          # PDO wrapper, prepared statements only
-│   ├── Auth.php              # Login, sessions, password hashing
-│   ├── Permissions.php
-│   ├── Csrf.php
-│   ├── View.php              # Template + theme resolver
-│   ├── Layout.php            # Panel/slot engine
-│   ├── Hooks.php             # Event / hook system
-│   ├── Uploads.php           # Safe upload + image resize
-│   ├── Settings.php          # DB-backed settings with cache
-│   └── helpers.php           # e(), url(), t(), asset(), …
-├── modules/                  # Feature modules (news, forum, matches, …)
-│   └── forum/
-│       ├── module.json
-│       ├── controllers/  models/  views/  migrations/
-├── plugins/                  # Third-party panels & modules (same format as modules/)
-├── panels/                   # Built-in panels (chat, online, matches, …)
-│   └── online_users/
-│       ├── panel.json
-│       └── panel.php
+│   ├── Bootstrap.php         # autoload, config, session, security headers, module loading, dispatch
+│   ├── Database.php          # PDO wrapper: prepared statements only, {table} prefix placeholders
+│   ├── Settings.php          # DB-backed settings
+│   ├── Auth.php              # login, sessions, remember-me, brute-force limit, roles & permissions
+│   ├── Csrf.php  Hooks.php  Router.php
+│   ├── View.php              # template + theme-chain resolver, asset tags
+│   ├── Layout.php  Panels.php  Nav.php  Appearance.php
+│   ├── Sanitizer.php         # allow-list HTML sanitizer
+│   ├── Uploads.php           # hardened avatar upload + resize
+│   ├── Installer.php         # logic used by setup.php
+│   └── helpers.php           # e(), url(), t(), setting(), can(), render(), csrf_field(), …
+├── modules/                  # home, auth, profile, members, pages, chat, admin
+│   └── <key>/ module.json  routes.php  Controller.php  views/
+├── panels/                   # user_box, online_users, chat, site_stats, custom_html, navigation
+│   └── <key>/ panel.json  panel.php
+├── plugins/                  # third-party modules & panels (plugins/<name>/panels/<key>/…)
 ├── themes/
-│   ├── magic-red/            # Default theme (black & red)
-│   │   ├── theme.json
-│   │   ├── tokens.css        # CSS variables — the "design tokens"
-│   │   ├── theme.css
-│   │   ├── theme.js          # optional
-│   │   └── templates/        # optional overrides (layout.php, header.php, …)
-│   └── _example/
-├── admin/                    # Admin UI
-├── lang/                     # en.php, de.php, … (translations)
-├── assets/                   # Core CSS/JS/images (logo.svg)
-├── uploads/                  # avatars/, gallery/, downloads/  (non-executable!)
-├── cache/                    # incl. covers/ (generated SVG covers)
-├── migrations/
-└── docs/
-    └── THEMING.md            # Complete theme guide (AI-friendly)
+│   └── magic-red/            # theme.json  tokens.css  theme.css  [templates/]
+├── views/                    # core templates: layout, header, nav, footer, panel, pagination, 404 …
+├── assets/                   # core.css (structure), core.js, admin.js, logo.svg, logo-mark.svg
+├── lang/                     # en.php (source language), add de.php, fr.php …
+├── migrations/               # 0001_init.sql (schema, {table} placeholders)
+├── uploads/                  # avatars/ … (PHP execution disabled)
+├── cache/
+└── docs/THEMING.md
 ```
 
 ---
@@ -314,7 +327,7 @@ Examples: show both sidebars on the home page, but use *none* on the forum for m
 ### Panel management (Admin → Panels)
 
 - **Enable/disable/remove** any panel with one click.
-- **Drag & drop** ordering; move panels between left/right (and optional top/bottom slots).
+- **Order** with a number field and move panels between left/right (drag & drop planned).
 - **Visibility rules** per panel: by role, by logged-in/guest, by module/URL pattern, by device (hide on mobile).
 - **Per-panel settings** (e.g. "number of items", "refresh interval").
 - Panels can be **collapsible**; each user's collapsed state is remembered (cookie/DB).
@@ -324,9 +337,10 @@ Examples: show both sidebars on the home page, but use *none* on the forum for m
 
 | Viewport | Behaviour |
 |---|---|
-| ≥ 1200px | 3-column grid (left / content / right) |
-| 768–1199px | Content + one sidebar; the other becomes a drawer |
-| < 768px | Single column; sidebars become **slide-in drawers** toggled by header buttons, or stack below content (admin choice) |
+| ≥ 1100px | Grid with the enabled columns (left / content / right) |
+| < 1100px | Single column; side panels become **slide-in drawers** opened from header buttons (overlay, `Esc` closes) |
+| < 900px | The main menu collapses into an animated hamburger; dropdowns open on tap |
+| < 768px | Panels/menu items flagged "hide on mobile" disappear |
 
 Layout uses CSS Grid + custom properties (`--sidebar-w`, `--gap`), no JS required for the base layout.
 
@@ -538,6 +552,7 @@ Quick taste of a theme manifest:
   "title": "Hello Panel",
   "version": "1.0.0",
   "positions": ["left", "right"],
+  "multiple": false,
   "settings": {
     "greeting": { "type": "text", "default": "Hello", "label": "Greeting" }
   }
@@ -547,12 +562,12 @@ Quick taste of a theme manifest:
 `panels/hello/panel.php`
 ```php
 <?php
-/** @var array $settings  @var array|null $user  @var MagicCMS\Core\Db $db */
+/** Variables available: $settings (array), $user (array|null), $panel (DB row). Use db() for queries. */
 ?>
 <p><?= e($settings['greeting']) ?>, <?= e($user['username'] ?? t('guest')) ?>!</p>
 ```
 
-Drop the folder in `panels/` (or `plugins/<name>/panels/`), then enable it under **Admin → Panels**. The wrapper chrome (title bar, collapse button, rounded card) is provided by the theme — your panel only outputs its inner content.
+Drop the folder in `panels/` (or `plugins/<name>/panels/`), then add it under **Admin → Panels** (settings from `panel.json` get an auto-generated form). The wrapper chrome (title bar, collapse button, rounded card) is provided by the theme — your panel only outputs its inner content.
 
 ### Creating a module
 
@@ -589,7 +604,7 @@ Hooks::on('user.registered', function (array $user) {
 
 ### Template helpers
 
-`e($s)` escape · `url($path)` · `asset($path)` · `t($key)` translate · `can($perm)` permission check · `csrf_field()` · `setting($key, $default)` · `time_ago($ts)`
+`e($s)` escape · `url($path)` · `asset($path)` · `t($text)` translate · `can($perm)` permission check · `user()` · `db()` · `csrf_field()` · `setting($key, $default)` · `render($tpl, $vars)` · `fmt_date($utc)` · `time_ago($utc)` · `avatar_url($user, $px)` · `audit($action, $detail)`
 
 ---
 
