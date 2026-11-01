@@ -31,7 +31,7 @@ final class Uploads
         }
         $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
         $info = @getimagesize($file['tmp_name']);
-        if (!in_array($mime, self::MIME, true) || !$info || $info[0] < 16 || $info[1] < 16 || $info[0] * $info[1] > 25_000_000) {
+        if (!in_array($mime, self::MIME, true) || !$info || $info[0] < 16 || $info[1] < 16 || $info[0] * $info[1] > 16_000_000) {
             throw new \RuntimeException(t('Unsupported or invalid image (JPG, PNG, GIF or WebP).'));
         }
         $src = @imagecreatefromstring((string) file_get_contents($file['tmp_name']));
@@ -121,7 +121,7 @@ final class Uploads
 
         $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
         $info = @getimagesize($file['tmp_name']);
-        if (!extension_loaded('gd') || !in_array($mime, self::MIME, true) || !$info || $info[0] * $info[1] > 25_000_000) {
+        if (!extension_loaded('gd') || !in_array($mime, self::MIME, true) || !$info || $info[0] * $info[1] > 16_000_000) {
             throw new \RuntimeException(t('Unsupported image (use PNG, JPG, WebP, GIF or a clean SVG).'));
         }
         $src = @imagecreatefromstring($raw);
@@ -218,7 +218,7 @@ final class Uploads
         }
         $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
         $info = @getimagesize($file['tmp_name']);
-        if (!in_array($mime, self::MIME, true) || !$info || $info[0] < 32 || $info[1] < 32 || $info[0] * $info[1] > 25_000_000) {
+        if (!in_array($mime, self::MIME, true) || !$info || $info[0] < 32 || $info[1] < 32 || $info[0] * $info[1] > 16_000_000) {
             throw new \RuntimeException(t('Unsupported or invalid image (JPG, PNG, GIF or WebP).'));
         }
         $src = @imagecreatefromstring((string) file_get_contents($file['tmp_name']));

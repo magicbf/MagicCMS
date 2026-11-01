@@ -18,7 +18,7 @@ final class Auth
     {
         if (!empty($_SESSION['uid'])) {
             $u = db()->one(self::USER_SQL, [(int) $_SESSION['uid']]);
-            if ($u && $u['status'] === 'active') {
+            if ($u && $u['status'] === 'active' && self::sessionValid($u)) {
                 self::$user = $u;
             } else {
                 unset($_SESSION['uid']);
@@ -27,6 +27,33 @@ final class Auth
         if (!self::$user && !empty($_COOKIE['mcms_remember'])) {
             self::loginFromCookie((string) $_COOKIE['mcms_remember']);
         }
+    }
+
+    /** A session that started before the last password change is no longer valid. */
+    private static function sessionValid(array $u): bool
+    {
+        return empty($u['pw_changed_at']) || strtotime($u['pw_changed_at'] . ' UTC') <= (int) ($_SESSION['auth_t'] ?? 0);
+    }
+
+    /** Call after a password was changed/reset: ends every other session and remember-me token of that user. */
+    public static function passwordChanged(int $userId): void
+    {
+        db()->exec('UPDATE {users} SET pw_changed_at = ? WHERE id = ?', [now(), $userId]);
+        db()->exec('DELETE FROM {remember_tokens} WHERE user_id = ?', [$userId]);
+        if (self::$user && (int) self::$user['id'] === $userId) {
+            $_SESSION['auth_t'] = time();
+        }
+    }
+
+    /** Sliding-window abuse limiter backed by login_attempts (bucket = e.g. "reg", "pw"). */
+    public static function limited(string $bucket, int $max, int $window = 900): bool
+    {
+        return (int) db()->val('SELECT COUNT(*) FROM {login_attempts} WHERE ip_hash = ? AND login = ? AND created_at > ?', [ip_hash(), 'b:' . $bucket, gmdate('Y-m-d H:i:s', time() - $window)]) >= $max;
+    }
+
+    public static function hit(string $bucket): void
+    {
+        db()->exec('INSERT INTO {login_attempts} (ip_hash, login, created_at) VALUES (?,?,?)', [ip_hash(), 'b:' . $bucket, now()]);
     }
 
     public static function user(): ?array
@@ -70,18 +97,17 @@ final class Auth
     {
         $ip = ip_hash();
         $since = gmdate('Y-m-d H:i:s', time() - 900);
-        $fails = (int) db()->val(
-            'SELECT COUNT(*) FROM {login_attempts} WHERE created_at > ? AND (ip_hash = ? OR login = ?)',
-            [$since, $ip, mb_strtolower($login)]
-        );
-        if ($fails >= 8) {
+        // per connection: 10 failures / 15 min; per account (from anywhere): 30 – high enough that a stranger cannot lock the owner out
+        $byIp = (int) db()->val("SELECT COUNT(*) FROM {login_attempts} WHERE created_at > ? AND ip_hash = ? AND login NOT LIKE 'b:%'", [$since, $ip]);
+        $byLogin = (int) db()->val('SELECT COUNT(*) FROM {login_attempts} WHERE created_at > ? AND login = ?', [$since, mb_strtolower($login)]);
+        if ($byIp >= 10 || $byLogin >= 30) {
             return t('Too many failed attempts. Please wait 15 minutes.');
         }
 
         self::$needsVerify = false;
         $u = db()->one('SELECT id, password_hash, status, email_verified_at FROM {users} WHERE username = ? OR email = ? LIMIT 1', [$login, $login]);
         // Always run a hash verification so timing does not reveal whether the account exists.
-        $hash = $u['password_hash'] ?? '$2y$12$usesomesillystringforsaltuOq6l0n1j2m7pQ1cH5oGk8p9s7w6e';
+        $hash = $u['password_hash'] ?? '$argon2id$v=19$m=65536,t=4,p=1$MUg4cEdFVGRhdmliY200OQ$DhlaQqPWPlpsyGWK0RmfYQCLLNUAag+YDy/VuavE3/8'; // valid dummy → same cost for unknown users
         $ok = password_verify($password, $hash);
 
         if (!$u || !$ok) {
@@ -117,6 +143,8 @@ final class Auth
     {
         session_regenerate_id(true);
         $_SESSION['uid'] = $userId;
+        $_SESSION['auth_t'] = time();
+        unset($_SESSION['csrf']); // fresh CSRF token for the new session
         unset($_SESSION['online_ts']); // re-record presence as this user right away
         self::$perms = null;
         self::$user = db()->one(self::USER_SQL, [$userId]);

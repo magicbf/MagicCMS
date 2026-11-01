@@ -20,9 +20,20 @@ final class Controller
         $email = (string) input('email');
         $tz = (string) input('timezone');
         $mode = (string) input('theme_mode');
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190) {
+        if (!valid_email($email)) {
             flash('danger', t('Please enter a valid email address.'));
             redirect('/profile');
+        }
+        if (strcasecmp($email, (string) $u['email']) !== 0) { // changing the address needs the password (a stolen session must not be able to take the account over)
+            if (Auth::limited('pw', 6)) {
+                flash('danger', t('Too many attempts. Please wait a few minutes.'));
+                redirect('/profile');
+            }
+            if (!password_verify((string) ($_POST['email_password'] ?? ''), (string) db()->val('SELECT password_hash FROM {users} WHERE id = ?', [$u['id']]))) {
+                Auth::hit('pw');
+                flash('danger', t('To change your e-mail address, enter your current password.'));
+                redirect('/profile');
+            }
         }
         if (db()->val('SELECT id FROM {users} WHERE email = ? AND id <> ?', [$email, $u['id']])) {
             flash('danger', t('That email is already in use.'));
@@ -80,7 +91,10 @@ final class Controller
         $cur = (string) ($_POST['current'] ?? '');
         $new = (string) ($_POST['password'] ?? '');
         $hash = (string) db()->val('SELECT password_hash FROM {users} WHERE id = ?', [$u['id']]);
-        if (!password_verify($cur, $hash)) {
+        if (Auth::limited('pw', 6)) {
+            flash('danger', t('Too many attempts. Please wait a few minutes.'));
+        } elseif (!password_verify($cur, $hash)) {
+            Auth::hit('pw');
             flash('danger', t('Current password is wrong.'));
         } elseif (strlen($new) < 8 || strlen($new) > 72) {
             flash('danger', t('Password must be 8–72 characters.'));
@@ -88,7 +102,7 @@ final class Controller
             flash('danger', t('The passwords do not match.'));
         } else {
             db()->exec('UPDATE {users} SET password_hash = ? WHERE id = ?', [Auth::hash($new), $u['id']]);
-            db()->exec('DELETE FROM {remember_tokens} WHERE user_id = ?', [$u['id']]); // log out other devices
+            Auth::passwordChanged((int) $u['id']); // log out other devices and sessions
             session_regenerate_id(true);
             flash('success', t('Password changed.'));
         }

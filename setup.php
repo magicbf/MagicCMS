@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!in_array($site['timezone'], DateTimeZone::listIdentifiers(), true)) $errors[] = 'Invalid timezone.';
             if (!preg_match('/^[a-z0-9\-]+$/', $site['theme']) || !is_file(__DIR__ . "/themes/{$site['theme']}/theme.json")) $errors[] = 'Invalid theme.';
             if (!preg_match('/^[A-Za-z0-9_\-]{3,20}$/', $admin['username'])) $errors[] = 'Username: 3–20 characters (letters, numbers, _ and -).';
-            if (!filter_var($admin['email'], FILTER_VALIDATE_EMAIL)) $errors[] = 'Please enter a valid email address.';
+            if (!filter_var($admin['email'], FILTER_VALIDATE_EMAIL) || !preg_match('/^[A-Za-z0-9.!#$%&\'*+\/=?^_`{|}~\-]+@[A-Za-z0-9.\-]+$/', $admin['email'])) $errors[] = 'Please enter a valid email address.';
             if (strlen($admin['password']) < 8 || strlen($admin['password']) > 72) $errors[] = 'Password must be 8–72 characters.';
             if ($admin['password'] !== (string) ($_POST['password2'] ?? '')) $errors[] = 'The passwords do not match.';
             if (!$errors) {

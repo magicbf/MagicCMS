@@ -64,6 +64,7 @@ final class Controller
         Settings::set('layout.rhythm', self::pick((string) input('layout_rhythm'), array_keys(Layout::RHYTHMS), 'even'));
         Settings::set('layout.mirror', !empty($_POST['layout_mirror']));
         Settings::set('auth.registration', self::pick((string) input('registration'), ['open', 'approval', 'closed'], 'open'));
+        Settings::set('auth.reg_limit', max(0, min(1000, (int) input('reg_limit', 5))));
         Settings::set('upload.avatar_max_mb', max(1, min(5, (int) input('avatar_mb', 5))));
         Settings::set('online.window_min', max(1, min(60, (int) input('online_min', 5))));
         Settings::set('auth.email_verify', !empty($_POST['email_verify']));
@@ -79,7 +80,7 @@ final class Controller
         Settings::set('mail.driver', self::pick((string) input('driver'), ['mail', 'smtp', 'log'], 'mail'));
         Settings::set('mail.from_name', mb_substr((string) input('from_name'), 0, 80));
         $fe = (string) input('from_email');
-        Settings::set('mail.from_email', filter_var($fe, FILTER_VALIDATE_EMAIL) ? $fe : '');
+        Settings::set('mail.from_email', valid_email($fe) ? $fe : '');
         Settings::set('mail.smtp_host', mb_substr((string) input('smtp_host'), 0, 190));
         Settings::set('mail.smtp_port', max(1, min(65535, (int) input('smtp_port', 587))));
         Settings::set('mail.smtp_secure', self::pick((string) input('smtp_secure'), ['none', 'tls', 'ssl'], 'tls'));

@@ -279,6 +279,28 @@ function pm_enabled(): bool
     return $on ??= (bool) (user() && db()->val("SELECT 1 FROM {modules} WHERE module_key = 'messages' AND enabled = 1"));
 }
 
+/** Strict e-mail check: valid per PHP AND plain RFC-5322 "dot-atom" characters only (no quoted local parts, no IDN tricks). */
+function valid_email(string $e): bool
+{
+    return strlen($e) <= 190 && filter_var($e, FILTER_VALIDATE_EMAIL) !== false
+        && (bool) preg_match('/^[A-Za-z0-9.!#$%&\'*+\/=?^_`{|}~\-]+@[A-Za-z0-9](?:[A-Za-z0-9.\-]*[A-Za-z0-9])?$/', $e);
+}
+
+/** Run something after the response has been sent (mail, bulk notifications) so the visitor never waits and timing reveals nothing. */
+function defer(callable $fn): void
+{
+    register_shutdown_function(static function () use ($fn): void {
+        if (function_exists('fastcgi_finish_request')) {
+            @fastcgi_finish_request();
+        }
+        try {
+            $fn();
+        } catch (\Throwable $e) {
+            error_log('MagicCMS deferred task: ' . $e->getMessage());
+        }
+    });
+}
+
 /** Unread in-site notifications for the current user. */
 function notif_unread(): int
 {
