@@ -38,7 +38,7 @@
 
   /* Type – self-hosted variable fonts (themes/magic-red/fonts) */
   --font-body:"Inter",system-ui,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
-  --font-display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --font-display:"Big Shoulders Display","Arial Narrow","Arial Black",system-ui,sans-serif;
   --fs-base:15px; --lh:1.6;
 
   /* Layout */

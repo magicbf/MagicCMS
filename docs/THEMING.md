@@ -235,6 +235,10 @@ The site setting `layout.header` (classic / inline / hanging / float / rail, see
 
 A theme may restyle the wrappers (`.hd-badge`, `.hd-island`, `.site-rail`, `.hd-bar`) for extra polish – all three bundled child themes work with the defaults.
 
+### 4.2 Skins and bundled panel positions
+
+`<html>` carries `data-skin="<active theme slug>"`. A theme that ships a stylesheet its *children inherit* (Magic Red's `glass.css`) scopes it with `html[data-skin="magic-red"]`, so child themes are unaffected. Panels can sit in `left`, `right` or the full-width `above_footer` position (e.g. the partners strip); a panel whose `panel.json` has `"bare": true` is rendered without the card wrapper and paints its own section.
+
 ## 5. Template overrides (optional)
 
 Place a file with the same name in `themes/<slug>/templates/` to replace the core one. Templates are plain PHP. **Always escape output with `e()`**.

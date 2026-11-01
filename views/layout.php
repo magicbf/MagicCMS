@@ -1,6 +1,6 @@
 <?php /** @var string $title @var string $content @var array $layout @var string $bodyClass @var string $description @var string $mode @var string $modeSetting @var string $hero @var string $head */ ?>
 <!doctype html>
-<html lang="<?= e(setting('site.lang', 'en')) ?>" data-theme="<?= e($mode) ?>" data-theme-setting="<?= e($modeSetting) ?>" data-motion="<?= e(MagicCMS\Core\Appearance::motion()) ?>" data-nav-style="<?= e(setting('nav.button_style', 'gradient')) ?>" data-header="<?= e(MagicCMS\Core\Layout::header()) ?>" data-rhythm="<?= e(MagicCMS\Core\Layout::rhythm()) ?>" data-nav-fx="<?= e(setting('nav.hover_fx', 'shine')) ?>">
+<html lang="<?= e(setting('site.lang', 'en')) ?>" data-theme="<?= e($mode) ?>" data-theme-setting="<?= e($modeSetting) ?>" data-motion="<?= e(MagicCMS\Core\Appearance::motion()) ?>" data-nav-style="<?= e(setting('nav.button_style', 'gradient')) ?>" data-skin="<?= e(preg_replace('/[^a-z0-9\-]/', '', (string) setting('theme.active', 'magic-red'))) ?>" data-header="<?= e(MagicCMS\Core\Layout::header()) ?>" data-rhythm="<?= e(MagicCMS\Core\Layout::rhythm()) ?>" data-nav-fx="<?= e(setting('nav.hover_fx', 'shine')) ?>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
