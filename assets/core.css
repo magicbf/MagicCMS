@@ -254,3 +254,33 @@ form.inline{display:inline;margin:0}
 .hs-float .lg{left:6px;top:6px;width:22px;height:13px;border-radius:7px}.hs-float .mn{left:34px;right:40px;top:12px;height:12px;border-radius:7px}.hs-float .ac{right:6px;top:6px;width:28px;height:11px;border-radius:7px}.hs-float .bd{left:6px;right:6px;top:34px;height:38px}
 .hs-rail .lg{left:5px;top:6px;width:20px;height:14px}.hs-rail .mn{left:5px;top:26px;width:20px;height:34px}.hs-rail .ac{left:5px;bottom:5px;width:20px;height:8px}.hs-rail .bd{left:32px;right:6px;top:6px;bottom:6px}
 .hs-rhythm{display:flex;gap:12px;flex-wrap:wrap;margin:.4rem 0 1rem}
+
+/* --- Phones: everything in the header block is centred, whatever the header style --- */
+@media (max-width:899.98px){
+  .header-top,.hd-row{flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px}
+  .brand,.hd-badge .brand,.hd-i-brand .brand{justify-content:center;flex-direction:row;text-align:left}
+  .header-actions,.hd-inline .header-actions,.hd-top .header-actions,.hd-i-act .header-actions{margin:0 auto;justify-content:center;flex-wrap:wrap}
+  .site-nav,.hd-inline .site-nav{flex-basis:auto;width:100%}
+  .site-nav:not(.nav-vertical) .nav-burger{margin:0 auto;width:100%;justify-content:center;align-items:center}
+  .site-nav:not(.nav-vertical) .nav-list{justify-content:center}
+  .site-nav:not(.nav-vertical) .nav-btn{justify-content:center}
+  .navbar-inner{justify-content:center}
+  .nav-mini-brand{display:none!important}
+  /* hanging badge → plain centred brand */
+  .hd-stage{flex-direction:column;align-items:center;gap:10px}
+  .hd-badge{align-self:center;justify-self:center;border-radius:0 0 var(--radius,16px) var(--radius,16px)}
+  .hd-top,.hd-bar{width:100%;justify-content:center}
+  /* floating islands → stacked, centred */
+  .hd-islands{flex-direction:column;align-items:stretch}
+  .hd-i-brand,.hd-i-act{align-self:center;margin-top:0}
+  .hd-i-nav{width:100%}
+  .site-header.hd-float{position:relative;top:auto}
+}
+@media (max-width:899.98px){
+  /* hero text and buttons centred on phones as well */
+  .hero-slide,.hero-slide.align-right{justify-content:center;text-align:center}
+  .hero-slide .hero-content,.hero-slide.align-right .hero-content{align-items:center;margin-inline:auto}
+  .hero-slide .hero-cta,.hero-slide.align-right .hero-cta,.hero-slide.has-media .hero-cta,.hero-lite .hero-cta{justify-content:center}
+  .hero-lite-inner{align-items:center;text-align:center;margin-inline:auto}
+  .hero-lite .eyebrow,.hero-slide .eyebrow{align-self:center}
+}
