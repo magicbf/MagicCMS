@@ -484,3 +484,14 @@ img.flag{display:inline-block;height:1.05em;width:auto;aspect-ratio:4/3;vertical
 .emj-e:hover,.emj-f:hover{background:color-mix(in srgb,var(--c-text,#fff) 12%,transparent);transform:scale(1.12)}
 .emj-none{grid-column:1/-1;margin:18px 0;text-align:center;color:var(--c-text-faint,#8a92a8);font-size:13px}
 .emj-foot{padding:6px 12px;border-top:1px solid var(--c-border,rgba(255,255,255,.1));font-size:12px;color:var(--c-text-dim,#aab);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:28px}
+
+/* --- Phones: a condensed footer – link groups flow side by side instead of stacking into tall lists --- */
+@media (max-width:640px){
+  .footer-grid{grid-template-columns:1fr;gap:.9rem;padding-top:1.4rem;padding-bottom:.8rem}
+  .footer-grid .fcol h4{margin-bottom:.35rem}
+  .footer-grid .fcol ul:not(.f-socials){display:flex;flex-wrap:wrap;gap:.1rem 1.1rem}
+  .footer-grid .fcol ul:not(.f-socials) li{margin:0}
+  .footer-grid .flatest small{display:none}
+  .footer-grid .f-about{margin:.2rem 0 0}
+  .footer-bottom{gap:.5rem}
+}
