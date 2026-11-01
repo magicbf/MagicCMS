@@ -12,7 +12,7 @@ $preview = $r['id'] ? News::coverUrl($r + ['cat_name' => '']) : null; ?>
     <div class="form-row"><label class="label"><?= e(t('Tags (comma separated)')) ?></label><input class="input" name="tags" maxlength="300" value="<?= e($tags) ?>" placeholder="scrim, roster, cs2"></div>
   </div>
   <div class="form-row"><label class="label"><?= e(t('Excerpt (shown on cards and as intro)')) ?></label><textarea class="textarea" name="excerpt" rows="2" maxlength="400"><?= e($r['excerpt']) ?></textarea></div>
-  <div class="form-row"><label class="label"><?= e(t('Content (HTML – unsafe tags are removed automatically)')) ?></label><textarea class="textarea mono" name="body" rows="14"><?= e($r['body']) ?></textarea></div>
+  <div class="form-row"><label class="label"><?= e(t('Content')) ?></label><textarea class="textarea mono" name="body" rows="14" data-editor><?= e($r['body']) ?></textarea></div>
   <div class="form-row cover-edit"><label class="label"><?= e(t('Cover image')) ?></label>
     <?php if ($preview): ?><img class="cover-preview" src="<?= e($preview) ?>" alt="" width="240" height="135"><?php endif ?>
     <input class="input" type="file" name="cover" accept="image/jpeg,image/png,image/gif,image/webp">

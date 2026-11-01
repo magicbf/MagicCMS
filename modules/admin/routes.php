@@ -9,6 +9,7 @@ return function (Router $r): void {
     $r->get('/admin/settings', [$c, 'settings'], ['perm' => 'admin.settings', 'layout' => 'none']);
     $r->post('/admin/settings', [$c, 'settingsSave'], ['perm' => 'admin.settings']);
 
+    $r->post('/admin/editor/image', [$c, 'editorImage'], ['perm' => 'admin.access']);
     $r->post('/admin/settings/logo', [$c, 'logoUpload'], ['perm' => 'admin.settings']);
     $r->post('/admin/settings/logo/reset', [$c, 'logoReset'], ['perm' => 'admin.settings']);
 

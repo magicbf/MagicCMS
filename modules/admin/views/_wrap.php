@@ -78,3 +78,4 @@ $u = user(); $site = setting('site.name', 'MagicCMS'); ?>
   </main>
 </div>
 <script src="<?= e(asset('admin.js')) ?>" defer></script>
+<script src="<?= e(asset('editor.js')) ?>" defer></script>

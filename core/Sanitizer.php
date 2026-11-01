@@ -9,13 +9,14 @@ final class Sanitizer
     private const ALLOWED = [
         'p', 'br', 'b', 'strong', 'i', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li',
         'blockquote', 'code', 'pre', 'a', 'img', 'hr', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'span', 'div',
-        'small', 'sub', 'sup', 'figure', 'figcaption',
+        'small', 'sub', 'sup', 'figure', 'figcaption', 'mark', 'colgroup', 'col',
     ];
     private const DROP = ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'button', 'link', 'meta',
         'svg', 'math', 'textarea', 'select', 'noscript', 'template', 'base', 'applet', 'frame', 'frameset'];
     private const ATTRS = [
         'a' => ['href', 'title', 'target', 'rel'],
         'img' => ['src', 'alt', 'width', 'height', 'loading'],
+        'td' => ['colspan', 'rowspan'], 'th' => ['colspan', 'rowspan'],
         '*' => ['class'],
     ];
 
@@ -52,6 +53,23 @@ final class Sanitizer
                 continue;
             }
             $tag = strtolower($child->tagName);
+            if ($tag === 'iframe') {   // only privacy-friendly YouTube embeds survive; everything else is dropped
+                $safe = self::youtube($child->getAttribute('src'));
+                if ($safe !== null) {
+                    $f = $child->ownerDocument->createElement('iframe');
+                    $f->setAttribute('class', 'yt-embed');
+                    $f->setAttribute('src', $safe);
+                    $f->setAttribute('title', 'Video');
+                    $f->setAttribute('loading', 'lazy');
+                    $f->setAttribute('allowfullscreen', '');
+                    $f->setAttribute('allow', 'accelerometer; encrypted-media; gyroscope; picture-in-picture');
+                    $f->setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+                    $node->replaceChild($f, $child);
+                } else {
+                    $node->removeChild($child);
+                }
+                continue;
+            }
             if (in_array($tag, self::DROP, true)) {
                 $node->removeChild($child);
                 continue;
@@ -81,6 +99,15 @@ final class Sanitizer
                 $child->setAttribute('rel', 'noopener noreferrer');
             }
         }
+    }
+
+    /** Returns a nocookie embed URL for a YouTube video link/embed, or null. */
+    private static function youtube(string $src): ?string
+    {
+        if (preg_match('#^https://(?:www\.)?youtube(?:-nocookie)?\.com/embed/([A-Za-z0-9_-]{6,15})(?:\?[A-Za-z0-9_=&.%-]*)?$#', trim($src), $m)) {
+            return 'https://www.youtube-nocookie.com/embed/' . $m[1];
+        }
+        return null;
     }
 
     private static function safeUrl(string $v): bool

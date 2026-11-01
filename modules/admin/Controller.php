@@ -78,6 +78,18 @@ final class Controller
         $this->back('/admin/settings');
     }
 
+    /** Image upload for the visual editor (pages, news, panels). Returns JSON {ok, url}. */
+    public function editorImage(): void
+    {
+        try {
+            $name = Uploads::picture($_FILES['image'] ?? [], 'editor', 'img', 1600, 1600);
+            audit('editor.image', $name);
+            json_out(['ok' => true, 'url' => url('uploads/editor/' . $name)]);
+        } catch (\RuntimeException $e) {
+            json_out(['ok' => false, 'error' => $e->getMessage()], 422);
+        }
+    }
+
     public function mailSave(): void
     {
         Settings::set('mail.driver', self::pick((string) input('driver'), ['mail', 'smtp', 'log'], 'mail'));

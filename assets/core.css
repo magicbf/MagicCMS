@@ -443,3 +443,22 @@ html body .hd-tb-brand .brand-xl .brand-name{font-size:clamp(30px,4vw,52px)}
 html body .hd-tb-brand .brand-sub{font-size:clamp(11px,1.1vw,14px)}
 html body .hd-tb-brand .brand-only .brand-mark,html body .hd-tb-brand .brand-only .brand-logo{height:clamp(96px,11vw,140px);max-width:min(520px,80vw)}
 @media (max-width:899.98px){html body .hd-tb-brand .brand-mark,html body .hd-tb-brand .brand-logo{height:76px}html body .site-header.hd-tb-brand{padding-block:24px}}
+
+/* --- Content produced by the visual editor (pages, news, HTML panels) -- */
+.prose .align-center{text-align:center}.prose .align-right{text-align:right}.prose .align-left{text-align:left}
+.prose img.img-wide{display:block;width:100%;height:auto}
+.prose img.img-center{display:block;margin-inline:auto;max-width:100%;height:auto}
+.prose img.img-left{float:left;max-width:46%;margin:.3em 1.2em .8em 0;height:auto}
+.prose img.img-right{float:right;max-width:46%;margin:.3em 0 .8em 1.2em;height:auto}
+.prose img{max-width:100%;height:auto}
+.prose::after{content:"";display:table;clear:both}
+.prose .yt-embed{display:block;width:100%;aspect-ratio:16/9;height:auto;border:0;border-radius:var(--radius-sm,10px);background:#000}
+.prose mark{background:color-mix(in srgb,var(--c-accent,#ff9a3d) 38%,transparent);color:inherit;padding:0 .2em;border-radius:4px}
+.prose table{width:100%;border-collapse:collapse;margin:1em 0}
+.prose th,.prose td{padding:.55em .8em;border:1px solid var(--c-border,rgba(255,255,255,.12));text-align:left;vertical-align:top}
+.prose th{background:color-mix(in srgb,var(--c-primary,#e5091f) 14%,transparent);font-weight:700}
+.prose .callout{margin:1.1em 0;padding:.9em 1.2em;border-radius:var(--radius-sm,10px);border:1px solid var(--co,var(--c-info,#6cb8ff));border-left-width:4px;background:color-mix(in srgb,var(--co,var(--c-info,#6cb8ff)) 12%,transparent)}
+.prose .callout>:first-child{margin-top:0}.prose .callout>:last-child{margin-bottom:0}
+.prose .callout-tip{--co:var(--c-success,#35d489)}.prose .callout-warn{--co:var(--c-warning,#f4b740)}.prose .callout-danger{--co:var(--c-danger,#ff5c6c)}.prose .callout-accent{--co:var(--c-primary,#e5091f)}
+.prose a.btn{text-decoration:none}
+.prose hr{border:0;height:1px;background:linear-gradient(90deg,transparent,var(--c-border,rgba(255,255,255,.2)),transparent);margin:1.6em 0}
