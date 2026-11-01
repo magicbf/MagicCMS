@@ -19,6 +19,11 @@ return function (Router $r): void {
     $r->get('/forum/topic/{id:\d+}/last', [$c, 'lastPost']);
     $r->get('/forum/post/{id:\d+}', [$c, 'jump']);
     $r->get('/forum/search', [$c, 'search']);
+    $r->get('/forum/attachment/{id:\d+}', [$c, 'attachment']);
+    $r->post('/forum/topic/{id:\d+}/vote', [$c, 'vote'], $w);
+    $r->post('/forum/topic/{id:\d+}/poll/close', [$c, 'pollClose'], $w);
+    $r->post('/forum/topic/{id:\d+}/poll/delete', [$c, 'pollDelete'], $w);
+    $r->post('/forum/post/{id:\d+}/react', [$c, 'react'], $w);
     $r->get('/forum/unread', [$c, 'unread'], $w);
     $r->post('/forum/markread', [$c, 'markRead'], $w);
     $r->post('/forum/preview', [$c, 'preview'], $w);
@@ -41,6 +46,7 @@ return function (Router $r): void {
     $o = ['perm' => 'admin.forum', 'layout' => 'none'];
     $r->get('/admin/forum', [$a, 'index'], $o);
     $r->post('/admin/forum/layout', [$a, 'saveLayout'], ['perm' => 'admin.forum']);
+    $r->post('/admin/forum/features', [$a, 'saveFeatures'], ['perm' => 'admin.forum']);
     $r->post('/admin/forum/category', [$a, 'saveCategory'], ['perm' => 'admin.forum']);
     $r->post('/admin/forum/category/delete/{id:\d+}', [$a, 'deleteCategory'], ['perm' => 'admin.forum']);
     $r->post('/admin/forum/subcategory', [$a, 'saveSubcategory'], ['perm' => 'admin.forum']);

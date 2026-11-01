@@ -7,7 +7,7 @@ namespace MagicCMS\Core;
 final class Uploads
 {
     public const SIZES = [256, 128, 64, 32];
-    private const MIME = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    public const MIME = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
     /** @return string stored file name (e.g. u12_ab34cd.webp); sized variants are <name>_<size>.<ext> */
     public static function avatar(array $file, int $userId): string

@@ -582,3 +582,25 @@ html[data-motion="off"] .card-title::after,html[data-motion="off"] .panel-title:
 .badge.rc-new{background:var(--c-accent);color:#fff}.badge.rc-accepted{background:#1fa971;color:#fff}.badge.rc-declined{background:#7a2230;color:#fff}.badge.rc-interview,.badge.rc-review{background:#c58b1a;color:#fff}
 .rc-row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--glass-border)}.rc-row .input{flex:1 1 160px}.rc-row .input.num{flex:0 0 70px}
 .filter-tabs{display:flex;flex-wrap:wrap;gap:.4rem;margin:.8rem 0}.filter-tabs a{padding:.35rem .8rem;border-radius:999px;border:1px solid var(--glass-border)}.filter-tabs a.is-on{background:var(--c-accent);color:#fff;border-color:transparent}
+/* Forum: attachments, polls, reactions */
+.post-attachments{margin:.8rem 0 0;display:flex;flex-direction:column;gap:.5rem}
+.att-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.5rem}
+.att-img{display:block;border-radius:var(--radius-md,14px);overflow:hidden;border:1px solid var(--glass-border);aspect-ratio:4/3;background:#000}
+.att-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s}.att-img:hover img{transform:scale(1.06)}
+.att-file{display:inline-flex;gap:.5rem;align-items:center;align-self:flex-start;padding:.45rem .8rem;border:1px solid var(--glass-border);border-radius:999px;background:var(--glass-bg,transparent);text-decoration:none;max-width:100%}
+.att-file:hover{border-color:var(--c-accent)}.att-existing{display:flex}
+.reactions{display:flex;flex-wrap:wrap;gap:.35rem;margin:.7rem 0 0}
+.reactions form{margin:0}
+.react{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;border-radius:999px;border:1px solid var(--glass-border);background:transparent;color:inherit;font:inherit;font-size:.9rem;cursor:pointer;transition:transform .15s,border-color .2s,background .2s}
+button.react:hover{transform:translateY(-2px) scale(1.06);border-color:var(--c-accent)}
+.react.is-mine{border-color:var(--c-accent);background:color-mix(in srgb,var(--c-accent) 18%,transparent)}
+.react.is-zero{opacity:.45}.react.is-zero:hover{opacity:1}.react b{font-size:.8rem}
+.poll .poll-opt{display:grid;grid-template-columns:minmax(0,1fr) minmax(80px,40%) auto;gap:.6rem;align-items:center;padding:.4rem 0}
+.poll .poll-opt:not(:has(.poll-bar)){grid-template-columns:1fr}
+.poll-pick{display:flex;gap:.5rem;align-items:center;cursor:pointer}
+.poll-bar{height:10px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.poll-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--c-accent),var(--c-accent-2,var(--c-accent)));transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.poll-opt.is-mine .poll-bar i{box-shadow:0 0 12px var(--c-accent)}.poll-num{font-variant-numeric:tabular-nums;min-width:4.5rem;text-align:right}
+.topic-flag{font-size:.85rem;opacity:.8}
+.poll-field{border:1px dashed var(--glass-border);border-radius:var(--radius-md,14px);padding:.7rem .9rem;margin:.8rem 0}.poll-field summary{cursor:pointer;font-weight:600}
+@media (max-width:560px){.poll .poll-opt{grid-template-columns:1fr}.poll-num{text-align:left}}

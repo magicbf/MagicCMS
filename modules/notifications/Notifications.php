@@ -9,7 +9,7 @@ namespace MagicCMS\Modules\Notifications;
  */
 final class Notifications
 {
-    public const ICONS = ['forum_reply' => '💬', 'forum_topic' => '🆕', 'recruit_new' => '📝', 'recruit_status' => '📋', 'report' => '🛡️', 'generic' => '🔔'];
+    public const ICONS = ['forum_reply' => '💬', 'forum_topic' => '🆕', 'forum_react' => '👍', 'recruit_new' => '📝', 'recruit_status' => '📋', 'report' => '🛡️', 'generic' => '🔔'];
 
     public static function add(int $userId, string $type, string $title, string $url = '', string $body = '', string $ref = ''): void
     {

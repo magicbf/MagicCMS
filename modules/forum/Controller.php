@@ -116,7 +116,9 @@ final class Controller
         $uid = user()['id'] ?? 0;
         $rows = db()->all(
             "SELECT t.*, u.username AS author, u.id AS author_id, u.avatar AS author_avatar,
-                    lp.created_at AS lp_at, lu.username AS lp_user, lu.id AS lp_uid, lu.avatar AS lp_avatar, $unreadExpr AS is_unread
+                    lp.created_at AS lp_at, lu.username AS lp_user, lu.id AS lp_uid, lu.avatar AS lp_avatar, $unreadExpr AS is_unread,
+                    EXISTS(SELECT 1 FROM {forum_polls} fp WHERE fp.topic_id = t.id) AS has_poll,
+                    EXISTS(SELECT 1 FROM {forum_attachments} fa WHERE fa.post_id = t.first_post_id) AS has_att
              FROM {forum_topics} t JOIN {users} u ON u.id = t.user_id
              JOIN {forum_posts} lp ON lp.id = t.last_post_id JOIN {users} lu ON lu.id = lp.user_id
              LEFT JOIN {forum_reads} r ON r.topic_id = t.id AND r.user_id = ?
@@ -153,6 +155,8 @@ final class Controller
         } elseif ($posts) {
             Forum::markRead((int) $t['id'], (int) end($posts)['id']);
         }
+        $ids = array_column($posts, 'id');
+        $extras = ['atts' => Attachments::forPosts($ids), 'reacts' => Reactions::enabled() ? Reactions::forPosts($ids) : [], 'poll' => Polls::forTopic((int) $t['id'])];
         $subscribed = false;
         if (user()) {
             $subscribed = Subscriptions::isTopic((int) user()['id'], (int) $t['id']);
@@ -164,7 +168,7 @@ final class Controller
         return $this->page($t['title'], 'topic', [
             't' => $t, 'posts' => $posts, 'page' => $page, 'pages' => $pages, 'moveTargets' => $boards,
             'canReply' => Forum::canReply($t), 'subscribed' => $subscribed,
-        ]);
+        ] + $extras);
     }
 
     public function lastPost(array $p): never
@@ -200,6 +204,8 @@ final class Controller
             $data['title'] = $title;
             $data['body'] = $body;
             $err = $this->validate($title, $body);
+            [$poll, $perr] = Polls::parse();
+            $err = $err ?: $perr;
             if (!$err && ($w = Forum::floodWait()) > 0) {
                 $err = t('Please wait {n} seconds before posting again.', ['n' => $w]);
             }
@@ -208,6 +214,10 @@ final class Controller
                 $now = now();
                 $tid = db()->insert('INSERT INTO {forum_topics} (board_id, user_id, title, type, last_post_at, created_at) VALUES (?,?,?,?,?,?)', [$b['id'], user()['id'], $title, $type, $now, $now]);
                 $pid = db()->insert('INSERT INTO {forum_posts} (topic_id, user_id, body, created_at) VALUES (?,?,?,?)', [$tid, user()['id'], $body, $now]);
+                if ($poll) {
+                    Polls::create($tid, $poll);
+                }
+                $this->attach($pid);
                 Forum::syncTopic($tid);
                 Forum::syncBoard((int) $b['id']);
                 Forum::recountUsers([user()['id']]);
@@ -247,6 +257,7 @@ final class Controller
             }
             if (!$err) {
                 $pid = db()->insert('INSERT INTO {forum_posts} (topic_id, user_id, body, created_at) VALUES (?,?,?,?)', [$t['id'], user()['id'], $body, now()]);
+                $this->attach($pid);
                 Forum::syncTopic((int) $t['id']);
                 Forum::syncBoard((int) $t['board_id']);
                 Forum::recountUsers([user()['id']]);
@@ -281,16 +292,35 @@ final class Controller
             return $this->deny();
         }
         $first = (int) $post['id'] === (int) $post['first_post_id'];
-        $data = ['t' => $t, 'b' => null, 'post' => $post, 'title' => $first ? $post['title'] : '', 'body' => $post['body'], 'mode' => $first ? 'edit_first' : 'edit', 'action' => url('forum/post/' . $post['id'] . '/edit'), 'canType' => false];
+        $poll = $first && Polls::enabled() ? Polls::forTopic((int) $post['topic_id']) : null;
+        $data = ['t' => $t, 'b' => null, 'post' => $post, 'title' => $first ? $post['title'] : '', 'body' => $post['body'], 'mode' => $first ? 'edit_first' : 'edit', 'action' => url('forum/post/' . $post['id'] . '/edit'), 'canType' => false,
+                 'poll' => $poll, 'pollLocked' => $poll && $poll['voters'] > 0, 'atts' => Attachments::forPosts([(int) $post['id']])[(int) $post['id']] ?? []];
         if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             $title = $first ? (string) input('title') : null;
             $body = (string) ($_POST['body'] ?? '');
             $data['body'] = $body;
             $data['title'] = $title ?? '';
-            if ($err = $this->validate($title, $body)) {
+            $err = $this->validate($title, $body);
+            $np = null;
+            $editPoll = $first && Polls::enabled() && !$data['pollLocked'];
+            if (!$err && $editPoll) {
+                [$np, $perr] = Polls::parse();
+                $err = $perr;
+            }
+            if ($err) {
                 http_response_code(422);
                 flash('danger', $err);
             } else {
+                if ($editPoll) {
+                    Polls::delete((int) $post['topic_id']);
+                    if ($np) {
+                        Polls::create((int) $post['topic_id'], $np);
+                    }
+                }
+                foreach ((array) ($_POST['remove_att'] ?? []) as $aid) {
+                    Attachments::deleteOne((int) $aid, (int) $post['id']);
+                }
+                $this->attach((int) $post['id']);
                 db()->exec('UPDATE {forum_posts} SET body = ?, edited_at = ?, edited_by = ? WHERE id = ?', [$body, now(), user()['id'], $post['id']]);
                 if ($first) {
                     db()->exec('UPDATE {forum_topics} SET title = ? WHERE id = ?', [$title, $post['topic_id']]);
@@ -326,6 +356,8 @@ final class Controller
             redirect('/forum/subcategory/' . (int) $post['board_id']);
         }
         db()->exec('DELETE FROM {forum_reports} WHERE post_id = ?', [$post['id']]);
+        Attachments::deleteForPosts([(int) $post['id']]);
+        Reactions::deleteForPosts([(int) $post['id']]);
         db()->exec('DELETE FROM {forum_posts} WHERE id = ?', [$post['id']]);
         Forum::syncTopic((int) $post['topic_id']);
         Forum::syncBoard((int) $post['board_id']);
@@ -513,5 +545,112 @@ final class Controller
             flash('success', t('You have been unsubscribed.'));
         }
         redirect(user() ? '/forum/subscriptions' : '/forum');
+    }
+
+    // ------------------------------------------------------------------ attachments / polls / reactions
+    /** Store uploaded files for a post; problems are reported as a flash message (the post itself is kept). */
+    private function attach(int $postId): void
+    {
+        $errors = Attachments::save($postId, Attachments::normalize($_FILES['files'] ?? null));
+        if ($errors) {
+            flash('danger', t('Your post was saved, but some attachments were rejected:') . ' ' . implode(' ', $errors));
+        }
+    }
+
+    public function attachment(array $p): string
+    {
+        $a = db()->one('SELECT a.*, p.topic_id FROM {forum_attachments} a JOIN {forum_posts} p ON p.id = a.post_id WHERE a.id = ?', [(int) $p['id']]);
+        $t = $a ? Forum::topic((int) $a['topic_id']) : null;
+        if (!$a || !$t || !Forum::canRead($t)) {
+            return $this->nf();
+        }
+        $thumb = input('thumb') === '1' && $a['thumb'];
+        $name = (string) ($thumb ? $a['thumb'] : $a['stored']);
+        $file = Attachments::dir() . '/' . $name;
+        if (!preg_match('/^(att|thm|file)_[a-f0-9]{12}(\.(webp|jpg))?$/', $name) || !is_file($file)) {
+            return $this->nf();
+        }
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        header('X-Content-Type-Options: nosniff');
+        if ($a['is_image']) {
+            header('Content-Type: ' . (str_ends_with($name, '.jpg') ? 'image/jpeg' : 'image/webp'));
+            header('Cache-Control: private, max-age=86400');
+        } else {
+            db()->exec('UPDATE {forum_attachments} SET downloads = downloads + 1 WHERE id = ?', [$a['id']]);
+            $fn = preg_replace('/[^A-Za-z0-9._\- ]/', '_', $a['orig_name']);
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . $fn . '"; filename*=UTF-8\'\'' . rawurlencode($a['orig_name']));
+            header("Content-Security-Policy: default-src 'none'; sandbox");
+        }
+        header('Content-Length: ' . filesize($file));
+        readfile($file);
+        exit;
+    }
+
+    private function pollContext(array $p): array
+    {
+        $t = Forum::topic((int) $p['id']);
+        $poll = $t ? Polls::forTopic((int) $t['id']) : null;
+        if (!$t || !$poll || !Forum::canRead($t)) {
+            flash('danger', t('Poll not found.'));
+            redirect('/forum');
+        }
+        return [$t, $poll];
+    }
+
+    public function vote(array $p): never
+    {
+        [$t, $poll] = $this->pollContext($p);
+        if (!can('forum.vote')) {
+            flash('danger', t('You cannot vote.'));
+        } else {
+            $sel = $_POST['opt'] ?? [];
+            $err = Polls::vote($poll, $t, (int) user()['id'], is_array($sel) ? $sel : [$sel]);
+            flash($err ? 'danger' : 'success', $err ?: t('Your vote has been saved.'));
+        }
+        redirect('/forum/topic/' . (int) $t['id'] . '#poll');
+    }
+
+    public function pollClose(array $p): never
+    {
+        [$t, $poll] = $this->pollContext($p);
+        if ((int) $t['user_id'] === (int) user()['id'] || (Forum::isMod() && Auth::mayAffect((int) $t['user_id'], (int) $t['author_level']))) {
+            db()->exec('UPDATE {forum_polls} SET is_closed = ? WHERE id = ?', [$poll['is_closed'] ? 0 : 1, $poll['id']]);
+            if (!$poll['is_closed'] && $poll['closes_at'] && strtotime($poll['closes_at'] . ' UTC') <= time()) {
+                db()->exec('UPDATE {forum_polls} SET closes_at = NULL WHERE id = ?', [$poll['id']]);
+            }
+        }
+        redirect('/forum/topic/' . (int) $t['id'] . '#poll');
+    }
+
+    public function pollDelete(array $p): never
+    {
+        [$t, $poll] = $this->pollContext($p);
+        $mod = Forum::isMod() && Auth::mayAffect((int) $t['user_id'], (int) $t['author_level']);
+        if ($mod || ((int) $t['user_id'] === (int) user()['id'] && $poll['voters'] === 0)) {
+            Polls::delete((int) $t['id']);
+            if ($mod && (int) $t['user_id'] !== (int) user()['id']) {
+                audit('forum.poll_delete', 'topic #' . $t['id']);
+            }
+            flash('success', t('Poll removed.'));
+        }
+        redirect('/forum/topic/' . (int) $t['id']);
+    }
+
+    public function react(array $p): never
+    {
+        $post = db()->one('SELECT id, user_id, topic_id FROM {forum_posts} WHERE id = ?', [(int) $p['id']]);
+        $t = $post ? Forum::topic((int) $post['topic_id']) : null;
+        if (!$t || !Forum::canRead($t) || !Reactions::enabled() || !can('forum.react') || (int) $post['user_id'] === (int) user()['id']) {
+            flash('danger', t('You cannot react to this post.'));
+            redirect($post ? '/forum/post/' . (int) $post['id'] : '/forum');
+        }
+        $kind = Reactions::toggle((int) $post['id'], (int) user()['id'], (string) input('kind'));
+        if ($kind) {
+            notify_user((int) $post['user_id'], 'forum_react', t('{who} reacted {emoji} to your post in “{title}”', ['who' => user()['username'], 'emoji' => Reactions::KINDS[$kind], 'title' => $t['title']]), '/forum/post/' . (int) $post['id'], '', 'react:' . $post['id']);
+        }
+        redirect('/forum/post/' . (int) $post['id']);
     }
 }

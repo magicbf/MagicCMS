@@ -34,6 +34,19 @@ final class AdminController
         redirect('/admin/forum');
     }
 
+    public function saveFeatures(): never
+    {
+        Settings::set('forum.attach_enabled', input('attach_enabled') === '1');
+        Settings::set('forum.attach_docs', input('attach_docs') === '1');
+        Settings::set('forum.attach_mb', max(1, min(5, (int) input('attach_mb', 5))));
+        Settings::set('forum.attach_files', max(1, min(10, (int) input('attach_files', 5))));
+        Settings::set('forum.polls_enabled', input('polls_enabled') === '1');
+        Settings::set('forum.reactions_enabled', input('reactions_enabled') === '1');
+        audit('forum.features', 'attachments/polls/reactions settings');
+        flash('success', t('Forum features saved.'));
+        redirect('/admin/forum');
+    }
+
     public function saveCategory(): never
     {
         $id = (int) input('id', 0);

@@ -1,4 +1,15 @@
 <?php /** @var array $cats @var array $boards @var int $reports @var string $layout */ use MagicCMS\Modules\Forum\Forum; ?>
+<div class="card"><h2 class="card-title"><?= e(t('Features')) ?></h2>
+<form class="card-body" method="post" action="<?= e(url('admin/forum/features')) ?>"><?= csrf_field() ?>
+  <label class="checkbox"><input type="checkbox" name="attach_enabled" value="1" <?= setting('forum.attach_enabled', true) ? 'checked' : '' ?>> 📎 <?= e(t('Attachments (images, plus documents below)')) ?></label>
+  <label class="checkbox"><input type="checkbox" name="attach_docs" value="1" <?= setting('forum.attach_docs', true) ? 'checked' : '' ?>> <?= e(t('Also allow PDF, TXT, ZIP and 7Z files (images only when off)')) ?></label>
+  <div class="form-grid"><div class="form-row"><label class="label"><?= e(t('Max. size per file (MB, 1–5)')) ?></label><input class="input" type="number" min="1" max="5" name="attach_mb" value="<?= (int) setting('forum.attach_mb', 5) ?>"></div>
+  <div class="form-row"><label class="label"><?= e(t('Max. files per post (1–10)')) ?></label><input class="input" type="number" min="1" max="10" name="attach_files" value="<?= (int) setting('forum.attach_files', 5) ?>"></div></div>
+  <label class="checkbox"><input type="checkbox" name="polls_enabled" value="1" <?= setting('forum.polls_enabled', true) ? 'checked' : '' ?>> 📊 <?= e(t('Polls')) ?></label>
+  <label class="checkbox"><input type="checkbox" name="reactions_enabled" value="1" <?= setting('forum.reactions_enabled', true) ? 'checked' : '' ?>> 👍 <?= e(t('Reactions')) ?></label>
+  <p class="muted small"><?= e(t('Who may attach, vote and react is controlled by the permissions forum.attach, forum.vote and forum.react (members and up by default).')) ?></p>
+  <button class="btn btn-primary"><?= e(t('Save features')) ?></button>
+</form></div>
 <div class="card"><h2 class="card-title"><?= e(t('Forum layout')) ?></h2>
 <form class="card-body" method="post" action="<?= e(url('admin/forum/layout')) ?>"><?= csrf_field() ?>
   <p class="muted"><?= e(t('The forum is shown inside the normal site (header, menu, footer) and takes over the main content area. By default it uses the full width with no side panels. Choose which side panels should stay visible on forum pages:')) ?></p>

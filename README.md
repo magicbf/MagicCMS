@@ -36,7 +36,7 @@
 | Two-tier header (dominant logo + sticky full-width menu), footer with logo, refined animated title bars | ✅ | |
 | Hero module (slider, effects, buttons, scheduling) | ✅ | Admin → Hero – see [§12](#12-hero-module) |
 | News + categories + generated covers + comments + RSS | ✅ | Admin → News – see [§13](#13-news--categories) |
-| Forum (category → subcategory → topics → posts) | ✅ | Own side-panel layout (none by default; admin can enable left/right/both), BBCode, per-subcategory read/post levels, sticky/announce/lock/move/delete, reports queue, search, unread tracking, ranks – see [§15](#15-forum). Topic/subcategory subscriptions with e-mail + in-site notifications. Attachments, polls, reactions: planned |
+| Forum (category → subcategory → topics → posts) | ✅ | Own side-panel layout (none by default; admin can enable left/right/both), BBCode, per-subcategory read/post levels, sticky/announce/lock/move/delete, reports queue, search, unread tracking, ranks – see [§15](#15-forum). Topic/subcategory subscriptions with e-mail + in-site notifications, **attachments, polls, reactions** – see below. Rich-text editor, merge/split: planned |
 | Versioned migrations + auto-upgrade | ✅ | `migrations/NNNN_*.sql` (+ optional `.php` seed); new code upgrades an older database automatically |
 | E-mail layer (PHP mail / SMTP / log), **e-mail verification**, **password reset** | ✅ | Admin → Settings → E-mail – see [§8](#8-users-roles--permissions) |
 | **Private messages** (threads, groups, blocking, unread badge, notifications) | ✅ | see [§14](#14-built-in-panels--modules) |
@@ -268,6 +268,7 @@ All tables use the configurable prefix (default `mcms_`), InnoDB, `utf8mb4_unico
 | `roster_members` | Roster plugin |
 | `notifications` | In-site notifications (bell) |
 | `forum_topic_subs`, `forum_board_subs` | Forum subscriptions |
+| `forum_attachments`, `forum_polls`, `forum_poll_options`, `forum_poll_votes`, `forum_reactions` | Forum attachments, polls and reactions |
 | `recruit_positions`, `recruit_questions`, `recruit_applications`, `recruit_notes` | Recruitment plugin |
 | `chat_messages` | Shoutbox |
 | `private_messages` | PMs |
@@ -295,7 +296,7 @@ Migrations live in `migrations/NNNN_description.sql` and are idempotent per vers
 
 **Rank rule (enforced server-side everywhere):** you may moderate content or manage accounts of users *at or below your own rank* (and your own). So Moderators cannot act on Administrators, and Administrators can never act on the Superadministrator.
 
-Default permission keys: Guest `chat.read` · Member `+ chat.post, forum.post, forum.report, news.comment, pm.send, events.signup` · Moderator `+ forum.moderate` · Administrator `+ admin.access, admin.settings, admin.appearance, admin.users, admin.panels, admin.navigation, admin.pages, admin.forum, admin.news, admin.hero, admin.matches, admin.roster, admin.events, chat.moderate, news.moderate` · Superadministrator: all (implicit; also `admin.modules`).
+Default permission keys: Guest `chat.read` · Member `+ chat.post, forum.post, forum.report, forum.attach, forum.vote, forum.react, news.comment, pm.send, events.signup` · Moderator `+ forum.moderate` · Administrator `+ admin.access, admin.settings, admin.appearance, admin.users, admin.panels, admin.navigation, admin.pages, admin.forum, admin.news, admin.hero, admin.matches, admin.roster, admin.events, chat.moderate, news.moderate` · Superadministrator: all (implicit; also `admin.modules`).
 
 - Roles carry **permissions**; permissions are checked via `can('forum.moderate')`.
 - Create **custom roles** (e.g. "Team Captain", "Coach") and assign any permission mix.
@@ -549,7 +550,16 @@ Categories and subcategories are created in **Admin → Forum**. Breadcrumbs sho
 - **Latest Topics panel** and a forum **menu entry** are installed automatically.
 - Fully responsive: on phones the author box collapses above each post and topic rows become compact.
 
-**Planned:** attachments, polls, reactions/"thanks", merge/split topics, per-user mute/warn, RSS feeds.
+### Attachments, polls & reactions
+
+- **Attachments** (permission `forum.attach`): up to 5 files per post (1–10), 5 MB each (1–5, admin setting). Images are **decoded and re-encoded** (metadata stripped, max 1920 px, 480 px thumbnail; GIFs lose animation). Documents are limited to **PDF, TXT, ZIP, 7Z** – the extension must match the detected MIME type – and can be switched off (images only). SVG/HTML/executables are always refused. Files live in `uploads/forum/` under random names with direct web access denied; they are served **only** by `/forum/attachment/{id}`, which checks the subcategory's read level, sends `nosniff`, forces download for documents (with a sandboxing CSP) and counts downloads. Authors/moderators can remove attachments when editing; deleting a post or topic deletes its files. If an upload is rejected the post is still saved and the reason is shown.
+- **Polls** (create with permission `forum.post`, vote with `forum.vote`): one poll per topic, 2–10 options, single or multiple choice (with a maximum), optional end date (1–90 days), **anonymous votes** that members can change until the poll ends, and a results mode: *after voting* (default) / *always* / *only when ended*. The author or a moderator can end/reopen a poll; locked topics and ended polls refuse votes. A poll can be edited or removed by its author while it has no votes (moderators can always remove it). Topic lists show 📊/📎 markers.
+- **Reactions** (permission `forum.react`): 👍 ❤️ 😂 😮 🔥 👏 – one per member per post, click again to remove, switch by clicking another; counts and names (on hover) are shown, the post author gets a (merged) notification, own posts can't be reacted to.
+- Admin → Forum → **Features** switches attachments (and documents), polls and reactions on/off and sets the file limits.
+
+---
+
+**Planned:** rich-text editor, merge/split topics, per-user mute/warn, RSS feeds.
 
 **Permissions:** `forum.post`, `forum.report` (Members and up), `forum.moderate` (Moderators and up), `admin.forum` (Administrators). Change them per role in the `role_permissions` table (role editor UI planned).
 

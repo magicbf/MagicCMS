@@ -99,7 +99,10 @@ final class Forum
         $postIds = array_column(db()->all('SELECT id FROM {forum_posts} WHERE topic_id = ?', [$topicId]), 'id');
         if ($postIds) {
             db()->exec('DELETE FROM {forum_reports} WHERE post_id IN (' . implode(',', array_map('intval', $postIds)) . ')');
+            Attachments::deleteForPosts($postIds);
+            Reactions::deleteForPosts($postIds);
         }
+        Polls::delete($topicId);
         db()->exec('DELETE FROM {forum_posts} WHERE topic_id = ?', [$topicId]);
         db()->exec('DELETE FROM {forum_reads} WHERE topic_id = ?', [$topicId]);
         db()->exec('DELETE FROM {forum_topics} WHERE id = ?', [$topicId]);

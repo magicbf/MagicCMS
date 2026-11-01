@@ -1,4 +1,4 @@
-<?php /** @var array $t @var array $posts @var int $page @var int $pages @var array $moveTargets @var bool $canReply @var bool $subscribed */
+<?php /** @var array $t @var array $posts @var int $page @var int $pages @var array $moveTargets @var bool $canReply @var bool $subscribed @var array $atts @var array $reacts @var ?array $poll */
 use MagicCMS\Core\Bbcode; use MagicCMS\Modules\Forum\Forum;
 $me = user(); $mod = Forum::isMod(); $modTopic = $mod && MagicCMS\Core\Auth::level() >= (int) $t['author_level']; $base = url('forum/topic/' . (int) $t['id']); ?>
 <?= render('forum/_crumbs', ['items' => [[$t['category_title'], url('forum/category/' . (int) $t['category_id'])], [$t['board_title'], url('forum/subcategory/' . (int) $t['board_id'])], [$t['title'], null]]]) ?>
@@ -6,6 +6,7 @@ $me = user(); $mod = Forum::isMod(); $modTopic = $mod && MagicCMS\Core\Auth::lev
   <div class="forum-head-actions"><?php if ($me): ?><form class="inline" method="post" action="<?= e($base . '/subscribe') ?>"><?= csrf_field() ?><input type="hidden" name="sub" value="<?= $subscribed ? '0' : '1' ?>"><button class="btn btn-ghost" title="<?= e($subscribed ? t('Stop notifications') : t('Get notified about new replies')) ?>"><?= $subscribed ? '🔔 ' . e(t('Following')) : '🔕 ' . e(t('Follow')) ?></button></form><?php endif ?>
   <?php if ($canReply): ?><a class="btn btn-primary" href="<?= e($base . '/reply') ?>">↩ <?= e(t('Reply')) ?></a><?php elseif ($t['is_locked']): ?><span class="badge">🔒 <?= e(t('Locked')) ?></span><?php elseif (!$me): ?><a class="btn btn-ghost" href="<?= e(url('login?next=' . rawurlencode('/forum/topic/' . (int) $t['id']))) ?>"><?= e(t('Log in to reply')) ?></a><?php endif ?></div></div>
 <?= render('pagination', ['page' => $page, 'pages' => $pages, 'base' => $base]) ?>
+<?php if ($poll && $page === 1): ?><?= render('forum/_poll', ['poll' => $poll, 't' => $t]) ?><?php endif ?>
 <?php foreach ($posts as $i => $p): $own = $me && (int) $me['id'] === (int) $p['user_id']; $first = (int) $p['id'] === (int) $t['first_post_id']; ?>
 <article class="post card" id="post-<?= (int) $p['id'] ?>">
   <aside class="post-author">
@@ -19,6 +20,8 @@ $me = user(); $mod = Forum::isMod(); $modTopic = $mod && MagicCMS\Core\Auth::lev
   <div class="post-main">
     <div class="post-meta"><a href="<?= e(Forum::postUrl((int) $p['id'])) ?>">#<?= (int) $p['id'] ?></a> · <?= e(fmt_date($p['created_at'])) ?><?= $first ? ' · <span class="badge">' . e(t('Topic starter')) . '</span>' : '' ?></div>
     <div class="post-body"><?= Bbcode::render($p['body']) ?></div>
+    <?php if (!empty($atts[(int) $p['id']])): ?><?= render('forum/_attachments', ['list' => $atts[(int) $p['id']]]) ?><?php endif ?>
+    <?= render('forum/_reactions', ['post' => $p, 'r' => $reacts[(int) $p['id']] ?? [], 'own' => $own]) ?>
     <?php if ($p['edited_at']): ?><div class="muted small post-edited"><?= e(t('Edited {when} by {who}', ['when' => time_ago($p['edited_at']), 'who' => $p['edited_by_name'] ?? '?'])) ?></div><?php endif ?>
     <?php if ($p['signature'] !== ''): ?><div class="post-signature"><?= e($p['signature']) ?></div><?php endif ?>
     <div class="post-actions">
@@ -34,8 +37,8 @@ $me = user(); $mod = Forum::isMod(); $modTopic = $mod && MagicCMS\Core\Auth::lev
 <?= render('pagination', ['page' => $page, 'pages' => $pages, 'base' => $base]) ?>
 
 <?php if ($canReply && $page === $pages): ?>
-<form class="card quick-reply" method="post" action="<?= e($base . '/reply') ?>"><?= csrf_field() ?><h2 class="card-title"><?= e(t('Quick reply')) ?></h2>
-  <div class="card-body"><?= render('forum/_editor', ['body' => '', 'rows' => 5]) ?><button class="btn btn-primary"><?= e(t('Post reply')) ?></button></div></form>
+<form class="card quick-reply" method="post" action="<?= e($base . '/reply') ?>" enctype="multipart/form-data"><?= csrf_field() ?><h2 class="card-title"><?= e(t('Quick reply')) ?></h2>
+  <div class="card-body"><?= render('forum/_editor', ['body' => '', 'rows' => 5]) ?><?= render('forum/_attach_field', ['atts' => []]) ?><button class="btn btn-primary"><?= e(t('Post reply')) ?></button></div></form>
 <?php endif ?>
 
 <?php if ($modTopic): ?>
