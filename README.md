@@ -36,12 +36,14 @@
 | Two-tier header (dominant logo + sticky full-width menu), footer with logo, refined animated title bars | ✅ | |
 | Hero module (slider, effects, buttons, scheduling) | ✅ | Admin → Hero – see [§12](#12-hero-module) |
 | News + categories + generated covers + comments + RSS | ✅ | Admin → News – see [§13](#13-news--categories) |
-| Forum (category → subcategory → topics → posts) | ✅ | Own side-panel layout (none by default; admin can enable left/right/both), BBCode, per-subcategory read/post levels, sticky/announce/lock/move/delete, reports queue, search, unread tracking, ranks – see [§15](#15-forum). Attachments, polls, subscriptions/e-mail notifications, reactions: planned |
+| Forum (category → subcategory → topics → posts) | ✅ | Own side-panel layout (none by default; admin can enable left/right/both), BBCode, per-subcategory read/post levels, sticky/announce/lock/move/delete, reports queue, search, unread tracking, ranks – see [§15](#15-forum). Topic/subcategory subscriptions with e-mail + in-site notifications. Attachments, polls, reactions: planned |
 | Versioned migrations + auto-upgrade | ✅ | `migrations/NNNN_*.sql` (+ optional `.php` seed); new code upgrades an older database automatically |
 | E-mail layer (PHP mail / SMTP / log), **e-mail verification**, **password reset** | ✅ | Admin → Settings → E-mail – see [§8](#8-users-roles--permissions) |
 | **Private messages** (threads, groups, blocking, unread badge, notifications) | ✅ | see [§14](#14-built-in-panels--modules) |
 | **Roster plugin** (players, squads, photos, socials, stats, panel) | ✅ | `plugins/roster` |
 | **Events & tournaments plugin** (calendar, sign-ups, waitlist, .ics, brackets, panel) | ✅ | `plugins/events` |
+| **Notifications centre** (bell, merged entries, read/clear) + **forum subscriptions** (follow topics/subcategories, auto-follow, signed one-click unsubscribe) | ✅ | see [§14](#14-built-in-panels--modules), [§15](#15-forum) |
+| **Recruitment plugin** (application form, positions, custom questions, status tracking, notes, applicant notifications) | ✅ | `plugins/recruit` |
 | Update/migration runner UI | ⏳ | planned |
 
 ---
@@ -117,7 +119,7 @@ MagicCMS is a small, dependency-free content management system in the spirit of 
 - 📨 **Private messages**
 - 🧩 **Custom pages** (WYSIWYG-lite / Markdown)
 - 🤝 **Sponsors & partners**
-- 📝 **Join-us / recruitment form** (clan application workflow)
+- 📝 **Join-us / recruitment form** (clan application workflow) ✅
 - 🗳️ **Polls**
 - 🔎 **Site search**
 
@@ -263,7 +265,10 @@ All tables use the configurable prefix (default `mcms_`), InnoDB, `utf8mb4_unico
 | `news_comments` | News comments |
 | `forum_categories`, `forum_boards` (= subcategories), `forum_topics`, `forum_posts`, `forum_reads`, `forum_markread`, `forum_reports` | Forum (attachments & subscriptions tables arrive with those features) |
 | `matches`, `match_maps`, `opponents`, `games`, `events` | Esports data |
-| `team_members` | Roster |
+| `roster_members` | Roster plugin |
+| `notifications` | In-site notifications (bell) |
+| `forum_topic_subs`, `forum_board_subs` | Forum subscriptions |
+| `recruit_positions`, `recruit_questions`, `recruit_applications`, `recruit_notes` | Recruitment plugin |
 | `chat_messages` | Shoutbox |
 | `private_messages` | PMs |
 | `polls`, `poll_options`, `poll_votes` | Polls |
@@ -489,6 +494,17 @@ Deleting a category keeps its posts (they become uncategorised).
 
 Members write each other from the profile page or **✉ Messages** in the header (with an unread badge). Conversations have a subject and up to **5 participants**, BBCode (same editor as the forum), a live unread marker, per-user delete (a thread disappears for everybody when all participants deleted it, and resurfaces when someone replies), and **blocking**. Limits: 5 s between messages, 5,000 characters, 20 new conversations per hour. Administrators and moderators **cannot read** other people's messages. Permission: `pm.send` (members and up); recipients can opt out of e-mail notifications.
 
+### Notifications centre
+
+The bell in the header shows unread notifications; `/notifications` lists them (opening one marks it read and redirects to a local URL), with *mark all read* and *clear read*. Read entries are purged after 30 days, any after 90. Modules add notifications with `notify_user($userId, $type, $title, '/local/url', $body, $ref)` (same `$ref` merges unread entries) or `Notifications::addForPermission('perm', …)`.
+
+### Recruitment plugin (`plugins/recruit`)
+
+- Public **Join us** form (`/recruit`, menu item added): position picker, name + e-mail, admin-defined **questions** (short/long text, choice list, yes/no; required or optional; reorderable). Guests may apply unless *Only registered members* is set; logged-in members are pre-filled and linked to their account.
+- Spam/abuse protection: CSRF, hidden honeypot, 3 applications/hour per connection, one open application per person/e-mail, strict server-side answer validation. Applicants get an e-mail with a private **status link** (`/recruit/status/{token}`, not indexable) where they can follow the decision and **withdraw**.
+- **Admin → Recruitment** (`admin.recruit`, administrators): filter by status (new → in review → interview → accepted/declined), search, read answers, internal **notes** (never shown to the applicant), decision with optional message → in-site notification + e-mail to the applicant, *Add to roster* shortcut for accepted people. New applications notify everyone with `admin.recruit` (bell) and optional extra e-mail addresses.
+- **Setup**: enable/disable, intro text, positions (open/closed), questions, retention (decided applications are purged after N days, default 180; 0 = keep).
+
 ### Roster plugin (`plugins/roster`)
 
 Public **Roster** page with player cards (4:5 rounded photo or coloured initials tile, **country flag**, role badge, social icons) grouped by **squad** with filter chips; detail page with bio, **stat tiles**, social links and a link to the member's site profile (+ "send message"); former members in a collapsible section. **Admin → Roster**: add/edit/reorder, photo upload (auto-cropped), up to 6 custom stats, 8 social links (URLs validated), link to a site account, active/former. Plus the **Our Squad** panel (off by default).
@@ -533,7 +549,7 @@ Categories and subcategories are created in **Admin → Forum**. Breadcrumbs sho
 - **Latest Topics panel** and a forum **menu entry** are installed automatically.
 - Fully responsive: on phones the author box collapses above each post and topic rows become compact.
 
-**Planned:** attachments, polls, topic subscriptions & e-mail notifications, reactions/"thanks", merge/split topics, per-user mute/warn, RSS feeds.
+**Planned:** attachments, polls, reactions/"thanks", merge/split topics, per-user mute/warn, RSS feeds.
 
 **Permissions:** `forum.post`, `forum.report` (Members and up), `forum.moderate` (Moderators and up), `admin.forum` (Administrators). Change them per role in the `role_permissions` table (role editor UI planned).
 
@@ -740,9 +756,9 @@ Key settings:
 **v0.1 – Foundation:** setup wizard, DB layer, auth, roles, settings, router, theme engine, layout/panels, admin shell
 **v0.1 also:** menu builder, appearance (light/dark + colour schemes), hero module
 **v0.2 – Community:** ✅ profiles & avatars, ✅ forum, ✅ shoutbox, ✅ online users, ✅ private messages
-**v0.3 – Esports:** ✅ matches + recent-matches panel, ✅ roster, ✅ events & tournaments · ⏳ recruitment form
+**v0.3 – Esports:** ✅ matches + recent-matches panel, ✅ roster, ✅ events & tournaments, ✅ recruitment form
 **v0.4 – Content:** ✅ news + categories + generated covers, ✅ hero, pages, gallery, downloads, polls, search
-**v0.5 – Polish:** notifications, audit log UI, SEO/RSS/sitemap, GDPR tools, i18n packs
+**v0.5 – Polish:** ✅ notifications centre, audit log UI, SEO/RSS/sitemap, GDPR tools, i18n packs
 **v1.0 – Stable:** security review, docs, theme & plugin marketplace-ready manifests
 
 ---

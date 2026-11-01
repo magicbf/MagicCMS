@@ -26,7 +26,7 @@ final class AdminController
         return $this->page($row ? t('Edit member') : t('New member'), 'admin_edit', [
             'row' => $row ? Roster::decode($row) : null,
             'squads' => array_column(db()->all("SELECT DISTINCT squad FROM {roster_members} WHERE squad <> '' ORDER BY squad"), 'squad'),
-            'linked' => $row && $row['user_id'] ? (string) db()->val('SELECT username FROM {users} WHERE id = ?', [$row['user_id']]) : '',
+            'linked' => !$row ? mb_substr((string) input('username', ''), 0, 32) : ($row['user_id'] ? (string) db()->val('SELECT username FROM {users} WHERE id = ?', [$row['user_id']]) : ''),
         ]);
     }
 

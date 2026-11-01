@@ -1,0 +1,2 @@
+{ "key": "recruit", "name": "Recruitment", "version": "1.0.0", "description": "Clan application form with admin-defined positions and questions, status tracking, staff notes and applicant notifications.", "author": "MagicCMS", "requires": "0.1",
+  "provides": { "routes": ["/recruit", "/recruit/status/{token}", "/admin/recruit"], "permissions": ["admin.recruit"] } }

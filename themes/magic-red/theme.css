@@ -569,3 +569,16 @@ html[data-motion="off"] .card-title::after,html[data-motion="off"] .panel-title:
 .nt-row.is-unread{background:linear-gradient(90deg,color-mix(in srgb,var(--c-primary) 10%,transparent),transparent 60%)}.nt-row.is-unread .nt-icon{border-color:var(--c-primary-hi);box-shadow:0 0 14px color-mix(in srgb,var(--c-primary) 35%,transparent)}.nt-row.is-unread .nt-main strong{color:var(--c-primary-hi)}
 .forum-head-actions{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}.forum-head-actions form{margin:0}
 .sub-row{padding:.55rem 0;border-bottom:1px solid var(--glass-border);justify-content:space-between}.sub-row:last-child{border-bottom:0}.sub-row .muted{flex:1}
+/* Recruitment */
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.pos-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.6rem}
+.pos-opt{display:flex;gap:.6rem;align-items:flex-start;padding:.75rem .9rem;border:1px solid var(--glass-border);border-radius:var(--radius-md,14px);cursor:pointer;background:var(--glass-bg,transparent);transition:border-color .2s,box-shadow .2s}
+.pos-opt span{display:flex;flex-direction:column}.pos-opt small{color:var(--c-muted)}
+.pos-opt:has(input:checked){border-color:var(--c-accent);box-shadow:0 0 0 1px var(--c-accent),0 6px 22px -10px var(--c-accent)}
+.rc-dl{display:grid;grid-template-columns:max-content 1fr;gap:.25rem 1.2rem}.rc-dl dt{color:var(--c-muted)}.rc-dl dd{margin:0}
+.rc-qa{padding:.6rem 0;border-top:1px solid var(--glass-border)}.rc-qa p{margin:.2rem 0 0}
+.rc-msg{margin:.8rem 0;padding:.7rem 1rem;border-left:3px solid var(--c-accent);background:rgba(255,255,255,.03);border-radius:0 10px 10px 0}
+.rc-note{padding:.5rem 0;border-bottom:1px solid var(--glass-border)}.rc-note p{margin:.2rem 0}
+.badge.rc-new{background:var(--c-accent);color:#fff}.badge.rc-accepted{background:#1fa971;color:#fff}.badge.rc-declined{background:#7a2230;color:#fff}.badge.rc-interview,.badge.rc-review{background:#c58b1a;color:#fff}
+.rc-row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--glass-border)}.rc-row .input{flex:1 1 160px}.rc-row .input.num{flex:0 0 70px}
+.filter-tabs{display:flex;flex-wrap:wrap;gap:.4rem;margin:.8rem 0}.filter-tabs a{padding:.35rem .8rem;border-radius:999px;border:1px solid var(--glass-border)}.filter-tabs a.is-on{background:var(--c-accent);color:#fff;border-color:transparent}

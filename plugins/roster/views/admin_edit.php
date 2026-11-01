@@ -1,5 +1,5 @@
 <?php /** @var ?array $row @var array $squads @var string $linked */ use MagicCMS\Plugins\Roster\Roster;
-$r = $row ?? ['id' => 0, 'nickname' => '', 'real_name' => '', 'role' => '', 'squad' => $squads[0] ?? 'Main roster', 'country' => '', 'bio' => '', 'photo' => null, 'joined_on' => gmdate('Y-m-d'), 'is_active' => 1, 'sort_order' => 0, 'socials_a' => [], 'stats_a' => []];
+$r = $row ?? ['id' => 0, 'nickname' => mb_substr((string) input('nickname', ''), 0, 40), 'real_name' => '', 'role' => '', 'squad' => $squads[0] ?? 'Main roster', 'country' => '', 'bio' => '', 'photo' => null, 'joined_on' => gmdate('Y-m-d'), 'is_active' => 1, 'sort_order' => 0, 'socials_a' => [], 'stats_a' => []];
 $ph = upload_url('roster', $r['photo']); $stats = array_pad($r['stats_a'], 6, ['label' => '', 'value' => '']); ?>
 <form class="card" method="post" action="<?= e(url('admin/roster/save')) ?>" enctype="multipart/form-data"><?= csrf_field() ?><input type="hidden" name="id" value="<?= (int) $r['id'] ?>"><h2 class="card-title"><?= e($r['id'] ? t('Edit member') : t('New member')) ?></h2><div class="card-body">
   <div class="form-grid">
