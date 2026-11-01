@@ -11,6 +11,7 @@
     <button type="button" class="btn btn-sm btn-ghost" data-bb="img" title="Image (https)">🖼</button>
     <button type="button" class="btn btn-sm btn-ghost" data-bb="list" title="List">•••</button>
     <button type="button" class="btn btn-sm btn-ghost" data-bb="spoiler" title="Spoiler">👁</button>
+    <button type="button" class="btn btn-sm btn-ghost" data-emoji-btn title="<?= e(t('Smileys & flags')) ?>">😀</button>
     <button type="button" class="btn btn-sm btn-ghost editor-preview-btn" data-preview-url="<?= e(url('forum/preview')) ?>"><?= e(t('Preview')) ?></button>
   </div>
   <textarea class="textarea" name="body" rows="<?= (int) ($rows ?? 10) ?>" maxlength="20000" required aria-label="<?= e(t('Message')) ?>"><?= e($body) ?></textarea>

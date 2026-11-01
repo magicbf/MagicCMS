@@ -10,8 +10,6 @@ namespace MagicCMS\Core;
  */
 final class Bbcode
 {
-    private const EMOJI = [':)' => '🙂', ':-)' => '🙂', ':(' => '🙁', ':D' => '😄', ';)' => '😉', ':P' => '😛', ':o' => '😮', '8)' => '😎'];
-
     public static function render(string $text): string
     {
         $text = str_replace(["\r\n", "\r"], "\n", $text);
@@ -63,7 +61,7 @@ final class Bbcode
         }
 
         // 7. emoticons (only when standing alone) + line breaks
-        $s = preg_replace_callback('/(?<=^|\s)(:\)|:-\)|:\(|:D|;\)|:P|:o|8\))(?=\s|$)/m', static fn($m) => self::EMOJI[$m[1]] ?? $m[1], $s);
+        $s = Emoji::render((string) $s);
         $s = nl2br($s, false);
         // no stray line breaks around block-level output (lists, quotes, code, spoilers)
         $s = preg_replace('~(?:<br>\s*)+(?=<(?:ul|ol|blockquote|details)\b|\x01)~', '', (string) $s);

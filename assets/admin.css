@@ -280,3 +280,5 @@ body.ed-lock{overflow:hidden}
 .ed-area .callout{margin:1.1em 0;padding:.9em 1.2em;border-radius:10px;border:1px solid var(--co,var(--c-info));border-left-width:4px;background:color-mix(in srgb,var(--co,var(--c-info)) 12%,transparent)}
 .ed-area .callout-tip{--co:var(--c-success)}.ed-area .callout-warn{--co:var(--c-warning)}.ed-area .callout-danger{--co:var(--c-danger)}.ed-area .callout-accent{--co:var(--c-primary)}
 @media (max-width:720px){.ed-bar{top:64px}.ed-area{padding:16px}}
+
+.ed-area img.flag{display:inline-block;height:1.05em;width:auto;max-width:none;border-radius:2px;vertical-align:-.14em}

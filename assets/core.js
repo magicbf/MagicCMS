@@ -87,7 +87,8 @@
       var img = d.createElement('img'); img.className = 'avatar avatar-xs'; img.src = m.avatar_url; img.alt = ''; img.width = img.height = 24;
       var who = d.createElement('a'); who.className = 'chat-user role-' + m.role; who.href = m.profile; who.textContent = m.username;
       var t = d.createElement('time'); t.textContent = m.time;
-      var txt = d.createElement('span'); txt.className = 'chat-text'; txt.textContent = m.message;   // textContent: never HTML
+      var txt = d.createElement('span'); txt.className = 'chat-text';   // text nodes only: never HTML
+      if (window.MCMSEmoji) txt.appendChild(window.MCMSEmoji.toNodes(m.message)); else txt.textContent = m.message;
       row.appendChild(img); row.appendChild(who); row.appendChild(t); row.appendChild(txt);
       if (m.can_delete) {
         var x = d.createElement('button'); x.className = 'chat-del'; x.type = 'button'; x.textContent = '✕'; x.setAttribute('aria-label', 'Delete');

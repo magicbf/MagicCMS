@@ -140,6 +140,7 @@ final class View
             $out .= '<style id="mcms-scheme" nonce="' . e(Bootstrap::$nonce) . '">' . Appearance::css() . '</style>' . "\n";
         } else {
             $out .= '<script src="' . e(asset('core.js')) . '" defer></script>' . "\n";
+            $out .= '<script src="' . e(asset('emoji.js')) . '" defer></script>' . "\n";
             foreach ($chain as $t) {
                 foreach ($t['meta']['scripts'] ?? [] as $js) {
                     if (is_file($t['dir'] . '/' . $js)) {

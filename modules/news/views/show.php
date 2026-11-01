@@ -8,7 +8,7 @@ use MagicCMS\Modules\News\News; $color = News::catColor($p); ?>
     <h1 class="article-title"><?= e($p['title']) ?></h1>
     <?php if ($p['excerpt'] !== ''): ?><p class="article-lead"><?= e($p['excerpt']) ?></p><?php endif ?>
   </div>
-  <div class="card-body prose article-body"><?= $p['body'] /* sanitized on save */ ?></div>
+  <div class="card-body prose article-body"><?= MagicCMS\Core\Emoji::render($p['body']) /* sanitized on save */ ?></div>
   <?php if ($tags): ?><div class="card-body tag-row"><?php foreach ($tags as $t): ?><a class="tag" href="<?= e(url('news/tag/' . $t['slug'])) ?>">#<?= e($t['name']) ?></a><?php endforeach ?></div><?php endif ?>
 </article>
 <?php if (can('admin.news')): ?><p><a class="btn btn-ghost btn-sm" href="<?= e(url('admin/news/' . (int) $p['id'])) ?>">✎ <?= e(t('Edit post')) ?></a></p><?php endif ?>
@@ -19,11 +19,11 @@ use MagicCMS\Modules\News\News; $color = News::catColor($p); ?>
     <div class="comment"><img class="avatar avatar-md" src="<?= e(avatar_url(['id' => $c['user_id'], 'avatar' => $c['avatar']], 64)) ?>" alt="" width="48" height="48" loading="lazy">
       <div><div class="comment-head"><a class="role-<?= e($c['role_slug']) ?>" href="<?= e(url('user/' . $c['username'])) ?>"><strong><?= e($c['username']) ?></strong></a> <span class="muted small"><?= e(time_ago($c['created_at'])) ?></span>
         <?php if ((can('news.moderate') && MagicCMS\Core\Auth::level() >= (int) $c['role_level']) || (user() && (int) user()['id'] === (int) $c['user_id'])): ?><form method="post" action="<?= e(url('news/comment/' . (int) $c['id'] . '/delete')) ?>" class="inline"><?= csrf_field() ?><button class="btn btn-sm btn-danger" data-confirm="<?= e(t('Delete this comment?')) ?>">✕</button></form><?php endif ?></div>
-        <p><?= nl2br(e($c['body'])) ?></p></div></div>
+        <p><?= MagicCMS\Core\Emoji::render(nl2br(e($c['body']))) ?></p></div></div>
   <?php endforeach; if (!$comments): ?><p class="muted"><?= e(t('No comments yet.')) ?></p><?php endif ?>
   <?php if (can('news.comment')): ?>
     <form method="post" action="<?= e(url('news/' . (int) $p['id'] . '/comment')) ?>" class="mt"><?= csrf_field() ?>
-      <div class="form-row"><label class="label" for="cb"><?= e(t('Add a comment')) ?></label><textarea class="textarea" id="cb" name="body" rows="3" maxlength="1000" required></textarea></div>
+      <div class="form-row"><label class="label" for="cb"><?= e(t('Add a comment')) ?></label><textarea class="textarea" data-emoji id="cb" name="body" rows="3" maxlength="1000" required></textarea></div>
       <button class="btn btn-primary"><?= e(t('Post comment')) ?></button></form>
   <?php else: ?><p class="muted mt"><a href="<?= e(url('login?next=' . rawurlencode('/news/' . $p['slug']))) ?>"><?= e(t('Log in')) ?></a> <?= e(t('to comment.')) ?></p><?php endif ?>
 </div></section>

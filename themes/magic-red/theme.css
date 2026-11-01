@@ -33,8 +33,8 @@ h1,h2,h3{line-height:1.2}
 html[data-motion="off"] .fx-a,html[data-motion="off"] .fx-b,html[data-motion="off"] .fx-c{opacity:.2}
 
 /* ================= header: tall brand row + full-width menu bar ================= */
-.site-header{position:relative;background:linear-gradient(180deg,color-mix(in srgb,var(--c-bg-2) 70%,transparent),transparent);overflow:hidden}
-.site-header::before{content:"";position:absolute;left:-8%;top:-140%;width:46%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--c-primary) 34%,transparent),transparent 66%);pointer-events:none}
+.site-header{position:relative;background:linear-gradient(180deg,color-mix(in srgb,var(--c-bg-2) 70%,transparent),transparent);overflow:visible;overflow-x:clip}   /* the glow below may flow past the header; only the sides are clipped */
+.site-header::before{content:"";position:absolute;z-index:-1;left:-8%;top:-140%;width:46%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--c-primary) 34%,transparent),transparent 66%);pointer-events:none}
 .site-header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,transparent 4%,color-mix(in srgb,var(--c-primary-hi) 55%,transparent) 50%,transparent 96%)}
 .header-top{position:relative;z-index:1}
 .brand{color:var(--c-text);gap:1rem}.brand:hover{color:var(--c-text)}
