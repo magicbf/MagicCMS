@@ -162,7 +162,7 @@ MagicCMS core markup uses stable, BEM-ish class names. A theme **should style at
 | Selector | Element |
 |---|---|
 | `body.mcms` | `<body>`; also has `layout-none\|left\|right\|both` and `page-<module>` classes |
-| `.site-header`, `.site-nav`, `.site-footer` | Chrome |
+| `.site-header`, `.site-nav`, `.site-footer` | Chrome. Header brand: `.brand` containing `img.brand-mark` (bundled emblem, 40×40) **or** `img.brand-logo` (admin-uploaded logo, any aspect ratio, `height:40px;width:auto`) plus optional `.brand-text` |
 | `.site-grid` | CSS grid wrapper: `[left] [main] [right]` |
 | `.col-left`, `.col-main`, `.col-right` | Columns (absent when the layout mode hides them) |
 | `.drawer-toggle`, `.drawer` | Mobile sidebar controls |
@@ -177,7 +177,7 @@ MagicCMS core markup uses stable, BEM-ish class names. A theme **should style at
 Selectors: `.panel`, `.panel-title`, `.panel-body`, `.panel-toggle`, `.panel.is-collapsed`
 
 ### Content blocks
-`.card`, `.card-title` (bold title-bar), `.btn`, `.btn-primary`, `.btn-ghost`, `.btn-danger`, `.badge`, `.alert.alert-{success|warning|danger|info}`, `.table`, `.pagination`, `.breadcrumb`, `.tabs`, `.avatar` (+ `.avatar-sm|md|lg`), `.role-{superadmin|admin|mod|member}`
+`.card`, `.card-title` (bold title-bar), `.btn`, `.btn-primary`, `.btn-ghost`, `.btn-danger`, `.badge`, `.alert.alert-{success|warning|danger|info}`, `.table`, `.pagination`, `.breadcrumb`, `.tabs`, `.avatar` (+ `.avatar-xs|sm|md|lg|xl`; **always circular – core.css forces `border-radius:50%`, do not fight it; style only border/shadow**), `.role-{superadmin|admin|mod|member}`
 
 ### Forms
 `.form-row`, `.input`, `.select`, `.textarea`, `.checkbox`, `.label`, `.help`, `.error`

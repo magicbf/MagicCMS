@@ -1,7 +1,7 @@
 <?php /** @var array $layout */ $u = user(); ?>
 <header class="site-header">
 <div class="container header-inner">
-  <a class="brand" href="<?= e(url('')) ?>"><img src="<?= e(asset('logo-mark.svg')) ?>" alt="" width="40" height="40"><span class="brand-text"><?= e(setting('site.name', 'MagicCMS')) ?></span></a>
+  <a class="brand" href="<?= e(url('')) ?>"><?php $custom = has_custom_logo(); ?><img class="<?= $custom ? 'brand-logo' : 'brand-mark' ?>" src="<?= e(site_logo()) ?>" alt="<?= $custom && !setting('site.logo_show_name', true) ? e(setting('site.name', 'MagicCMS')) : '' ?>" height="40"<?= $custom ? '' : ' width="40"' ?>><?php if (!$custom || setting('site.logo_show_name', true)): ?><span class="brand-text"><?= e(setting('site.name', 'MagicCMS')) ?></span><?php endif ?></a>
   <?= render('nav', ['items' => MagicCMS\Core\Nav::tree('main'), 'class' => 'site-nav']) ?>
   <div class="header-actions">
     <?php if ($layout['left']): ?><button class="icon-btn drawer-toggle" data-drawer="left" aria-label="<?= e(t('Open left panels')) ?>" aria-controls="drawer-left">◧</button><?php endif ?>

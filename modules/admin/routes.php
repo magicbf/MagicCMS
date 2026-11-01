@@ -9,6 +9,9 @@ return function (Router $r): void {
     $r->get('/admin/settings', [$c, 'settings'], ['perm' => 'admin.settings', 'layout' => 'none']);
     $r->post('/admin/settings', [$c, 'settingsSave'], ['perm' => 'admin.settings']);
 
+    $r->post('/admin/settings/logo', [$c, 'logoUpload'], ['perm' => 'admin.settings']);
+    $r->post('/admin/settings/logo/reset', [$c, 'logoReset'], ['perm' => 'admin.settings']);
+
     $r->get('/admin/appearance', [$c, 'appearance'], ['perm' => 'admin.appearance', 'layout' => 'none']);
     $r->post('/admin/appearance', [$c, 'appearanceSave'], ['perm' => 'admin.appearance']);
 

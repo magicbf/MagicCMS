@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace MagicCMS\Modules\Admin;
 
-use MagicCMS\Core\{Appearance, Auth, Layout, Nav, Panels, Sanitizer, Settings, View};
+use MagicCMS\Core\{Appearance, Auth, Layout, Nav, Panels, Sanitizer, Settings, Uploads, View};
 
 final class Controller
 {
@@ -64,8 +64,33 @@ final class Controller
         Settings::set('upload.avatar_max_mb', max(1, min(5, (int) input('avatar_mb', 5))));
         Settings::set('online.window_min', max(1, min(60, (int) input('online_min', 5))));
         Settings::set('site.maintenance', !empty($_POST['maintenance']));
+        Settings::set('site.logo_show_name', !empty($_POST['logo_show_name']));
         audit('settings.save');
         flash('success', t('Settings saved.'));
+        $this->back('/admin/settings');
+    }
+
+    public function logoUpload(): void
+    {
+        try {
+            $name = Uploads::logo($_FILES['logo'] ?? []);
+        } catch (\RuntimeException $e) {
+            flash('danger', $e->getMessage());
+            $this->back('/admin/settings');
+        }
+        Uploads::deleteLogo((string) setting('site.logo', ''));
+        Settings::set('site.logo', $name);
+        audit('logo.upload', $name);
+        flash('success', t('Logo updated.'));
+        $this->back('/admin/settings');
+    }
+
+    public function logoReset(): void
+    {
+        Uploads::deleteLogo((string) setting('site.logo', ''));
+        Settings::set('site.logo', '');
+        audit('logo.reset');
+        flash('success', t('Default logo restored.'));
         $this->back('/admin/settings');
     }
 

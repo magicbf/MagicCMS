@@ -88,4 +88,109 @@ final class Uploads
             @unlink(MCMS_ROOT . '/uploads/avatars/' . preg_replace('/\.(\w+)$/', '_' . $s . '.$1', $name));
         }
     }
+
+    /**
+     * Site logo (admin). Raster images are re-encoded to PNG (max 640x200, alpha kept);
+     * SVG is accepted only if it contains no scripts, event handlers or external references.
+     * @return string stored file name inside uploads/branding/
+     */
+    public static function logo(array $file): string
+    {
+        $err = $file['error'] ?? UPLOAD_ERR_NO_FILE;
+        if ($err === UPLOAD_ERR_NO_FILE) {
+            throw new \RuntimeException(t('Please choose an image.'));
+        }
+        if ($err !== UPLOAD_ERR_OK || ($file['size'] ?? 0) > 2 * 1048576 || !is_uploaded_file($file['tmp_name'])) {
+            throw new \RuntimeException(t('Upload failed or file larger than 2 MB.'));
+        }
+        $dir = MCMS_ROOT . '/uploads/branding';
+        if (!is_dir($dir) && !@mkdir($dir, 0755, true)) {
+            throw new \RuntimeException(t('Upload folder is not writable.'));
+        }
+        $raw = (string) file_get_contents($file['tmp_name']);
+        $name = 'logo_' . bin2hex(random_bytes(6));
+
+        if (self::looksLikeSvg($raw)) {
+            if (!self::safeSvg($raw)) {
+                throw new \RuntimeException(t('This SVG contains scripts or external references and was rejected.'));
+            }
+            $name .= '.svg';
+            file_put_contents($dir . '/' . $name, $raw);
+            return $name;
+        }
+
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+        $info = @getimagesize($file['tmp_name']);
+        if (!extension_loaded('gd') || !in_array($mime, self::MIME, true) || !$info || $info[0] * $info[1] > 25_000_000) {
+            throw new \RuntimeException(t('Unsupported image (use PNG, JPG, WebP, GIF or a clean SVG).'));
+        }
+        $src = @imagecreatefromstring($raw);
+        if (!$src) {
+            throw new \RuntimeException(t('Could not read the image.'));
+        }
+        $w = imagesx($src);
+        $h = imagesy($src);
+        $scale = min(1, 640 / $w, 200 / $h);
+        $nw = max(1, (int) round($w * $scale));
+        $nh = max(1, (int) round($h * $scale));
+        $dst = imagecreatetruecolor($nw, $nh);
+        imagealphablending($dst, false);
+        imagesavealpha($dst, true);
+        imagefill($dst, 0, 0, imagecolorallocatealpha($dst, 0, 0, 0, 127));
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $nw, $nh, $w, $h);
+        $name .= '.png';
+        $ok = imagepng($dst, $dir . '/' . $name, 7);
+        imagedestroy($src);
+        imagedestroy($dst);
+        if (!$ok) {
+            throw new \RuntimeException(t('Upload folder is not writable.'));
+        }
+        return $name;
+    }
+
+    public static function deleteLogo(?string $name): void
+    {
+        if ($name && preg_match('/^logo_[a-f0-9]{12}\.(png|svg)$/', $name)) {
+            @unlink(MCMS_ROOT . '/uploads/branding/' . $name);
+        }
+    }
+
+    private static function looksLikeSvg(string $raw): bool
+    {
+        return (bool) preg_match('/<svg[\s>]/i', substr($raw, 0, 4096));
+    }
+
+    private static function safeSvg(string $raw): bool
+    {
+        if (preg_match('/<!ENTITY|<!DOCTYPE[^>]*\[/i', $raw)) {
+            return false;
+        }
+        $doc = new \DOMDocument();
+        $prev = libxml_use_internal_errors(true);
+        $ok = $doc->loadXML($raw, LIBXML_NONET);
+        libxml_clear_errors();
+        libxml_use_internal_errors($prev);
+        if (!$ok || !$doc->documentElement || strtolower($doc->documentElement->localName) !== 'svg') {
+            return false;
+        }
+        foreach ($doc->getElementsByTagName('*') as $el) {
+            if (in_array(strtolower($el->localName), ['script', 'foreignobject', 'iframe', 'object', 'embed', 'audio', 'video', 'animate', 'set', 'handler', 'listener'], true)) {
+                return false;
+            }
+            foreach ($el->attributes as $a) {
+                $n = strtolower($a->name);
+                $v = preg_replace('/[\x00-\x20]+/', '', strtolower($a->value));
+                if (str_starts_with($n, 'on')) {
+                    return false;
+                }
+                if (in_array($n, ['href', 'xlink:href', 'src'], true) && !str_starts_with($v, '#') && !str_starts_with($v, 'data:image/png') && !str_starts_with($v, 'data:image/jpeg')) {
+                    return false;
+                }
+                if (str_contains($v, 'javascript:') || (str_contains($v, 'url(') && !preg_match('/url\(#[\w\-]+\)/', $v))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 }

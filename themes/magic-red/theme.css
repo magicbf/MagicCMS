@@ -20,8 +20,8 @@ h1,h2,h3{line-height:1.2}
 .site-header{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--c-bg-2) 82%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--c-border);position:sticky}
 .site-header::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--g-titlebar);background-size:200% 100%;opacity:.9}
 .brand{color:var(--c-text);font:800 1.35rem/1 var(--font-display);letter-spacing:-.01em}
-.brand:hover{color:var(--c-text)}.brand img{border-radius:12px;box-shadow:0 0 18px color-mix(in srgb,var(--c-primary) 40%,transparent);transition:transform var(--t) var(--ease)}
-.brand:hover img{transform:rotate(-6deg) scale(1.06)}
+.brand:hover{color:var(--c-text)}.brand-mark{border-radius:12px;box-shadow:0 0 18px color-mix(in srgb,var(--c-primary) 40%,transparent);transition:transform var(--t) var(--ease)}
+.brand:hover .brand-mark{transform:rotate(-6deg) scale(1.06)}.brand-logo{transition:transform var(--t) var(--ease)}.brand:hover .brand-logo{transform:scale(1.04)}
 .brand-text{background:var(--g-primary);-webkit-background-clip:text;background-clip:text;color:transparent}
 .header-user{color:var(--c-text);font-weight:600}
 .icon-btn{width:40px;height:40px;display:inline-grid;place-items:center;border-radius:50%;border:1px solid var(--c-border);background:var(--c-surface-2);color:var(--c-text);cursor:pointer;font-size:1.05rem;transition:transform var(--t-fast),box-shadow var(--t),border-color var(--t)}

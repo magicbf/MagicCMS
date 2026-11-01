@@ -7,7 +7,7 @@
 <title><?= e($title) ?> · <?= e(setting('site.name', 'MagicCMS')) ?></title>
 <meta name="description" content="<?= e($description) ?>">
 <meta name="color-scheme" content="dark light">
-<link rel="icon" type="image/svg+xml" href="<?= e(asset('logo-mark.svg')) ?>">
+<link rel="icon" href="<?= e(site_logo()) ?>">
 <script nonce="<?= e(MagicCMS\Core\Bootstrap::$nonce) ?>">(function(){var d=document.documentElement;if(d.dataset.themeSetting==='auto'){d.dataset.theme=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}})();</script>
 <?= theme_assets('head') ?>
 <?= hook('layout.render.head') ?>

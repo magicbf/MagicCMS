@@ -12,6 +12,7 @@ img,svg,video{max-width:100%;height:auto}
 
 /* header */
 .header-inner{display:flex;align-items:center;gap:var(--gap,20px);min-height:var(--header-h,64px)}
+.brand-logo{height:40px;width:auto;max-width:240px;object-fit:contain}
 .brand{display:flex;align-items:center;gap:.6rem;text-decoration:none;flex:none}
 .header-actions{display:flex;align-items:center;gap:.5rem;margin-left:auto;flex:none}
 .header-user{display:flex;align-items:center;gap:.5rem;text-decoration:none}
@@ -84,5 +85,6 @@ img,svg,video{max-width:100%;height:auto}
 .footer-inner{display:flex;gap:1rem;flex-wrap:wrap;justify-content:space-between;align-items:center}
 .admin-head{display:flex;gap:1rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .chat-log{max-height:260px;overflow:auto}.chat-form{display:flex;gap:.4rem}
-.avatar{border-radius:50%;object-fit:cover;aspect-ratio:1}.avatar-xs{width:24px;height:24px}.avatar-sm{width:32px;height:32px}.avatar-md{width:48px;height:48px}.avatar-lg{width:64px;height:64px}.avatar-xl{width:96px;height:96px}
+/* Avatars are ALWAYS circular, everywhere (forum, chat, profiles…). !important so no theme can change it. */
+.avatar{border-radius:50%!important;object-fit:cover;aspect-ratio:1/1;flex:none}.avatar-xs{width:24px;height:24px}.avatar-sm{width:32px;height:32px}.avatar-md{width:48px;height:48px}.avatar-lg{width:64px;height:64px}.avatar-xl{width:96px;height:96px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}

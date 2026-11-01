@@ -204,3 +204,18 @@ function is_hex(string $c): bool
 {
     return (bool) preg_match('/^#[0-9a-fA-F]{6}$/', $c);
 }
+
+/** URL of the site logo: admin-uploaded file or the bundled mark. */
+function site_logo(): string
+{
+    $f = (string) setting('site.logo', '');
+    if ($f !== '' && preg_match('/^logo_[a-f0-9]{12}\.(png|svg)$/', $f) && is_file(MCMS_ROOT . '/uploads/branding/' . $f)) {
+        return url('uploads/branding/' . $f);
+    }
+    return asset('logo-mark.svg');
+}
+
+function has_custom_logo(): bool
+{
+    return site_logo() !== asset('logo-mark.svg');
+}

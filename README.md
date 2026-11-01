@@ -26,7 +26,8 @@
 | Panels: Account, Online Users, Shoutbox, Site Stats, Custom HTML, Navigation | ✅ | Multiple instances of Custom HTML / Navigation |
 | Menu builder (gradient buttons, dropdowns, page/URL/module targets) | ✅ | Emoji icons; SVG icon set planned |
 | Light/dark mode + admin colour scheme | ✅ | 6 presets + custom colours, contrast warning, live preview |
-| Avatars (≤ 5 MB, auto-resize, re-encode) | ✅ | 32/64/128/256 px, WebP (JPEG fallback) |
+| Avatars (≤ 5 MB, auto-resize, re-encode) | ✅ | 32/64/128/256 px, WebP (JPEG fallback). **Always rendered circular** (enforced in core CSS, themes cannot change it – also in the forum) |
+| Replaceable site logo | ✅ | Admin → Settings → Logo: PNG/JPG/WebP/GIF (resized) or sanitized SVG; also used as favicon; one-click restore |
 | Custom pages | ✅ | Sanitized HTML editor; Markdown/WYSIWYG planned |
 | Theme engine (parent themes, tokens, overrides) | ✅ | Theme upload UI planned |
 | Plugins / modules loader | ✅ (modules) | Core modules are loaded from the `modules` table; admin UI for enabling/installing planned |
@@ -490,7 +491,8 @@ A full phpBB-style forum.
   3. Auto-crop to square and generate sizes: **256, 128, 64, 32 px** (WebP/JPEG).
   4. Save as random filename (`uploads/avatars/<hash>_<size>.webp`) — original name is discarded.
   5. Animated GIFs: optional (admin toggle); first-frame fallback otherwise.
-- Default avatar = generated identicon/initials in theme colours.
+- Avatars are **always displayed as circles** everywhere (profiles, chat, member lists, forum posts). This is enforced in `assets/core.css` with `!important`, so themes cannot square them.
+- Default avatar = generated initial on a gradient in the current colour scheme.
 - `uploads/` ships with an `.htaccess` / nginx rule that **disables PHP execution** and forces safe content types.
 
 ---
@@ -671,7 +673,7 @@ Key settings:
 
 The MagicCMS mark is an abstract **"M"** formed from two crimson blades meeting at a point, crowned by a bright diamond "spark" — set on a black rounded tile with faint orbital rings. Wordmark: **Magic** in off-white, **CMS** in red gradient.
 
-- Logo file: [`assets/logo.svg`](assets/logo.svg) (scalable, transparent-safe)
+- Logo file: [`assets/logo.svg`](assets/logo.svg) (scalable). The header emblem can be replaced by admins in **Admin → Settings → Logo** (stored in `uploads/branding/`).
 - Palette: `#E10613` red · `#FF4D4D` highlight · `#7A0008` deep red · `#0B0B0D` black · `#F4F4F6` off-white
 
 ---
