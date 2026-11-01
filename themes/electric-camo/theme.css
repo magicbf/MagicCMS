@@ -64,11 +64,11 @@ html{background:#1c1f1f}body.mcms{background:transparent}
   --field-bg:#ffffff; --field-border:#cdd9d2; --pill-bg:#eef3f0; --btn-bg:#ffffff; --btn-fg:#34423d; --btn-border:#cdd9d2;
   --c-success:#2e9d54; --c-warning:#b8790a; --c-danger:#d0432f; --c-info:#1b77b8;
   position:relative;margin-top:0;padding:40px 24px 44px;color:var(--c-text);
-  background:linear-gradient(180deg,#fdfefd 0%,#f1f5f3 100%);border-radius:0 0 34px 34px;
-  box-shadow:0 0 0 1px rgba(255,255,255,.5),0 50px 100px -30px #000,inset 0 0 60px rgba(30,60,45,.08)}
+  background:linear-gradient(180deg,#fdfefd 0%,#f1f5f3 100%);border-radius:0;
+  box-shadow:0 0 0 1px rgba(255,255,255,.35),inset 0 0 60px rgba(30,60,45,.08)}
 .site-grid a{color:var(--ec-green-d)}.site-grid a:hover{color:#1f6a14}
 .site-grid::before{content:"";position:absolute;z-index:3;left:50%;top:0;width:250px;height:30px;margin-left:-125px;background:linear-gradient(180deg,#25332f,#1a2421);clip-path:polygon(0 0,100% 0,88% 100%,12% 100%);filter:drop-shadow(0 4px 0 rgba(0,0,0,.2))}
-.site-grid::after{content:"";position:absolute;z-index:3;left:50%;bottom:-1px;width:300px;height:26px;margin-left:-150px;background:linear-gradient(0deg,#1a2421,#25332f);clip-path:polygon(12% 0,88% 0,100% 100%,0 100%)}
+.site-grid::after{content:"";position:absolute;z-index:3;left:50%;bottom:0;width:300px;height:26px;margin-left:-150px;background:repeating-linear-gradient(45deg,rgba(255,255,255,.04) 0 2px,transparent 2px 4px),repeating-linear-gradient(-45deg,rgba(0,0,0,.28) 0 2px,transparent 2px 4px),linear-gradient(180deg,#2c3633,#242e2b);clip-path:polygon(12% 0,88% 0,100% 100%,0 100%)}
 .container:has(>.site-grid){padding-top:0}
 
 /* cards + panels on paper */
@@ -152,7 +152,7 @@ html{background:#1c1f1f}body.mcms{background:transparent}
 .poll-bar i{background:var(--g-primary)}
 .site-footer{max-width:var(--container-w);margin:0 auto;padding-top:30px;border-radius:0 0 46px 46px;border:1px solid #2c3a36;border-top:0;
   background:repeating-linear-gradient(45deg,rgba(255,255,255,.02) 0 2px,transparent 2px 4px),linear-gradient(180deg,#2a3733 0%,#161f1c 100%);box-shadow:0 40px 80px -30px #000,inset 0 1px 0 rgba(200,255,225,.1)}
-@media (max-width:900px){.site-grid{padding:34px 14px 36px;border-radius:0 0 22px 22px}.header-top::before{display:none}}
+@media (max-width:900px){.site-grid{padding:34px 14px 36px}.header-top::before{display:none}}
 @media (max-width:640px){.nav-btn{min-height:46px}}
 
 .stat-tile.is-hot{background:#fff!important}
