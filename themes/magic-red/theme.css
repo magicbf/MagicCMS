@@ -243,3 +243,11 @@ code{background:var(--field-bg);border:1px solid var(--glass-border);padding:.08
 .recent-post{padding:.6rem 0;border-bottom:1px solid var(--glass-border)}
 .forum-head .admin-title{margin:.2rem 0}
 .forum-head{margin-bottom:.9rem}.hero-lite .btn-glass{color:var(--c-on-bar)}
+
+/* forum: category links in title bars, layout picker in admin */
+.cat-link{color:inherit;text-decoration:none}.cat-link:hover{color:inherit;text-decoration:underline;text-underline-offset:4px}
+.layout-chip{display:flex;align-items:stretch;justify-content:stretch;gap:3px;padding:5px;width:64px;height:44px;background:var(--field-bg)}
+.layout-chip i{display:block;border-radius:4px;background:color-mix(in srgb,var(--c-text-dim) 35%,transparent)}
+.layout-chip i:nth-child(2){flex:1;background:var(--g-primary)}
+.layout-chip i:nth-child(1),.layout-chip i:nth-child(3){width:11px}
+.lc-none i:nth-child(1),.lc-none i:nth-child(3),.lc-left i:nth-child(3),.lc-right i:nth-child(1){display:none}

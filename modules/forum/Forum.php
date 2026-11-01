@@ -5,12 +5,24 @@ namespace MagicCMS\Modules\Forum;
 
 use MagicCMS\Core\Auth;
 
-/** Shared forum logic: permissions, counters, unread tracking. */
+/**
+ * Shared forum logic: permissions, counters, unread tracking.
+ * Structure: Category → Subcategory → Topic → Post.
+ * (DB tables keep the historical names: forum_categories = categories, forum_boards = subcategories.)
+ */
 final class Forum
 {
     public const PER_PAGE_TOPICS = 20;
     public const PER_PAGE_POSTS = 15;
     public const LEVELS = [0 => 'Everyone (incl. guests)', 10 => 'Members', 50 => 'Moderators', 80 => 'Administrators'];
+    public const LAYOUTS = ['none' => 'No side panels (full width)', 'left' => 'Left panels only', 'right' => 'Right panels only', 'both' => 'Left and right panels'];
+
+    /** Side-panel layout used on every forum page (default: none – the forum gets the whole content area). */
+    public static function layout(): string
+    {
+        $l = (string) setting('forum.layout', 'none');
+        return array_key_exists($l, self::LAYOUTS) ? $l : 'none';
+    }
 
     public static function isMod(): bool
     {
@@ -37,8 +49,8 @@ final class Forum
     public static function topic(int $id): ?array
     {
         $t = db()->one(
-            'SELECT t.*, b.title AS board_title, b.read_level, b.post_level, b.is_locked AS board_locked, b.parent_id AS board_parent, b.category_id
-             FROM {forum_topics} t JOIN {forum_boards} b ON b.id = t.board_id WHERE t.id = ?',
+            'SELECT t.*, b.title AS board_title, b.read_level, b.post_level, b.is_locked AS board_locked, b.category_id, c.title AS category_title
+             FROM {forum_topics} t JOIN {forum_boards} b ON b.id = t.board_id JOIN {forum_categories} c ON c.id = b.category_id WHERE t.id = ?',
             [$id]
         );
         return $t && (int) $t['read_level'] <= Auth::level() ? $t : null;

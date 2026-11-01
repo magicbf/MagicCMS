@@ -167,7 +167,7 @@ Selectors: `.panel`, `.panel-title`, `.panel-body`, `.panel-toggle`, `.panel.is-
 `.form-row`, `.input`, `.select`, `.textarea`, `.checkbox`, `.label`, `.help`, `.error`
 
 ### Forum
-Structure (grid/responsive) is in core.css; a theme paints it. Classes: `.breadcrumb` (+`.sep`), `.forum-head`, `.forum-bar`, `.forum-cat`, `.forum-table`, `.forum-row` with `.board-row` / `.topic-row` and state `.is-unread`, cells `.fr-icon` `.fr-main` `.fr-stat` `.fr-last`, `.topic-title`, `.mini-pages`, `.subboards`,
+Structure (grid/responsive) is in core.css; a theme paints it. Forum pages are rendered with the layout mode chosen in Admin → Forum (default `layout-none`), so a theme must look right both with and without side columns. Classes: `.breadcrumb` (+`.sep`), `.cat-link`, `.forum-head`, `.forum-bar`, `.forum-cat`, `.forum-table`, `.forum-row` with `.board-row` / `.topic-row` and state `.is-unread`, cells `.fr-icon` `.fr-main` `.fr-stat` `.fr-last`, `.topic-title`, `.mini-pages`, `.subboards`,
 posts: `.post` (grid: `.post-author` + `.post-main`), `.author-name`, `.post-meta`, `.post-body`, `.post-edited`, `.post-signature`, `.post-actions`; BBCode output: `.bb-quote` (+`cite`), `.bb-code`, `.bb-spoiler`, `.bb-img`;
 editor: `.editor`, `.editor-toolbar`, `.editor-preview`; moderation: `.mod-tools`, `.report`, `.report-item`, `.search-hit`; panel: `.latest-list`. Avatars inside posts use the normal `.avatar` classes and are always circular.
 

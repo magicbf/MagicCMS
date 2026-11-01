@@ -8,10 +8,13 @@ return function (Router $r): void {
         return $t;
     });
 
+    // Forum structure: Category → Subcategory → Topic → Post
     $c = Controller::class;
     $w = ['auth' => true];
-    $r->get('/forum', [$c, 'index'], ['layout' => 'none']);
-    $r->get('/forum/board/{id:\d+}', [$c, 'board']);
+    $r->get('/forum', [$c, 'index']);
+    $r->get('/forum/category/{id:\d+}', [$c, 'category']);
+    $r->get('/forum/subcategory/{id:\d+}', [$c, 'board']);
+    $r->get('/forum/board/{id:\d+}', [$c, 'legacyBoard']); // old URL → subcategory
     $r->get('/forum/topic/{id:\d+}', [$c, 'topic']);
     $r->get('/forum/topic/{id:\d+}/last', [$c, 'lastPost']);
     $r->get('/forum/post/{id:\d+}', [$c, 'jump']);
@@ -20,7 +23,7 @@ return function (Router $r): void {
     $r->post('/forum/markread', [$c, 'markRead'], $w);
     $r->post('/forum/preview', [$c, 'preview'], $w);
 
-    $r->any('/forum/board/{id:\d+}/new', [$c, 'newTopic'], $w);
+    $r->any('/forum/subcategory/{id:\d+}/new', [$c, 'newTopic'], $w);
     $r->any('/forum/topic/{id:\d+}/reply', [$c, 'reply'], $w);
     $r->any('/forum/post/{id:\d+}/edit', [$c, 'edit'], $w);
     $r->post('/forum/post/{id:\d+}/delete', [$c, 'deletePost'], $w);
@@ -32,8 +35,9 @@ return function (Router $r): void {
     $a = AdminController::class;
     $o = ['perm' => 'admin.forum', 'layout' => 'none'];
     $r->get('/admin/forum', [$a, 'index'], $o);
+    $r->post('/admin/forum/layout', [$a, 'saveLayout'], ['perm' => 'admin.forum']);
     $r->post('/admin/forum/category', [$a, 'saveCategory'], ['perm' => 'admin.forum']);
     $r->post('/admin/forum/category/delete/{id:\d+}', [$a, 'deleteCategory'], ['perm' => 'admin.forum']);
-    $r->post('/admin/forum/board', [$a, 'saveBoard'], ['perm' => 'admin.forum']);
-    $r->post('/admin/forum/board/delete/{id:\d+}', [$a, 'deleteBoard'], ['perm' => 'admin.forum']);
+    $r->post('/admin/forum/subcategory', [$a, 'saveSubcategory'], ['perm' => 'admin.forum']);
+    $r->post('/admin/forum/subcategory/delete/{id:\d+}', [$a, 'deleteSubcategory'], ['perm' => 'admin.forum']);
 };

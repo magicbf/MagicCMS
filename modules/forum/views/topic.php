@@ -1,7 +1,7 @@
-<?php /** @var array $t @var array $posts @var int $page @var int $pages @var array $moveTargets @var ?array $parent @var bool $canReply */
+<?php /** @var array $t @var array $posts @var int $page @var int $pages @var array $moveTargets @var bool $canReply */
 use MagicCMS\Core\Bbcode; use MagicCMS\Modules\Forum\Forum;
 $me = user(); $mod = Forum::isMod(); $base = url('forum/topic/' . (int) $t['id']); ?>
-<?= render('forum/_crumbs', ['items' => array_filter([$parent ? [$parent['title'], url('forum/board/' . (int) $parent['id'])] : null, [$t['board_title'], url('forum/board/' . (int) $t['board_id'])], [$t['title'], null]])]) ?>
+<?= render('forum/_crumbs', ['items' => [[$t['category_title'], url('forum/category/' . (int) $t['category_id'])], [$t['board_title'], url('forum/subcategory/' . (int) $t['board_id'])], [$t['title'], null]]]) ?>
 <div class="forum-head"><h1 class="admin-title"><?= $t['is_locked'] ? '🔒 ' : '' ?><?= e($t['title']) ?></h1>
   <?php if ($canReply): ?><a class="btn btn-primary" href="<?= e($base . '/reply') ?>">↩ <?= e(t('Reply')) ?></a><?php elseif ($t['is_locked']): ?><span class="badge">🔒 <?= e(t('Locked')) ?></span><?php elseif (!$me): ?><a class="btn btn-ghost" href="<?= e(url('login?next=' . rawurlencode('/forum/topic/' . (int) $t['id']))) ?>"><?= e(t('Log in to reply')) ?></a><?php endif ?></div>
 <?= render('pagination', ['page' => $page, 'pages' => $pages, 'base' => $base]) ?>

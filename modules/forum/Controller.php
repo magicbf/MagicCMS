@@ -21,7 +21,7 @@ final class Controller
 
     private function page(string $title, string $view, array $data, array $opts = []): string
     {
-        return View::page($title, render('forum/' . $view, $data), $opts + ['class' => 'page-forum', 'layout' => 'none']);
+        return View::page($title, render('forum/' . $view, $data), $opts + ['class' => 'page-forum', 'layout' => Forum::layout()]);
     }
 
     private static function pageNo(int $pages): int
@@ -41,11 +41,12 @@ final class Controller
         return null;
     }
 
-    // ------------------------------------------------------------------ index
-    public function index(): string
+    // ------------------------------------------------------------------ index / category
+    /** @return array{cats:array,tree:array} categories with their readable subcategories */
+    private function structure(?int $onlyCategory = null): array
     {
         $lvl = Auth::level();
-        $cats = db()->all('SELECT * FROM {forum_categories} ORDER BY sort_order, id');
+        $cats = db()->all('SELECT * FROM {forum_categories}' . ($onlyCategory ? ' WHERE id = ' . (int) $onlyCategory : '') . ' ORDER BY sort_order, id');
         $boards = db()->all('SELECT * FROM {forum_boards} WHERE read_level <= ? ORDER BY sort_order, id', [$lvl]);
 
         $last = [];
@@ -71,18 +72,33 @@ final class Controller
         foreach ($boards as $b) {
             $b['last'] = $last[(int) $b['last_post_id']] ?? null;
             $b['unread'] = $unread[(int) $b['id']] ?? 0;
-            if ($b['parent_id']) {
-                $tree['sub'][(int) $b['parent_id']][] = $b;
-            } else {
-                $tree['top'][(int) $b['category_id']][] = $b;
-            }
+            $tree[(int) $b['category_id']][] = $b;
         }
+        return ['cats' => $cats, 'tree' => $tree];
+    }
+
+    public function index(): string
+    {
         $stats = [
             'topics' => (int) db()->val('SELECT COUNT(*) FROM {forum_topics}'),
             'posts' => (int) db()->val('SELECT COUNT(*) FROM {forum_posts}'),
             'members' => (int) db()->val("SELECT COUNT(*) FROM {users} WHERE status = 'active'"),
         ];
-        return $this->page(t('Forum'), 'index', ['cats' => $cats, 'tree' => $tree, 'stats' => $stats]);
+        return $this->page(t('Forum'), 'index', $this->structure() + ['stats' => $stats, 'focus' => null]);
+    }
+
+    public function category(array $p): string
+    {
+        $data = $this->structure((int) $p['id']);
+        if (!$data['cats'] || !($data['tree'][(int) $p['id']] ?? null)) {
+            return $this->nf();
+        }
+        return $this->page($data['cats'][0]['title'], 'index', $data + ['stats' => null, 'focus' => $data['cats'][0]]);
+    }
+
+    public function legacyBoard(array $p): never
+    {
+        redirect('/forum/subcategory/' . (int) $p['id'], 301);
     }
 
     // ------------------------------------------------------------------ board
@@ -109,9 +125,7 @@ final class Controller
              LIMIT " . Forum::PER_PAGE_TOPICS . ' OFFSET ' . (($page - 1) * Forum::PER_PAGE_TOPICS),
             array_merge($params, [$uid, $b['id']])
         );
-        $subs = db()->all('SELECT * FROM {forum_boards} WHERE parent_id = ? AND read_level <= ? ORDER BY sort_order, id', [$b['id'], Auth::level()]);
-        $parent = $b['parent_id'] ? Forum::board((int) $b['parent_id']) : null;
-        return $this->page($b['title'], 'board', ['b' => $b, 'rows' => $rows, 'subs' => $subs, 'parent' => $parent, 'page' => $page, 'pages' => $pages]);
+        return $this->page($b['title'], 'board', ['b' => $b, 'rows' => $rows, 'page' => $page, 'pages' => $pages]);
     }
 
     // ------------------------------------------------------------------ topic
@@ -139,10 +153,9 @@ final class Controller
         } elseif ($posts) {
             Forum::markRead((int) $t['id'], (int) end($posts)['id']);
         }
-        $boards = Forum::isMod() ? db()->all('SELECT id, title FROM {forum_boards} WHERE read_level <= ? ORDER BY sort_order, id', [Auth::level()]) : [];
-        $parent = $t['board_parent'] ? Forum::board((int) $t['board_parent']) : null;
+        $boards = Forum::isMod() ? db()->all('SELECT b.id, CONCAT(c.title, \' › \', b.title) AS title FROM {forum_boards} b JOIN {forum_categories} c ON c.id = b.category_id WHERE b.read_level <= ? ORDER BY c.sort_order, c.id, b.sort_order, b.id', [Auth::level()]) : [];
         return $this->page($t['title'], 'topic', [
-            't' => $t, 'posts' => $posts, 'page' => $page, 'pages' => $pages, 'moveTargets' => $boards, 'parent' => $parent,
+            't' => $t, 'posts' => $posts, 'page' => $page, 'pages' => $pages, 'moveTargets' => $boards,
             'canReply' => Forum::canReply($t),
         ]);
     }
@@ -173,7 +186,7 @@ final class Controller
         if (!Forum::canPost($b)) {
             return $this->deny();
         }
-        $data = ['b' => $b, 'title' => '', 'body' => '', 'mode' => 'new', 'action' => url('forum/board/' . $b['id'] . '/new'), 'canType' => Forum::isMod()];
+        $data = ['b' => $b, 'title' => '', 'body' => '', 'mode' => 'new', 'action' => url('forum/subcategory/' . $b['id'] . '/new'), 'canType' => Forum::isMod()];
         if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             $title = (string) input('title');
             $body = (string) ($_POST['body'] ?? '');
@@ -297,7 +310,7 @@ final class Controller
             Forum::syncBoard((int) $post['board_id']);
             audit('forum.delete_topic', '#' . $post['topic_id'] . ' ' . $post['title']);
             flash('success', t('Topic deleted.'));
-            redirect('/forum/board/' . (int) $post['board_id']);
+            redirect('/forum/subcategory/' . (int) $post['board_id']);
         }
         db()->exec('DELETE FROM {forum_reports} WHERE post_id = ?', [$post['id']]);
         db()->exec('DELETE FROM {forum_posts} WHERE id = ?', [$post['id']]);
@@ -338,7 +351,7 @@ final class Controller
                 Forum::syncBoard((int) $t['board_id']);
                 audit('forum.delete_topic', '#' . $id . ' ' . $t['title']);
                 flash('success', t('Topic deleted.'));
-                redirect('/forum/board/' . (int) $t['board_id']);
+                redirect('/forum/subcategory/' . (int) $t['board_id']);
         }
         audit('forum.mod', (string) input('action') . ' topic #' . $id);
         flash('success', t('Done.'));

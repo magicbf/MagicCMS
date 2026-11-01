@@ -33,7 +33,7 @@
 | Plugins / modules loader | ✅ (modules) | Core modules are loaded from the `modules` table; admin UI for enabling/installing planned |
 | Hero module | ⏳ | v0.1 ships a static "hero-lite" intro on the home page; full module planned |
 | News + categories + generated covers | ⏳ | planned (v0.4) |
-| Forum (categories → boards → topics → posts) | ✅ | BBCode, per-board read/post levels, sticky/announce/lock/move/delete, reports queue, search, unread tracking, ranks – see [§15](#15-forum). Attachments, polls, subscriptions/e-mail notifications, reactions: planned |
+| Forum (category → subcategory → topics → posts) | ✅ | Own side-panel layout (none by default; admin can enable left/right/both), BBCode, per-subcategory read/post levels, sticky/announce/lock/move/delete, reports queue, search, unread tracking, ranks – see [§15](#15-forum). Attachments, polls, subscriptions/e-mail notifications, reactions: planned |
 | Versioned migrations + auto-upgrade | ✅ | `migrations/NNNN_*.sql` (+ optional `.php` seed); new code upgrades an older database automatically |
 | Matches / roster / events panels | ⏳ | planned (v0.3) |
 | Private messages, email verification, password reset | ⏳ | need a mail layer – planned |
@@ -103,7 +103,7 @@ MagicCMS is a small, dependency-free content management system in the spirit of 
 
 ### Built-in modules
 - 📰 **News** with custom categories (colour, icon, picture or auto-generated abstract covers), tags, comments, featured posts
-- 🗨️ **Forum** (categories → boards → topics → posts) — phpBB-style
+- 🗨️ **Forum** (category → subcategory → topics → posts) — phpBB-style, shown inside the site with its own configurable side-panel layout
 - ⚔️ **Matches** — upcoming & recent results, opponents, maps, scores, VOD links
 - 👥 **Team / Roster** — players, roles, stats, social links
 - 🏆 **Tournaments / Events** — brackets-lite, calendar
@@ -256,7 +256,7 @@ All tables use the configurable prefix (default `mcms_`), InnoDB, `utf8mb4_unico
 | `news_categories` | id, parent_id, name, slug, color, icon, image, cover_style, sort_order, visibility |
 | `news_tags` / `news_tag_map` | Tags |
 | `comments` | Comments (news and other content) |
-| `forum_categories`, `forum_boards`, `forum_topics`, `forum_posts`, `forum_reads`, `forum_markread`, `forum_reports` | Forum (attachments & subscriptions tables arrive with those features) |
+| `forum_categories`, `forum_boards` (= subcategories), `forum_topics`, `forum_posts`, `forum_reads`, `forum_markread`, `forum_reports` | Forum (attachments & subscriptions tables arrive with those features) |
 | `matches`, `match_maps`, `opponents`, `games`, `events` | Esports data |
 | `team_members` | Roster |
 | `chat_messages` | Shoutbox |
@@ -461,16 +461,28 @@ Other: category & tag archives, RSS per category, related posts, "featured" slid
 
 ## 15. Forum
 
-A phpBB-style forum, built as the `forum` module. Open it from the **Forum** menu button, the *Latest Topics* panel, or `/forum`.
+A phpBB-style forum, built as the `forum` module and shown **inside the normal site** (header, menu and footer stay) — it takes over the main content area where the home page would show the hero and news. Open it from the **Forum** menu button, the *Latest Topics* panel, or `/forum`.
 
-**Structure:** Categories → Boards (with one level of sub-boards) → Topics → Posts. Create and arrange them in **Admin → Forum**.
+**Structure:** **Category → Subcategory → Topic → Post**
+
+```
+Forum                        /forum
+└─ Category                  /forum/category/3         e.g. "Community", "Esports"
+   └─ Subcategory            /forum/subcategory/7      e.g. "Announcements", "Scrims"
+      └─ Topic               /forum/topic/42
+         └─ Posts            /forum/post/310  (jumps to the right page + anchor)
+```
+
+Categories and subcategories are created in **Admin → Forum**. Breadcrumbs show the full path on every page.
+
+**Forum layout (side panels)** — by default forum pages use the **full width with no side panels**, so the forum feels like a page of the site. In **Admin → Forum → Forum layout** the admin can keep the site's panels visible on forum pages and choose **left only, right only, or both**. The setting (`forum.layout`) applies to every forum page and is independent from the home page's layout.
 
 **Implemented**
-- **Board permissions** – each board has a *read level* and a *post level* (Everyone/guests, Members, Moderators, Administrators) and an optional *locked* flag. Boards a user may not read are completely hidden (index, topic URLs, search, panels).
-- **Topics** – normal, **sticky** and **announcement** types; locked topics; move between boards; view counter; reply counter; mini page links; jump to last post / jump to a post (`/forum/post/ID`).
+- **Access per subcategory** – each subcategory has a *read level* and a *post level* (Everyone/guests, Members, Moderators, Administrators) and an optional *locked* flag. Anything a user may not read is completely hidden (index, direct URLs, search, panels).
+- **Topics** – normal, **sticky** and **announcement** types; locked topics; move between subcategories; view counter; reply counter; mini page links; jump to last post / to a specific post.
 - **Posting** – BBCode with a toolbar, keyboard shortcuts (Ctrl+B/I/U), **live preview**, quoting, quick-reply, edit (with "edited by" marker), flood protection (10 s), length limits.
 - **BBCode** – `[b] [i] [u] [s] [quote] [quote=Name] [code] [url] [url=…] [img] (https only) [list] [list=1] [*] [spoiler]`, auto-links and emoticons. Input is HTML-escaped *first*, so no markup or script can get through.
-- **Unread tracking** – unread dots on boards/topics, *Unread topics* page, *Mark all read*. New members only see content posted after they joined as "unread".
+- **Unread tracking** – unread dots on subcategories/topics, *Unread topics* page, *Mark all read*. New members only see content posted after they joined as "unread".
 - **Moderation** – lock/unlock, sticky/announce/normal, move, delete topic or post; **report post → moderator queue** (`/forum/reports`) with a badge counter; all actions are written to the audit log.
 - **Rules for members** – may edit their own posts (unless the topic is locked), delete their own replies (not the opening post).
 - **Search** – MySQL FULLTEXT on posts + title match, filtered by what the searcher may read.
@@ -481,6 +493,8 @@ A phpBB-style forum, built as the `forum` module. Open it from the **Forum** men
 **Planned:** attachments, polls, topic subscriptions & e-mail notifications, reactions/"thanks", merge/split topics, per-user mute/warn, RSS feeds.
 
 **Permissions:** `forum.post`, `forum.report` (Members and up), `forum.moderate` (Moderators and up), `admin.forum` (Administrators). Change them per role in the `role_permissions` table (role editor UI planned).
+
+*Technical note:* the tables keep their original names (`forum_categories` = categories, `forum_boards` = subcategories). The old `/forum/board/ID` URL redirects to `/forum/subcategory/ID`. Earlier "sub-boards" were flattened into normal subcategories by migration `0003`.
 
 ---
 
