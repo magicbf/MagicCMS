@@ -163,6 +163,9 @@ final class Installer
         if (isset($td['scheme']) && isset(Appearance::PRESETS[$td['scheme']])) {
             $settings['appearance.scheme'] = $td['scheme'];
         }
+        if (isset($td['mode']) && in_array($td['mode'], ['dark', 'light', 'auto'], true)) {
+            $settings['appearance.mode_default'] = $td['mode'];
+        }
         if (isset($td['radius'])) {
             $settings['appearance.radius'] = max(0, min(32, (int) $td['radius']));
         }

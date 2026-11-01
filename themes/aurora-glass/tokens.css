@@ -1,0 +1,43 @@
+/* Aurora Glass – design tokens (overrides Magic Red). Deep-navy dark variant; the light variant is the signature look. */
+:root {
+  --c-primary:#3d5afe; --c-primary-hi:#6c8cf5; --c-primary-lo:#1e36b8; --c-accent:#ff9a6b;
+  --c-text-on-primary:#ffffff; --c-on-bar:#ffffff;
+
+  --c-bg:#0a1022; --c-bg-2:#0f1730; --c-surface:#121b38; --c-surface-2:#19254a; --c-border:#243260;
+  --glass:linear-gradient(135deg,rgba(40,56,110,.62) 0%,rgba(22,32,68,.58) 100%);
+  --glass-border:rgba(160,185,255,.18); --glass-hl:rgba(200,215,255,.10);
+  --field-bg:rgba(14,22,48,.72); --field-border:rgba(160,185,255,.22);
+  --pill-bg:rgba(28,40,84,.62);
+  --btn-bg:#121b38; --btn-fg:#eef2ff; --btn-border:rgba(160,185,255,.22);
+
+  --c-text:#eef2ff; --c-text-dim:#aab6d8; --c-text-faint:#7f8db5;
+  --c-success:#2bbf7a; --c-warning:#ffb24a; --c-danger:#ff6b7a; --c-info:#7cc4ff;
+
+  --g-primary:linear-gradient(135deg,var(--c-primary-hi) 0%,var(--c-primary) 100%);
+  --g-titlebar:none;
+
+  --ag-blob-1:#6c8cf5; --ag-blob-2:#ff9a6b; --ag-blob-3:#4a66e0;
+  --ag-card-shadow:0 20px 60px rgba(0,0,0,.40);
+  --ag-title-glow:0 0 1px #4a66e0,0 1px 2px rgba(60,90,230,.9),0 4px 14px rgba(70,100,240,.55),0 14px 50px rgba(90,130,255,.5);
+
+  --radius-sm:10px; --radius:20px; --radius-lg:30px;
+  --shadow:var(--ag-card-shadow);
+
+  --font-body:"Plus Jakarta Sans",system-ui,"Segoe UI",Roboto,sans-serif;
+  --font-display:"Nunito","Plus Jakarta Sans",system-ui,sans-serif;
+  --fs-base:15px; --lh:1.6;
+}
+:root[data-theme="light"] {
+  --c-bg:#f4f7ff; --c-bg-2:#ffffff; --c-surface:#ffffff; --c-surface-2:#e9efff; --c-border:#dce5ff;
+  --glass:linear-gradient(135deg,rgba(255,255,255,.86) 0%,rgba(226,234,255,.58) 100%);
+  --glass-border:rgba(255,255,255,.96); --glass-hl:#ffffff;
+  --field-bg:rgba(255,255,255,.92); --field-border:#dce5ff;
+  --pill-bg:rgba(255,255,255,.78);
+  --btn-bg:#ffffff; --btn-fg:#1e2a4a; --btn-border:#ffffff;
+  --c-text:#1e2a4a; --c-text-dim:#4a5878; --c-text-faint:#6a7798;
+  --c-success:#16995f; --c-warning:#b36b00; --c-danger:#d63a4a; --c-info:#1d6fc9;
+  --c-accent:#d9622b;
+  --ag-blob-1:#a9c3ff; --ag-blob-2:#ffc9a3; --ag-blob-3:#b9ccff;
+  --ag-card-shadow:0 20px 60px rgba(70,100,220,.12);
+  --shadow:var(--ag-card-shadow);
+}

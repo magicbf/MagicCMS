@@ -25,6 +25,7 @@ final class Appearance
         'toxic' => ['Toxic', ['primary' => '#16a34a', 'primary_hi' => '#4ade80', 'primary_lo' => '#064e23', 'accent' => '#bef264', 'on_primary' => '#ffffff']],
         'violet' => ['Violet', ['primary' => '#8b5cf6', 'primary_hi' => '#b794ff', 'primary_lo' => '#3b1a8a', 'accent' => '#f472b6', 'on_primary' => '#ffffff']],
         'hazard' => ['Hazard', ['primary' => '#ffc400', 'primary_hi' => '#ffe45c', 'primary_lo' => '#a67c00', 'accent' => '#ff9f00', 'on_primary' => '#14110a']],
+        'aurora' => ['Aurora', ['primary' => '#3d5afe', 'primary_hi' => '#6c8cf5', 'primary_lo' => '#1e36b8', 'accent' => '#ff9a6b', 'on_primary' => '#ffffff']],
         'mono' => ['Mono', ['primary' => '#d4d4dc', 'primary_hi' => '#ffffff', 'primary_lo' => '#5d5d68', 'accent' => '#a0a0aa', 'on_primary' => '#0b0b0d']],
     ];
 
@@ -39,6 +40,10 @@ final class Appearance
         if (isset($d['scheme']) && isset(self::PRESETS[$d['scheme']])) {
             Settings::set('appearance.scheme', $d['scheme']);
             $changed[] = t('colour scheme “{n}”', ['n' => self::PRESETS[$d['scheme']][0]]);
+        }
+        if (isset($d['mode']) && in_array($d['mode'], ['dark', 'light', 'auto'], true)) {
+            Settings::set('appearance.mode_default', $d['mode']);
+            $changed[] = t('default mode “{n}”', ['n' => $d['mode']]);
         }
         if (isset($d['radius'])) {
             Settings::set('appearance.radius', max(0, min(32, (int) $d['radius'])));

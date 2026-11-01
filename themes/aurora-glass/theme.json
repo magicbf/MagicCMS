@@ -1,0 +1,13 @@
+{
+  "name": "Aurora Glass",
+  "slug": "aurora-glass",
+  "version": "1.0.0",
+  "author": "MagicCMS",
+  "description": "Bright, friendly frosted-glass theme: soft blue and peach light blobs, very round cards, pill navigation and glowing headlines. Light by default with a deep-navy dark variant. Builds on Magic Red.",
+  "requires": "0.1",
+  "parent": "magic-red",
+  "stylesheets": ["tokens.css", "theme.css"],
+  "scripts": [],
+  "defaults": { "scheme": "aurora", "radius": 20, "mode": "light" },
+  "supports": { "darkLight": true, "panels": ["left", "right"] }
+}

@@ -44,7 +44,7 @@
 | **Events & tournaments plugin** (calendar, sign-ups, waitlist, .ics, brackets, panel) | ✅ | `plugins/events` |
 | **Notifications centre** (bell, merged entries, read/clear) + **forum subscriptions** (follow topics/subcategories, auto-follow, signed one-click unsubscribe) | ✅ | see [§14](#14-built-in-panels--modules), [§15](#15-forum) |
 | **Recruitment plugin** (application form, positions, custom questions, status tracking, notes, applicant notifications) | ✅ | `plugins/recruit` |
-| **Bundled themes**: Magic Red (default) and **Hazard Protocol** (terminal / hazard-yellow, light + dark, auto-applies its colour scheme) | ✅ | `themes/`, see [THEMING](docs/THEMING.md) |
+| **Bundled themes**: Magic Red (default), **Hazard Protocol** (terminal / hazard-yellow) and **Aurora Glass** (bright frosted glass, light by default) – each with light + dark variants and an auto-applied colour scheme | ✅ | `themes/`, see [THEMING](docs/THEMING.md) |
 | Update/migration runner UI | ⏳ | planned |
 
 ---
@@ -212,7 +212,8 @@ MagicCMS/
 ├── plugins/                  # third-party modules & panels (plugins/<name>/panels/<key>/…)
 ├── themes/
 │   ├── magic-red/            # default theme: theme.json  tokens.css  theme.css  [templates/]
-│   └── hazard-protocol/      # terminal / hazard-yellow theme (child of magic-red)
+│   ├── hazard-protocol/      # terminal / hazard-yellow theme (child of magic-red)
+│   └── aurora-glass/         # bright frosted-glass theme, light by default (child of magic-red)
 ├── views/                    # core templates: layout, header, nav, footer, panel, pagination, 404 …
 ├── assets/                   # core.css (structure), core.js, admin.js, logo.svg, logo-mark.svg
 ├── lang/                     # en.php (source language), add de.php, fr.php …
