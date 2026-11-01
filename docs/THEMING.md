@@ -361,6 +361,7 @@ body.mcms {
 | **Nebula Bloom** (`nebula-bloom`) | Ultraviolet glass with magenta and electric-blue light: thin Outfit type (weights 100–300), drifting orbs and stardust, **round capsule title bars** with an aurora ring that ignite one after another at page load (the ring spins while you hover a panel), glass-bead icons, a hero that is a small cosmos | Child of Magic Red (≈200 lines); ships the `nebula` preset and `defaults` (`scheme: nebula`, `radius: 24`, `mode: dark`); dark + light |
 | **Crystallic** (`crystallic`) | Faceted ice-crystal glass: chamfered corners, prism-gradient edges, diagonal facet lines, twinkling star sparks, a crystal cluster in the hero and footer, metallic steel buttons, Rajdhani display type (bundled, OFL) | Child of Magic Red; ships the `crystal` preset and `defaults` (`scheme: crystal`, `radius: 0`, `mode: dark`); dark + light |
 | **Dark gel** (`dark-gel`) | Ink-navy ground with glossy azure "gel": tube-shaped title bars (gloss highlight, carbon-weave texture, cyan under-glow, glass-bead icons), a polished beveled menu bar, gel buttons and one orange call-to-action (Register / hero button), Exo 2 display type (bundled, OFL) | Child of Magic Red; ships the `gel` preset and `defaults` (`scheme: gel`, `radius: 14`, `mode: dark`); dark + light |
+| **Electric Camo** (`electric-camo`) | Charcoal-green steel chrome with electric-green light: a slim top strip with login links, a steel menu bar with a glowing marker, a hero stage, flowing light trails, and a **white paper content sheet** (re-scoped colour tokens inside `.site-grid`) with dark-headed side panels and angled steel read-more tabs | Child of Magic Red; ships the `camo` preset; `supports.darkLight: false` locks it to its `defaults.mode` (the admin console ignores the lock) |
 
 Hazard Protocol is a good template for an AI-made theme: `parent` + `defaults` + a token file + overrides for header, nav, cards/title bars, buttons, hero and footer, with self-hosted fonts in `fonts/`.
 
@@ -406,3 +407,5 @@ Zip the `themes/<slug>/` folder (the folder itself at the zip root). Admin → T
 | Unstyled widget | Add missing selectors from §4 or inherit via `parent` |
 
 The login/account area has its own shape setting `layout.acct_shape` (buttons / pill / square / links), applied as `.acct-*` on `.header-actions` in every header style.
+
+`supports.darkLight: false` in `theme.json` locks the site to `defaults.mode`: the visitor's light/dark toggle is hidden and the stored mode is ignored. Use it for themes that have a single look.

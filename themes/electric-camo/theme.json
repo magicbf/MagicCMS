@@ -1,0 +1,13 @@
+{
+  "name": "Electric Camo",
+  "slug": "electric-camo",
+  "version": "1.0.0",
+  "author": "MagicCMS",
+  "description": "Charcoal-green steel chrome with electric green light and a white paper content sheet: a slim top strip, a steel menu bar with a glowing green marker, dark-headed panels, angled read-more tabs and flowing green light trails. Builds on Magic Red; one look for light and dark mode.",
+  "requires": "0.1",
+  "parent": "magic-red",
+  "stylesheets": ["tokens.css", "theme.css"],
+  "scripts": [],
+  "defaults": { "scheme": "camo", "radius": 6, "mode": "dark" },
+  "supports": { "darkLight": false, "panels": ["left", "right"] }
+}

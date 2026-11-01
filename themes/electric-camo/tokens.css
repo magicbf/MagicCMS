@@ -1,0 +1,28 @@
+/* Electric Camo – tokens. The chrome (header, menu, hero, footer) is dark steel; the content sheet re-scopes them to paper (theme.css). One look for both modes. */
+:root,:root[data-theme="light"],:root[data-theme="dark"] {
+  --c-primary:#3fa12a; --c-primary-hi:#7ae24b; --c-primary-lo:#1f6014; --c-accent:#c4ff3d;
+  --c-text-on-primary:#06130a; --c-on-bar:#e9f2ee;
+
+  --c-bg:#050807; --c-bg-2:#0b1210; --c-surface:#18221f; --c-surface-2:#222e2b; --c-border:#2d3b37;
+  --glass:linear-gradient(180deg,#2b3835 0%,#1a2421 100%);
+  --glass-border:rgba(140,200,170,.16); --glass-hl:rgba(200,255,225,.08);
+  --field-bg:#0d1513; --field-border:#2f3f3a;
+  --pill-bg:rgba(255,255,255,.05);
+  --btn-bg:#202c29; --btn-fg:#dfeee6; --btn-border:#35463f;
+
+  --c-text:#e3eee8; --c-text-dim:#9fb2aa; --c-text-faint:#74887f;
+  --c-success:#5fe08a; --c-warning:#f3b94d; --c-danger:#ff6a5a; --c-info:#6fd0ff;
+
+  --ec-green:#7ae24b; --ec-green-d:#2f9a1f; --ec-steel-1:#33433f; --ec-steel-2:#1c2724; --ec-ink:#060a09;
+  --ec-sheet:#f5f8f6; --ec-line:#dce6e0;
+  --g-primary:linear-gradient(180deg,#8cf45e 0%,#4fbd2b 55%,#2f8a1c 100%);
+  --g-titlebar:none;
+  --shadow:0 24px 60px -24px rgba(0,0,0,.9);
+
+  --radius-sm:4px; --radius:6px; --radius-lg:10px;
+  --font-body:"Inter",system-ui,"Segoe UI",Roboto,sans-serif;
+  --font-display:"Exo 2","Inter",system-ui,sans-serif;
+  --fs-base:14.5px; --lh:1.6;
+  --container-w:1140px; --sidebar-w:300px; --gap:20px;
+  color-scheme:dark;
+}

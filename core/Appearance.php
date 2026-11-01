@@ -27,6 +27,7 @@ final class Appearance
         'hazard' => ['Hazard', ['primary' => '#ffc400', 'primary_hi' => '#ffe45c', 'primary_lo' => '#a67c00', 'accent' => '#ff9f00', 'on_primary' => '#14110a']],
         'aurora' => ['Aurora', ['primary' => '#3d5afe', 'primary_hi' => '#6c8cf5', 'primary_lo' => '#1e36b8', 'accent' => '#ff9a6b', 'on_primary' => '#ffffff']],
         'mint' => ['Mint', ['primary' => '#69dcbe', 'primary_hi' => '#8bf5e2', 'primary_lo' => '#2f8f78', 'accent' => '#8bf5e2', 'on_primary' => '#0a0d10']],
+        'camo' => ['Electric green', ['primary' => '#3fa12a', 'primary_hi' => '#7ae24b', 'primary_lo' => '#1f6014', 'accent' => '#c4ff3d', 'on_primary' => '#06130a']],
         'gel' => ['Gel blue', ['primary' => '#1f86e0', 'primary_hi' => '#58d0ff', 'primary_lo' => '#0b3f86', 'accent' => '#ff7a2b', 'on_primary' => '#ffffff']],
         'nebula' => ['Nebula', ['primary' => '#7b4dff', 'primary_hi' => '#ff2fb9', 'primary_lo' => '#3b1c9e', 'accent' => '#3aa0ff', 'on_primary' => '#ffffff']],
         'crystal' => ['Crystal', ['primary' => '#a0a8b8', 'primary_hi' => '#e8edf5', 'primary_lo' => '#5a6270', 'accent' => '#7eb8da', 'on_primary' => '#0e1018']],
@@ -67,8 +68,21 @@ final class Appearance
     }
 
     /** The mode setting chosen by site/user/guest: dark | light | auto */
-    public static function modeSetting(): string
+    /** A theme with supports.darkLight = false has ONE look: the mode is locked to its defaults.mode (the admin console ignores this). */
+    public static function lockedMode(): ?string
     {
+        $meta = View::chain()[0]['meta'] ?? [];
+        if (($meta['supports']['darkLight'] ?? true) !== false) {
+            return null;
+        }
+        return ($meta['defaults']['mode'] ?? 'dark') === 'light' ? 'light' : 'dark';
+    }
+
+    public static function modeSetting(bool $ignoreLock = false): string
+    {
+        if (!$ignoreLock && ($lock = self::lockedMode()) !== null) {
+            return $lock;
+        }
         $site = (string) setting('appearance.mode_default', 'dark');
         if (!setting('appearance.allow_user_mode', true)) {
             return $site;
@@ -78,9 +92,9 @@ final class Appearance
     }
 
     /** Initial resolved mode for server-side rendering (JS resolves "auto" before first paint). */
-    public static function mode(): string
+    public static function mode(bool $ignoreLock = false): string
     {
-        $m = self::modeSetting();
+        $m = self::modeSetting($ignoreLock);
         return $m === 'light' ? 'light' : 'dark';
     }
 

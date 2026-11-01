@@ -115,8 +115,8 @@ final class View
             'layout' => $layout,
             'bodyClass' => trim(($o['class'] ?? '')),
             'description' => $o['description'] ?? (string) setting('site.description', ''),
-            'mode' => Appearance::mode(),
-            'modeSetting' => Appearance::modeSetting(),
+            'mode' => Appearance::mode($admin),
+            'modeSetting' => Appearance::modeSetting($admin),
         ]);
     }
 
