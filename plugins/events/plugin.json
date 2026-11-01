@@ -1,0 +1,2 @@
+{ "key": "events", "name": "Events & tournaments", "version": "1.0.0", "description": "Calendar, sign-ups with capacity and waitlist, .ics export, tournament brackets and the Upcoming Events panel.", "author": "MagicCMS", "requires": "0.1",
+  "provides": { "routes": ["/events", "/events/{id}", "/events/{id}.ics", "/events/feed.ics", "/admin/events"], "panels": ["upcoming_events"], "permissions": ["admin.events", "events.signup"] } }

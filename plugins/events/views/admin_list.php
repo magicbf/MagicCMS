@@ -1,0 +1,9 @@
+<?php /** @var array $rows @var string $f */ use MagicCMS\Plugins\Events\Events; ?>
+<div class="forum-bar"><div class="forum-bar-links"><a class="btn btn-primary btn-sm" href="<?= e(url('admin/events/new')) ?>">+ <?= e(t('New event')) ?></a>
+  <?php foreach (['upcoming' => 'Upcoming', 'past' => 'Past', 'draft' => 'Drafts'] as $k => $l): ?><a class="btn btn-sm <?= $f === $k ? 'btn-primary' : 'btn-ghost' ?>" href="<?= e(url('admin/events?f=' . $k)) ?>"><?= e(t($l)) ?></a><?php endforeach ?></div>
+  <a class="btn btn-sm btn-ghost" href="<?= e(url('events')) ?>"><?= e(t('Public page')) ?> →</a></div>
+<div class="card"><div class="card-body table-wrap"><table class="table"><thead><tr><th><?= e(t('Date')) ?></th><th><?= e(t('Title')) ?></th><th><?= e(t('Type')) ?></th><th><?= e(t('Going')) ?></th><th><?= e(t('Status')) ?></th><th></th></tr></thead><tbody>
+<?php foreach ($rows as $e): [$lab, $ic] = Events::TYPES[$e['type']]; ?><tr><td><?= e(fmt_date($e['starts_at'])) ?></td><td><a href="<?= e(url('events/' . (int) $e['id'])) ?>"><strong><?= e($e['title']) ?></strong></a></td><td><?= e($ic . ' ' . t($lab)) ?></td>
+<td><?= (int) $e['counts']['going'] ?><?= $e['max_participants'] !== null ? ' / ' . (int) $e['max_participants'] : '' ?><?= $e['counts']['waitlist'] ? ' (+' . (int) $e['counts']['waitlist'] . ')' : '' ?></td><td><span class="badge"><?= e($e['status'] === 'draft' ? t('Draft') : t('Published')) ?></span></td>
+<td class="actions"><a class="btn btn-sm btn-ghost" href="<?= e(url('admin/events/' . (int) $e['id'])) ?>"><?= e(t('Edit')) ?></a><form method="post" action="<?= e(url('admin/events/delete/' . (int) $e['id'])) ?>"><?= csrf_field() ?><button class="btn btn-sm btn-danger" data-confirm="<?= e(t('Delete this event and all its sign-ups?')) ?>">✕</button></form></td></tr>
+<?php endforeach; if (!$rows): ?><tr><td colspan="6" class="muted"><?= e(t('Nothing here.')) ?></td></tr><?php endif ?></tbody></table></div></div>

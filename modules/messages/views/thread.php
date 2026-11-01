@@ -2,8 +2,10 @@
 <nav class="breadcrumb"><a href="<?= e(url('messages')) ?>"><?= e(t('Messages')) ?></a> <span class="sep">›</span> <span><?= e($t['subject']) ?></span></nav>
 <div class="forum-head"><h1 class="admin-title"><?= e($t['subject']) ?></h1>
   <form method="post" action="<?= e(url('messages/' . (int) $t['id'] . '/delete')) ?>"><?= csrf_field() ?><button class="btn btn-sm btn-danger" data-confirm="<?= e(t('Delete this conversation from your inbox?')) ?>"><?= e(t('Delete')) ?></button></form></div>
-<p class="muted small pm-people"><?= e(t('Between')) ?>:
-  <?php foreach ($people as $u): ?><a href="<?= e(url('user/' . $u['username'])) ?>"><?= e($u['username']) ?></a><?php if ((int) $u['id'] !== $me): ?> <form class="inline" method="post" action="<?= e(in_array((string) $u['id'], array_map('strval', $blockedIds), true) ? url('messages/unblock/' . (int) $u['id']) : url('messages/block/' . (int) $u['id'])) ?>"><?= csrf_field() ?><button class="link-btn" title="<?= e(t('Block / unblock this user')) ?>"><?= in_array((string) $u['id'], array_map('strval', $blockedIds), true) ? '🔓' : '🚫' ?></button></form><?php endif ?>&nbsp;<?php endforeach ?></p>
+<div class="pm-people muted small"><span><?= e(t('Between')) ?>:</span>
+  <?php foreach ($people as $u): $isBlocked = in_array((string) $u['id'], array_map('strval', $blockedIds), true); ?>
+    <span class="pm-person"><img class="avatar avatar-xs" src="<?= e(avatar_url($u, 32)) ?>" alt="" width="24" height="24"><a href="<?= e(url('user/' . $u['username'])) ?>"><?= e($u['username']) ?></a><?php if ((int) $u['id'] !== $me): ?><form class="inline" method="post" action="<?= e($isBlocked ? url('messages/unblock/' . (int) $u['id']) : url('messages/block/' . (int) $u['id'])) ?>"><?= csrf_field() ?><button class="link-btn" title="<?= e($isBlocked ? t('Unblock this user') : t('Block this user')) ?>" aria-label="<?= e($isBlocked ? t('Unblock this user') : t('Block this user')) ?>"><?= $isBlocked ? '🔓' : '🚫' ?></button></form><?php endif ?></span>
+  <?php endforeach ?></div>
 <?php foreach ($msgs as $m): $mine = (int) $m['user_id'] === $me; ?>
 <article class="pm-msg<?= $mine ? ' is-mine' : '' ?><?= !$mine && (int) $m['id'] > $lastRead ? ' is-new' : '' ?>" id="m<?= (int) $m['id'] ?>">
   <img class="avatar avatar-md" src="<?= e(avatar_url(['id' => $m['user_id'], 'avatar' => $m['avatar']], 64)) ?>" alt="" width="44" height="44" loading="lazy">

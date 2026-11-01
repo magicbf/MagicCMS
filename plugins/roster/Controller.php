@@ -12,7 +12,12 @@ final class Controller
         $squad = mb_substr((string) input('squad', ''), 0, 60);
         $squads = array_column(db()->all("SELECT squad, COUNT(*) n FROM {roster_members} WHERE is_active = 1 AND squad <> '' GROUP BY squad ORDER BY MIN(sort_order)"), 'squad');
         $w = 'is_active = 1' . ($squad !== '' ? ' AND squad = ?' : '');
-        $rows = array_map([Roster::class, 'decode'], db()->all("SELECT * FROM {roster_members} WHERE $w ORDER BY squad, sort_order, nickname", $squad !== '' ? [$squad] : []));
+        // squads appear in the order of their first member's sort position (so "Main roster" leads, not alphabetically)
+        $rows = array_map([Roster::class, 'decode'], db()->all(
+            "SELECT m.* FROM {roster_members} m JOIN (SELECT squad, MIN(sort_order) AS so FROM {roster_members} WHERE is_active = 1 GROUP BY squad) s ON s.squad = m.squad
+             WHERE m.is_active = 1" . ($squad !== '' ? ' AND m.squad = ?' : '') . ' ORDER BY s.so, m.squad, m.sort_order, m.nickname',
+            $squad !== '' ? [$squad] : []
+        ));
         $groups = [];
         foreach ($rows as $m) {
             $groups[$m['squad'] !== '' ? $m['squad'] : t('Team')][] = $m;

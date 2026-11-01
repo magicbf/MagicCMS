@@ -38,8 +38,10 @@
 | News + categories + generated covers + comments + RSS | ✅ | Admin → News – see [§13](#13-news--categories) |
 | Forum (category → subcategory → topics → posts) | ✅ | Own side-panel layout (none by default; admin can enable left/right/both), BBCode, per-subcategory read/post levels, sticky/announce/lock/move/delete, reports queue, search, unread tracking, ranks – see [§15](#15-forum). Attachments, polls, subscriptions/e-mail notifications, reactions: planned |
 | Versioned migrations + auto-upgrade | ✅ | `migrations/NNNN_*.sql` (+ optional `.php` seed); new code upgrades an older database automatically |
-| Roster / events / tournaments | ⏳ | planned |
-| Private messages, email verification, password reset | ⏳ | need a mail layer – planned |
+| E-mail layer (PHP mail / SMTP / log), **e-mail verification**, **password reset** | ✅ | Admin → Settings → E-mail – see [§8](#8-users-roles--permissions) |
+| **Private messages** (threads, groups, blocking, unread badge, notifications) | ✅ | see [§14](#14-built-in-panels--modules) |
+| **Roster plugin** (players, squads, photos, socials, stats, panel) | ✅ | `plugins/roster` |
+| **Events & tournaments plugin** (calendar, sign-ups, waitlist, .ics, brackets, panel) | ✅ | `plugins/events` |
 | Update/migration runner UI | ⏳ | planned |
 
 ---
@@ -288,7 +290,7 @@ Migrations live in `migrations/NNNN_description.sql` and are idempotent per vers
 
 **Rank rule (enforced server-side everywhere):** you may moderate content or manage accounts of users *at or below your own rank* (and your own). So Moderators cannot act on Administrators, and Administrators can never act on the Superadministrator.
 
-Default permission keys: Guest `chat.read` · Member `+ chat.post, forum.post, forum.report, news.comment` · Moderator `+ forum.moderate` · Administrator `+ admin.access, admin.settings, admin.appearance, admin.users, admin.panels, admin.navigation, admin.pages, admin.forum, admin.news, admin.hero, admin.matches, chat.moderate, news.moderate` · Superadministrator: all (implicit; also `admin.modules`).
+Default permission keys: Guest `chat.read` · Member `+ chat.post, forum.post, forum.report, news.comment, pm.send, events.signup` · Moderator `+ forum.moderate` · Administrator `+ admin.access, admin.settings, admin.appearance, admin.users, admin.panels, admin.navigation, admin.pages, admin.forum, admin.news, admin.hero, admin.matches, admin.roster, admin.events, chat.moderate, news.moderate` · Superadministrator: all (implicit; also `admin.modules`).
 
 - Roles carry **permissions**; permissions are checked via `can('forum.moderate')`.
 - Create **custom roles** (e.g. "Team Captain", "Coach") and assign any permission mix.
@@ -297,10 +299,21 @@ Default permission keys: Guest `chat.read` · Member `+ chat.post, forum.post, f
 ### Registration & login
 
 - Registration form: username, email, password (+ confirm), optional CAPTCHA/honeypot, ToS checkbox.
-- Optional **email verification** and **admin approval** modes.
+- Optional **e-mail verification** (Admin → Settings: members must click a link before they can log in) and **admin approval** modes — they can be combined.
 - **Passwords** are hashed with `password_hash()` using **Argon2id** (falls back to bcrypt cost 12); automatic rehash on login when parameters change. Plaintext is never stored or logged.
 - **Login** protections: per-IP + per-account rate limiting with progressive delay, generic error messages (no user enumeration), session ID regeneration on login, optional "remember me" via split-token cookies.
 - **Password reset** via single-use, hashed, expiring (60 min) tokens.
+
+---
+
+### E-mail: verification, password reset, notifications
+
+MagicCMS has a built-in mail layer (**Admin → Settings → E-mail**): **PHP `mail()`** (default, works on most hosts), a built-in **SMTP client** (STARTTLS, SSL or plain, AUTH LOGIN; the password is stored **encrypted** with your install secret) or a **log-only** mode (`cache/mail.log`) for development. A "send test e-mail" button checks your setup. Mails use a branded HTML template with a plain-text part.
+
+- **E-mail verification** (switch in Admin → Settings): new members get a 24 h link; login is refused until it is clicked ("resend" is available on the login page and rate-limited). Existing members are grandfathered as verified. Changing the e-mail address in the profile sends a confirmation to the *new* address and keeps the old one until it is confirmed. Admins can mark an address verified in Admin → Users.
+- **Password reset**: "Forgot your password?" on the login page. A single-use, **hashed**, 60-minute token is mailed; setting a new password signs out all remembered devices and also verifies the address. Responses are identical for known and unknown accounts (no account enumeration) and requests are rate-limited per IP.
+- **Notifications**: private-message notifications (opt-out in the profile) never contain the message text — only who wrote and a link.
+- Security: header-injection safe (CR/LF stripped), tokens never stored in clear, SMTP credentials encrypted at rest.
 
 ---
 
@@ -469,6 +482,23 @@ Deleting a category keeps its posts (they become uncategorised).
 | **Custom HTML** | Admin-defined sanitized HTML/Markdown block. |
 
 **Extra "essential" ideas included in the plan:** audit log, notifications centre, cookie/GDPR consent banner & data export/delete, RSS feeds, sitemap.xml, SEO meta/OpenGraph per page, maintenance mode, spam honeypot/Akismet-style hook, backup/export button, multilingual UI, dark/light accent toggle.
+
+---
+
+### Private messages
+
+Members write each other from the profile page or **✉ Messages** in the header (with an unread badge). Conversations have a subject and up to **5 participants**, BBCode (same editor as the forum), a live unread marker, per-user delete (a thread disappears for everybody when all participants deleted it, and resurfaces when someone replies), and **blocking**. Limits: 5 s between messages, 5,000 characters, 20 new conversations per hour. Administrators and moderators **cannot read** other people's messages. Permission: `pm.send` (members and up); recipients can opt out of e-mail notifications.
+
+### Roster plugin (`plugins/roster`)
+
+Public **Roster** page with player cards (4:5 rounded photo or coloured initials tile, **country flag**, role badge, social icons) grouped by **squad** with filter chips; detail page with bio, **stat tiles**, social links and a link to the member's site profile (+ "send message"); former members in a collapsible section. **Admin → Roster**: add/edit/reorder, photo upload (auto-cropped), up to 6 custom stats, 8 social links (URLs validated), link to a site account, active/former. Plus the **Our Squad** panel (off by default).
+
+### Events & tournaments plugin (`plugins/events`)
+
+- **Calendar** (month grid with colour-coded types), **upcoming / past lists**, detail pages with relative start time, **Add to calendar (.ics)** per event and a **subscribable feed** (`/events/feed.ics`; RFC 5545 escaping/folding, UTC times).
+- **Sign-ups** for members (*going / maybe / can't make it*) with optional **capacity** and automatic **waiting list** (the oldest waiting member is promoted when a place frees up, when capacity is raised or when an admin removes someone), optional deadline, closes automatically when the event is over.
+- **Tournament brackets**: single elimination for 2–32 entrants (typed in, shuffled, or taken from the "going" list), standard seeding with **byes**, scores per match, winners advance automatically, results entered later void dependent results, champion display. Rendered as a responsive bracket.
+- Types: event / tournament / training / stream; drafts; **Upcoming Events** panel. Admin → Events (admins). Permission `events.signup` for members.
 
 ---
 
@@ -709,8 +739,8 @@ Key settings:
 
 **v0.1 – Foundation:** setup wizard, DB layer, auth, roles, settings, router, theme engine, layout/panels, admin shell
 **v0.1 also:** menu builder, appearance (light/dark + colour schemes), hero module
-**v0.2 – Community:** ✅ profiles & avatars, ✅ forum, ✅ shoutbox, ✅ online users · ⏳ private messages
-**v0.3 – Esports:** ✅ matches + recent-matches panel · ⏳ roster, events, recruitment form
+**v0.2 – Community:** ✅ profiles & avatars, ✅ forum, ✅ shoutbox, ✅ online users, ✅ private messages
+**v0.3 – Esports:** ✅ matches + recent-matches panel, ✅ roster, ✅ events & tournaments · ⏳ recruitment form
 **v0.4 – Content:** ✅ news + categories + generated covers, ✅ hero, pages, gallery, downloads, polls, search
 **v0.5 – Polish:** notifications, audit log UI, SEO/RSS/sitemap, GDPR tools, i18n packs
 **v1.0 – Stable:** security review, docs, theme & plugin marketplace-ready manifests
