@@ -61,6 +61,9 @@ final class Controller
         }
         Settings::set('layout.mode', self::pick((string) input('layout_mode'), Layout::MODES, 'right'));
         Settings::set('layout.header', self::pick((string) input('layout_header'), array_keys(Layout::HEADERS), 'classic'));
+        Settings::set('layout.acct_shape', self::pick((string) input('layout_acct_shape'), array_keys(Layout::ACCT_SHAPES), 'buttons'));
+        Settings::set('layout.brand_align', self::pick((string) input('layout_brand_align'), array_keys(Layout::BRAND_ALIGN), 'left'));
+        Settings::set('layout.topbar_sticky', !empty($_POST['layout_topbar_sticky']));
         Settings::set('layout.rhythm', self::pick((string) input('layout_rhythm'), array_keys(Layout::RHYTHMS), 'even'));
         Settings::set('layout.mirror', !empty($_POST['layout_mirror']));
         Settings::set('auth.registration', self::pick((string) input('registration'), ['open', 'approval', 'closed'], 'open'));

@@ -381,6 +381,7 @@ One site setting rearranges the logo, menu and account area – and it works wit
 | `inline` | **Compact**: logo · menu · account in one slim, sticky bar |
 | `hanging` | **Hanging logo**: an oversized logo badge hangs off the left edge; the menu bar is offset to the right under a floating account cluster – deliberately asymmetric |
 | `float` | **Floating islands**: three detached glass islands (logo, menu, account) at different heights; the bar stays sticky while scrolling |
+| `topbar` | **Top bar**: a slim bar with the menu on the left and login/register on the right (max. 6 menu buttons, the rest collapse into a “More” dropdown); the logo sits below it with breathing room (left or centred). Options: sticky bar on/off, logo alignment |
 | `rail` | **Side rail** (≥ 1360 px): fixed vertical menu with the logo on top and the account area at the bottom; narrower screens fall back to the classic header |
 
 Two more switches: **Rhythm** (`layout.rhythm`: `even` / `stagger` – staggered offsets the sidebars, alternates panel insets and lifts every second stat tile, wide screens only) and **Mirror the side panels** (`layout.mirror`, swaps left ↔ right). All header styles collapse to a burger menu on phones. Themes can recommend a style with `"defaults": {"header": "hanging", "rhythm": "stagger"}` in `theme.json`.

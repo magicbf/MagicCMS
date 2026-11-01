@@ -252,6 +252,7 @@ form.inline{display:inline;margin:0}
 .hs-inline .lg{left:6px;top:6px;width:14px;height:12px}.hs-inline .mn{left:26px;right:46px;top:8px;height:8px}.hs-inline .ac{right:6px;top:8px;width:34px;height:8px}.hs-inline .bd{left:6px;right:6px;top:26px;height:46px}
 .hs-hanging .lg{left:6px;top:0;width:24px;height:34px;border-radius:0 0 6px 6px}.hs-hanging .ac{right:6px;top:5px;width:26px;height:7px}.hs-hanging .mn{left:40px;right:12px;top:18px;height:9px}.hs-hanging .bd{left:6px;right:6px;top:42px;height:30px}
 .hs-float .lg{left:6px;top:6px;width:22px;height:13px;border-radius:7px}.hs-float .mn{left:34px;right:40px;top:12px;height:12px;border-radius:7px}.hs-float .ac{right:6px;top:6px;width:28px;height:11px;border-radius:7px}.hs-float .bd{left:6px;right:6px;top:34px;height:38px}
+.hs-topbar .lg{left:6px;top:28px;width:22px;height:14px}.hs-topbar .mn{left:6px;right:46px;top:6px;height:8px}.hs-topbar .ac{right:6px;top:6px;width:34px;height:8px}.hs-topbar .bd{left:6px;right:6px;top:48px;height:24px}
 .hs-rail .lg{left:5px;top:6px;width:20px;height:14px}.hs-rail .mn{left:5px;top:26px;width:20px;height:34px}.hs-rail .ac{left:5px;bottom:5px;width:20px;height:8px}.hs-rail .bd{left:32px;right:6px;top:6px;bottom:6px}
 .hs-rhythm{display:flex;gap:12px;flex-wrap:wrap;margin:.4rem 0 1rem}
 
@@ -390,3 +391,41 @@ html[data-motion="off"] .footer-deco.deco-aurora,html[data-motion="off"] .fs-dot
 .hs-mini.fs-centered .a{left:50%;margin-left:-14px;top:8px;width:28px;height:16px}.hs-mini.fs-centered .b{left:20%;right:20%;top:32px;height:8px}.hs-mini.fs-centered .c{left:36%;right:36%;top:46px;height:10px;border-radius:6px}.hs-mini.fs-centered .d{left:6px;right:6px;bottom:6px;height:6px}
 .hs-mini.fs-minimal .a{left:6px;top:30px;width:20px;height:14px}.hs-mini.fs-minimal .b{left:34px;right:60px;top:34px;height:7px}.hs-mini.fs-minimal .c{right:6px;top:32px;width:44px;height:11px;border-radius:6px}.hs-mini.fs-minimal .d{display:none}
 .hs-mini.fs-poster .a{left:6px;top:8px;width:26%;height:12px}.hs-mini.fs-poster .b{left:38%;top:8px;width:16%;height:22px}.hs-mini.fs-poster .c{left:58%;top:8px;width:16%;height:22px}.hs-mini.fs-poster .d{left:6px;right:6px;bottom:2px;height:28px;background:none;border:2px solid color-mix(in srgb,var(--c-primary) 55%,transparent);border-radius:6px}
+
+/* --- Top bar header: slim bar (menu left, account right) + logo below -- */
+.hd-topbar{position:relative;z-index:60;background:color-mix(in srgb,var(--c-bg) 90%,#000);border-bottom:1px solid var(--c-border,rgba(255,255,255,.1))}
+.hd-topbar.is-sticky{position:sticky;top:0;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.hd-tb-row{display:flex;align-items:center;gap:16px;min-height:50px}
+.hd-tb-row .site-nav{flex:1;min-width:0}
+.hd-tb-row .site-nav:not(.nav-vertical) .nav-list{justify-content:flex-start}
+.hd-tb-row .site-nav:not(.nav-vertical) .nav-item{flex:none;max-width:none}
+.hd-tb-row .site-nav:not(.nav-vertical) .nav-list{flex-wrap:wrap;width:auto;max-width:100%}
+@media (min-width:900px){.hd-tb-row .site-nav{flex:0 0 auto;width:max-content}.hd-tb-row .site-nav:not(.nav-vertical) .nav-list{flex-wrap:nowrap;max-width:none;width:max-content}.hd-tb-row .hd-tb-row .site-nav:not(.nav-vertical) .nav-btn{white-space:nowrap}
+.hd-tb-row .site-nav{flex:0 1 auto;min-width:0}
+.hd-tb-row .site-nav:not(.nav-vertical) .nav-btn{padding-inline:12px;font-size:12.5px;min-height:38px}
+.hd-tb-row .header-actions{margin-left:auto;gap:.5rem;flex-shrink:0}
+.hd-tb-row .hu-text{display:none}
+.hd-tb-row .btn{min-height:34px;padding-block:4px;font-size:12.5px}
+.hd-tb-mini{display:flex!important;align-items:center}
+.hd-tb-mini img{height:26px;width:auto}
+.hd-tb-brand{overflow:visible}
+.hd-tb-brand{margin-bottom:clamp(20px,3vw,40px)}
+.hd-tb-brand .container{padding-block:clamp(22px,3vw,36px) 6px}
+.hd-tb-brand.align-center .brand{justify-content:center;margin-inline:auto}
+.hd-tb-row @media (max-width:1400px){
+/* --- Account area shapes (setting layout.acct_shape) ----------------- */
+.acct-pill .btn,.acct-pill .header-user,.acct-pill .icon-btn{border-radius:999px!important;clip-path:none!important}
+.acct-pill .btn::before,.acct-pill .btn::after{border-radius:999px!important}
+.acct-square .btn,.acct-square .header-user,.acct-square .icon-btn{border-radius:0!important;clip-path:none!important}
+.acct-links .btn,.acct-links .header-user,.acct-links .icon-btn{background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;clip-path:none!important;padding-inline:.9rem;text-transform:uppercase;letter-spacing:.05em;font-size:12.5px}
+.acct-links .btn::before,.acct-links .btn::after{display:none!important}
+.acct-links .btn-primary{color:var(--c-primary-hi,var(--c-primary))!important;font-weight:700}
+.acct-links .btn+.btn,.acct-links .btn+.header-user{border-left:1px solid var(--c-border,rgba(255,255,255,.18))!important}
+
+@media (max-width:899.98px){
+  .hd-tb-row{flex-wrap:wrap;justify-content:space-between;gap:8px;padding-block:6px}
+  .hd-tb-row .site-nav{order:3;flex-basis:100%}
+  .hd-tb-row .header-actions{margin:0}
+  .hd-tb-mini{display:none!important}
+  .hd-tb-brand .brand{margin-inline:auto}
+}

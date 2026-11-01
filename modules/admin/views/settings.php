@@ -34,6 +34,13 @@
     <div class="form-row"><label class="label"><?= e(t('Rhythm')) ?></label><select class="select" name="layout_rhythm"><?php foreach (MagicCMS\Core\Layout::RHYTHMS as $k => $l): ?><option value="<?= e($k) ?>" <?= MagicCMS\Core\Layout::rhythm() === $k ? 'selected' : '' ?>><?= e(t($l)) ?></option><?php endforeach ?></select><small class="help"><?= e(t('Staggered offsets the sidebars and gives the page a less rigid look (wide screens only).')) ?></small></div>
     <div class="form-row"><label class="label"><?= e(t('Sides')) ?></label><label class="checkbox"><input type="checkbox" name="layout_mirror" value="1" <?= setting('layout.mirror') ? 'checked' : '' ?>> <?= e(t('Mirror the side panels (left ↔ right)')) ?></label></div>
   </div>
+  <div class="form-grid">
+    <div class="form-row"><label class="label"><?= e(t('Login / account area shape')) ?></label><select class="select" name="layout_acct_shape"><?php foreach (MagicCMS\Core\Layout::ACCT_SHAPES as $k => $l): ?><option value="<?= e($k) ?>" <?= MagicCMS\Core\Layout::acctShape() === $k ? 'selected' : '' ?>><?= e(t($l)) ?></option><?php endforeach ?></select><small class="help"><?= e(t('Applies to the login, register and account buttons in every header style.')) ?></small></div>
+    <div class="form-row"><label class="label"><?= e(t('Top bar options')) ?></label>
+      <label class="checkbox"><input type="checkbox" name="layout_topbar_sticky" value="1" <?= setting('layout.topbar_sticky', true) ? 'checked' : '' ?>> <?= e(t('Keep the bar fixed to the top while scrolling')) ?></label>
+      <select class="select" name="layout_brand_align" aria-label="<?= e(t('Logo alignment')) ?>"><?php foreach (MagicCMS\Core\Layout::BRAND_ALIGN as $k => $l): ?><option value="<?= e($k) ?>" <?= MagicCMS\Core\Layout::brandAlign() === $k ? 'selected' : '' ?>><?= e(t('Logo: ' . $l)) ?></option><?php endforeach ?></select>
+      <small class="help"><?= e(t('These apply to the “Top bar” header style, which shows at most 6 menu buttons – any further items go into a “More” dropdown.')) ?></small></div>
+  </div>
   <p><button class="btn btn-primary"><?= e(t('Save settings')) ?></button></p>
 </div></form>
 

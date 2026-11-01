@@ -226,7 +226,7 @@ Each category-coloured element gets `style="--cat-color:#hex"` — use `var(--ca
 
 ### 4.1 Header styles – what themes must tolerate
 
-The site setting `layout.header` (classic / inline / hanging / float / rail, see README §9) changes the **markup around** the menu, brand and account area, not their inner markup. `<html>` carries `data-header` and `data-rhythm`. To stay compatible a theme should:
+The site setting `layout.header` (classic / inline / hanging / float / topbar / rail, see README §9) changes the **markup around** the menu, brand and account area, not their inner markup. `<html>` carries `data-header` and `data-rhythm`. To stay compatible a theme should:
 
 - style `.site-nav`, `.nav-btn`, `.brand`, `.header-actions`, `.header-user` independent of their wrapper (never assume `.site-navbar` is the parent – it only exists in `classic`);
 - not set `overflow:hidden` on `.site-header` with a specificity that beats `.site-header.hd-inline` / `.hd-hanging` / `.hd-float` (dropdown menus live inside the header in those styles) – core.css already overrides the common cases;
@@ -403,3 +403,5 @@ Zip the `themes/<slug>/` folder (the folder itself at the zip root). Admin → T
 | Styles not updating | Bump `version` in `theme.json` (used for cache-busting) or clear `cache/` |
 | Sidebar missing | Layout mode hides it (Admin → Settings → Layout) or the slot has no enabled panels |
 | Unstyled widget | Add missing selectors from §4 or inherit via `parent` |
+
+The login/account area has its own shape setting `layout.acct_shape` (buttons / pill / square / links), applied as `.acct-*` on `.header-actions` in every header style.

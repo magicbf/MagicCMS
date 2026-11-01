@@ -13,14 +13,30 @@ final class Layout
         'inline' => 'Compact – logo, menu and account in one slim bar',
         'hanging' => 'Hanging logo – oversized logo badge hangs off an offset menu bar',
         'float' => 'Floating islands – detached glass islands for logo, menu and account',
+        'topbar' => 'Top bar – slim bar with menu on the left and login/register on the right, logo below',
         'rail' => 'Side rail – fixed vertical menu with logo on top and account at the bottom',
     ];
+    /** Shape of the login / account area (setting layout.acct_shape). */
+    public const ACCT_SHAPES = ['buttons' => 'Buttons – the theme\'s normal buttons', 'pill' => 'Pills – fully rounded', 'square' => 'Square – sharp, flat edges', 'links' => 'Text links – minimal, separated by thin dividers'];
+    public const BRAND_ALIGN = ['left' => 'Left', 'center' => 'Centred'];
     public const RHYTHMS = ['even' => 'Even – everything aligned', 'stagger' => 'Staggered – offset sidebars, alternating insets, wide first tile'];
 
     public static function header(): string
     {
         $h = (string) setting('layout.header', 'classic');
         return isset(self::HEADERS[$h]) ? $h : 'classic';
+    }
+
+    public static function acctShape(): string
+    {
+        $v = (string) setting('layout.acct_shape', 'buttons');
+        return isset(self::ACCT_SHAPES[$v]) ? $v : 'buttons';
+    }
+
+    public static function brandAlign(): string
+    {
+        $v = (string) setting('layout.brand_align', 'left');
+        return isset(self::BRAND_ALIGN[$v]) ? $v : 'left';
     }
 
     public static function rhythm(): string

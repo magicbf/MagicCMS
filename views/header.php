@@ -8,7 +8,7 @@ $brandHtml = static function (string $extra = '') use ($custom, $showName): stri
     </a>
 <?php return (string) ob_get_clean(); };
 $actionsHtml = static function () use ($layout, $u): string { ob_start(); ?>
-    <div class="header-actions">
+    <div class="header-actions acct-<?= e(MagicCMS\Core\Layout::acctShape()) ?>">
       <?php if ($layout['left']): ?><button class="icon-btn drawer-toggle" data-drawer="left" aria-label="<?= e(t('Open left panels')) ?>" aria-controls="drawer-left">◧</button><?php endif ?>
       <?php if ($layout['right']): ?><button class="icon-btn drawer-toggle" data-drawer="right" aria-label="<?= e(t('Open right panels')) ?>" aria-controls="drawer-right">◨</button><?php endif ?>
       <?php if ($u): $nn = notif_unread(); ?><a class="icon-btn notif-link" href="<?= e(url('notifications')) ?>" aria-label="<?= e(t('Notifications')) ?><?= $nn ? ' (' . $nn . ')' : '' ?>" title="<?= e(t('Notifications')) ?>">🔔<?php if ($nn): ?><b class="pm-dot"><?= $nn > 9 ? '9+' : $nn ?></b><?php endif ?></a><?php endif ?>
@@ -49,6 +49,31 @@ switch ($style):
     <?= render('nav', ['items' => $navItems, 'class' => 'site-nav']) ?>
     <?= $actionsHtml() ?>
   </div>
+</header>
+<?php break;
+  case 'topbar':
+    $tbItems = $navItems;
+    if (count($tbItems) > 6) {   // the top bar shows at most 6 buttons; the rest move into a "More" dropdown
+        $keep = array_slice($tbItems, 0, 5);
+        $more = [];
+        foreach (array_slice($tbItems, 5) as $it) {
+            $kids = $it['children'];
+            $it['children'] = [];
+            $more[] = $it;
+            foreach ($kids as $k) { $more[] = $k; }
+        }
+        $keep[] = ['label' => t('More'), 'url' => '#', 'icon' => '⋯', 'badge' => '', 'color' => '', 'new_tab' => false, 'hideMobile' => false,
+                   'active' => (bool) array_filter($more, static fn($m) => !empty($m['active'])), 'children' => $more];
+        $tbItems = $keep;
+    } ?>
+<div class="hd-topbar<?= setting('layout.topbar_sticky', true) ? ' is-sticky' : '' ?>" id="top">
+  <div class="container hd-tb-row">
+    <?= render('nav', ['items' => $tbItems, 'class' => 'site-nav']) ?>
+    <?= $actionsHtml() ?>
+  </div>
+</div>
+<header class="site-header hd-tb-brand align-<?= e(MagicCMS\Core\Layout::brandAlign()) ?>">
+  <div class="container"><?= $brandHtml() ?></div>
 </header>
 <?php break;
   case 'hanging': ?>
