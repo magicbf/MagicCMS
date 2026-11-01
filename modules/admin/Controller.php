@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace MagicCMS\Modules\Admin;
 
-use MagicCMS\Core\{Appearance, Auth, Layout, Nav, Panels, Sanitizer, Settings, Uploads, View};
+use MagicCMS\Core\{Appearance, Auth, Layout, Mailer, Nav, Panels, Sanitizer, Settings, Uploads, View};
 
 final class Controller
 {
@@ -63,11 +63,51 @@ final class Controller
         Settings::set('auth.registration', self::pick((string) input('registration'), ['open', 'approval', 'closed'], 'open'));
         Settings::set('upload.avatar_max_mb', max(1, min(5, (int) input('avatar_mb', 5))));
         Settings::set('online.window_min', max(1, min(60, (int) input('online_min', 5))));
+        Settings::set('auth.email_verify', !empty($_POST['email_verify']));
         Settings::set('site.maintenance', !empty($_POST['maintenance']));
         Settings::set('site.logo_show_name', !empty($_POST['logo_show_name']));
         audit('settings.save');
         flash('success', t('Settings saved.'));
         $this->back('/admin/settings');
+    }
+
+    public function mailSave(): void
+    {
+        Settings::set('mail.driver', self::pick((string) input('driver'), ['mail', 'smtp', 'log'], 'mail'));
+        Settings::set('mail.from_name', mb_substr((string) input('from_name'), 0, 80));
+        $fe = (string) input('from_email');
+        Settings::set('mail.from_email', filter_var($fe, FILTER_VALIDATE_EMAIL) ? $fe : '');
+        Settings::set('mail.smtp_host', mb_substr((string) input('smtp_host'), 0, 190));
+        Settings::set('mail.smtp_port', max(1, min(65535, (int) input('smtp_port', 587))));
+        Settings::set('mail.smtp_secure', self::pick((string) input('smtp_secure'), ['none', 'tls', 'ssl'], 'tls'));
+        Settings::set('mail.smtp_user', mb_substr((string) input('smtp_user'), 0, 190));
+        if ((string) ($_POST['smtp_pass'] ?? '') !== '') { // blank = keep the stored (encrypted) password
+            Settings::set('mail.smtp_pass', Mailer::encrypt((string) $_POST['smtp_pass']));
+        } elseif (!empty($_POST['smtp_pass_clear'])) {
+            Settings::set('mail.smtp_pass', '');
+        }
+        audit('mail.settings', (string) setting('mail.driver'));
+        flash('success', t('E-mail settings saved.'));
+        $this->back('/admin/settings');
+    }
+
+    public function mailTest(): void
+    {
+        $to = (string) user()['email'];
+        $ok = Mailer::send($to, t('MagicCMS test e-mail'), Mailer::template(t('It works!'), '<p>' . e(t('This is a test message from your MagicCMS installation.')) . '</p>'));
+        flash($ok ? 'success' : 'danger', $ok ? t('Test e-mail sent to {to} (driver: {d}).', ['to' => $to, 'd' => (string) setting('mail.driver')]) : t('Sending failed: {e}', ['e' => Mailer::$error]));
+        $this->back('/admin/settings');
+    }
+
+    public function userVerify(array $p): void
+    {
+        $t = db()->one('SELECT u.id, u.username, u.role_id, r.level AS role_level FROM {users} u JOIN {roles} r ON r.id = u.role_id WHERE u.id = ?', [(int) $p['id']]);
+        if ($t && Auth::canManage($t)) {
+            db()->exec('UPDATE {users} SET email_verified_at = COALESCE(email_verified_at, ?) WHERE id = ?', [now(), $t['id']]);
+            audit('user.verify', $t['username']);
+            flash('success', t('E-mail marked as verified.'));
+        }
+        $this->back('/admin/users');
     }
 
     public function logoUpload(): void
@@ -143,7 +183,7 @@ final class Controller
         $pages = max(1, (int) ceil($total / $per));
         $page = max(1, min($pages, (int) input('page', 1)));
         $rows = db()->all(
-            "SELECT u.id, u.username, u.email, u.status, u.created_at, u.last_login, u.role_id, r.slug AS role_slug, r.name AS role_name, r.level AS role_level
+            "SELECT u.id, u.username, u.email, u.status, u.email_verified_at, u.created_at, u.last_login, u.role_id, r.slug AS role_slug, r.name AS role_name, r.level AS role_level
              FROM {users} u JOIN {roles} r ON r.id = u.role_id $where ORDER BY r.level DESC, u.username LIMIT $per OFFSET " . (($page - 1) * $per),
             $args
         );

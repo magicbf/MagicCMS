@@ -8,6 +8,8 @@ final class Auth
 {
     private static ?array $user = null;
     private static ?array $perms = null;
+    /** Set when a correct password was refused only because the e-mail address is not verified yet. */
+    public static bool $needsVerify = false;
 
     private const USER_SQL = 'SELECT u.*, r.slug AS role_slug, r.name AS role_name, r.level AS role_level
                               FROM {users} u JOIN {roles} r ON r.id = u.role_id WHERE u.id = ?';
@@ -76,7 +78,8 @@ final class Auth
             return t('Too many failed attempts. Please wait 15 minutes.');
         }
 
-        $u = db()->one('SELECT id, password_hash, status FROM {users} WHERE username = ? OR email = ? LIMIT 1', [$login, $login]);
+        self::$needsVerify = false;
+        $u = db()->one('SELECT id, password_hash, status, email_verified_at FROM {users} WHERE username = ? OR email = ? LIMIT 1', [$login, $login]);
         // Always run a hash verification so timing does not reveal whether the account exists.
         $hash = $u['password_hash'] ?? '$2y$12$usesomesillystringforsaltuOq6l0n1j2m7pQ1cH5oGk8p9s7w6e';
         $ok = password_verify($password, $hash);
@@ -84,6 +87,10 @@ final class Auth
         if (!$u || !$ok) {
             db()->exec('INSERT INTO {login_attempts} (ip_hash, login, created_at) VALUES (?,?,?)', [$ip, mb_strtolower($login), now()]);
             return t('Invalid username or password.');
+        }
+        if (setting('auth.email_verify') && empty($u['email_verified_at']) && $u['status'] !== 'banned') {
+            self::$needsVerify = true;
+            return t('Please verify your e-mail address first. We sent you a link when you registered.');
         }
         if ($u['status'] === 'pending') {
             return t('Your account is awaiting approval.');

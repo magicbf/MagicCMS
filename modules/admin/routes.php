@@ -12,11 +12,15 @@ return function (Router $r): void {
     $r->post('/admin/settings/logo', [$c, 'logoUpload'], ['perm' => 'admin.settings']);
     $r->post('/admin/settings/logo/reset', [$c, 'logoReset'], ['perm' => 'admin.settings']);
 
+    $r->post('/admin/settings/mail', [$c, 'mailSave'], ['perm' => 'admin.settings']);
+    $r->post('/admin/settings/mail/test', [$c, 'mailTest'], ['perm' => 'admin.settings']);
+
     $r->get('/admin/appearance', [$c, 'appearance'], ['perm' => 'admin.appearance', 'layout' => 'none']);
     $r->post('/admin/appearance', [$c, 'appearanceSave'], ['perm' => 'admin.appearance']);
 
     $r->get('/admin/users', [$c, 'users'], ['perm' => 'admin.users', 'layout' => 'none']);
     $r->post('/admin/users/{id:\d+}', [$c, 'userSave'], ['perm' => 'admin.users']);
+    $r->post('/admin/users/{id:\d+}/verify', [$c, 'userVerify'], ['perm' => 'admin.users']);
 
     $r->get('/admin/panels', [$c, 'panels'], ['perm' => 'admin.panels', 'layout' => 'none']);
     $r->post('/admin/panels/add', [$c, 'panelAdd'], ['perm' => 'admin.panels']);

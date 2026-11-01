@@ -30,10 +30,22 @@ final class Controller
         }
         $tz = in_array($tz, \DateTimeZone::listIdentifiers(), true) ? $tz : null;
         $mode = in_array($mode, ['dark', 'light', 'auto'], true) ? $mode : null;
+        $newEmail = null;
+        if (strcasecmp($email, (string) $u['email']) !== 0) {
+            if (setting('auth.email_verify')) { // keep the old address until the new one is confirmed
+                $newEmail = $email;
+                $email = (string) $u['email'];
+            }
+        }
         db()->exec(
-            'UPDATE {users} SET email = ?, bio = ?, signature = ?, timezone = ?, theme_mode = ? WHERE id = ?',
-            [$email, $bio, $sig, $tz, $mode, $u['id']]
+            'UPDATE {users} SET email = ?, bio = ?, signature = ?, timezone = ?, theme_mode = ?, notify_pm = ? WHERE id = ?',
+            [$email, $bio, $sig, $tz, $mode, empty($_POST['notify_pm']) ? 0 : 1, $u['id']]
         );
+        if ($newEmail !== null) {
+            \MagicCMS\Modules\Auth\Controller::sendVerification((int) $u['id'], (string) $u['username'], (string) $u['email'], 'email_change', $newEmail);
+            flash('info', t('We sent a confirmation link to {email}. Your address changes once you click it.', ['email' => $newEmail]));
+            redirect('/profile');
+        }
         flash('success', t('Profile saved.'));
         redirect('/profile');
     }

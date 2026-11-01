@@ -16,6 +16,8 @@
     <div class="form-row"><label class="label"><?= e(t('Max avatar size (MB, 1–5)')) ?></label><input class="input" type="number" min="1" max="5" name="avatar_mb" value="<?= (int) setting('upload.avatar_max_mb', 5) ?>"></div>
   </div>
   <div class="form-row"><label class="label"><?= e(t('"Online" window (minutes)')) ?></label><input class="input" type="number" min="1" max="60" name="online_min" value="<?= (int) setting('online.window_min', 5) ?>"></div>
+  <label class="checkbox"><input type="checkbox" name="email_verify" value="1" <?= setting('auth.email_verify') ? 'checked' : '' ?>> <?= e(t('Require e-mail verification before members can log in')) ?></label>
+  <?php $unv = (int) db()->val('SELECT COUNT(*) FROM {users} WHERE email_verified_at IS NULL'); if ($unv): ?><small class="help"><?= e(t('{n} existing account(s) are unverified and would have to confirm their address first (you can mark them verified in Admin → Users).', ['n' => $unv])) ?></small><?php endif ?>
   <label class="checkbox"><input type="checkbox" name="logo_show_name" value="1" <?= setting('site.logo_show_name', true) ? 'checked' : '' ?>> <?= e(t('Show the site name next to a custom logo')) ?></label>
   <label class="checkbox"><input type="checkbox" name="maintenance" value="1" <?= setting('site.maintenance') ? 'checked' : '' ?>> <?= e(t('Maintenance mode (only staff can see the site)')) ?></label>
   <p><button class="btn btn-primary"><?= e(t('Save settings')) ?></button></p>
@@ -31,3 +33,23 @@
   </form>
   <?php if (has_custom_logo()): ?><form method="post" action="<?= e(url('admin/settings/logo/reset')) ?>" class="mt"><?= csrf_field() ?><button class="btn btn-ghost btn-sm" data-confirm="<?= e(t('Restore the default logo?')) ?>"><?= e(t('Restore default logo')) ?></button></form><?php endif ?>
 </div></div>
+
+<?php $mc = MagicCMS\Core\Mailer::config(); ?>
+<div class="card"><h2 class="card-title"><?= e(t('E-mail')) ?></h2>
+<form class="card-body" method="post" action="<?= e(url('admin/settings/mail')) ?>" autocomplete="off"><?= csrf_field() ?>
+  <p class="muted"><?= e(t('Used for e-mail verification, password reset and private-message notifications.')) ?> <?php if ($mc['driver'] === 'log'): ?><strong class="role-admin"><?= e(t('Log mode: messages are only written to cache/mail.log, nothing is delivered.')) ?></strong><?php endif ?></p>
+  <div class="form-grid">
+    <div class="form-row"><label class="label"><?= e(t('Delivery')) ?></label><select class="select" name="driver"><?php foreach (['mail' => 'PHP mail() – simplest', 'smtp' => 'SMTP server – most reliable', 'log' => 'Log only (testing)'] as $k => $l): ?><option value="<?= $k ?>" <?= $mc['driver'] === $k ? 'selected' : '' ?>><?= e(t($l)) ?></option><?php endforeach ?></select></div>
+    <div class="form-row"><label class="label"><?= e(t('From name')) ?></label><input class="input" name="from_name" maxlength="80" value="<?= e($mc['from_name']) ?>"></div>
+    <div class="form-row"><label class="label"><?= e(t('From address')) ?></label><input class="input" type="email" name="from_email" maxlength="190" value="<?= e($mc['from_email']) ?>" placeholder="<?= e(MagicCMS\Core\Mailer::fromEmail()) ?>"></div>
+  </div>
+  <details <?= $mc['driver'] === 'smtp' ? 'open' : '' ?>><summary class="muted"><?= e(t('SMTP settings')) ?></summary><div class="form-grid mt">
+    <div class="form-row"><label class="label"><?= e(t('Host')) ?></label><input class="input" name="smtp_host" maxlength="190" value="<?= e($mc['host']) ?>" placeholder="smtp.example.com"></div>
+    <div class="form-row"><label class="label"><?= e(t('Port')) ?></label><input class="input" type="number" name="smtp_port" value="<?= (int) $mc['port'] ?>"></div>
+    <div class="form-row"><label class="label"><?= e(t('Encryption')) ?></label><select class="select" name="smtp_secure"><?php foreach (['tls' => 'STARTTLS (587)', 'ssl' => 'SSL/TLS (465)', 'none' => 'None (25)'] as $k => $l): ?><option value="<?= $k ?>" <?= $mc['secure'] === $k ? 'selected' : '' ?>><?= e($l) ?></option><?php endforeach ?></select></div>
+    <div class="form-row"><label class="label"><?= e(t('Username')) ?></label><input class="input" name="smtp_user" maxlength="190" value="<?= e($mc['user']) ?>" autocomplete="off"></div>
+    <div class="form-row"><label class="label"><?= e(t('Password')) ?></label><input class="input" type="password" name="smtp_pass" autocomplete="new-password" placeholder="<?= $mc['pass'] !== '' ? '•••••••• (' . e(t('stored encrypted – leave empty to keep')) . ')' : '' ?>"></div>
+  </div></details>
+  <p class="mt"><button class="btn btn-primary"><?= e(t('Save e-mail settings')) ?></button>
+  <button class="btn btn-ghost" formaction="<?= e(url('admin/settings/mail/test')) ?>"><?= e(t('Send a test e-mail to me')) ?></button></p>
+</form></div>

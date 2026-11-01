@@ -4,7 +4,7 @@ $me = user(); ?>
 <div class="card"><h2 class="card-title"><?= e(t('Users')) ?> <small>(<?= (int) $total ?>)</small></h2><div class="card-body table-wrap">
 <table class="table"><thead><tr><th><?= e(t('User')) ?></th><th><?= e(t('Email')) ?></th><th><?= e(t('Role')) ?></th><th><?= e(t('Status')) ?></th><th><?= e(t('Last login')) ?></th><th></th></tr></thead><tbody>
 <?php foreach ($rows as $r): $can = MagicCMS\Core\Auth::canManage($r); ?>
-<tr><td><a href="<?= e(url('user/' . $r['username'])) ?>" class="role-<?= e($r['role_slug']) ?>"><?= e($r['username']) ?></a></td><td><?= e($r['email']) ?></td>
+<tr><td><a href="<?= e(url('user/' . $r['username'])) ?>" class="role-<?= e($r['role_slug']) ?>"><?= e($r['username']) ?></a></td><td><?= e($r['email']) ?> <?php if (empty($r['email_verified_at'])): ?><span class="badge" title="<?= e(t('E-mail not verified')) ?>">!</span><?php if ($can): ?><form class="inline" method="post" action="<?= e(url('admin/users/' . (int) $r['id'] . '/verify')) ?>"><?= csrf_field() ?><button class="btn btn-sm btn-ghost"><?= e(t('Verify')) ?></button></form><?php endif ?><?php endif ?></td>
 <?php if ($can): ?>
   <td colspan="3"><form class="inline-form" method="post" action="<?= e(url('admin/users/' . (int) $r['id'])) ?>"><?= csrf_field() ?>
     <select class="select" name="role_id" aria-label="Role"><?php foreach ($roles as $ro): ?><option value="<?= (int) $ro['id'] ?>" <?= (int) $ro['id'] === (int) $r['role_id'] ? 'selected' : '' ?>><?= e($ro['name']) ?></option><?php endforeach ?></select>
