@@ -211,3 +211,6 @@ html{background:radial-gradient(900px 560px at 18% 6%,rgba(126,184,218,.10),tran
 .f-social{border-radius:0;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);width:40px;height:40px}
 @media (max-width:640px){.card-title,.panel-title{font-size:15px;min-height:44px;clip-path:polygon(0 0,100% 0,calc(100% - 18px) 100%,0 100%)}.stat-tile strong{font-size:38px}}
 @media (prefers-reduced-motion:reduce){.fx-a,.fx-b,.fx-c,.fx-grid{animation:none}}
+
+/* top bar header: the mode toggle matches the cut-corner login buttons */
+html body .hd-tb-row .header-actions .icon-btn{border-radius:0;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
