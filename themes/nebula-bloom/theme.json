@@ -1,0 +1,13 @@
+{
+  "name": "Nebula Bloom",
+  "slug": "nebula-bloom",
+  "version": "1.0.0",
+  "author": "MagicCMS",
+  "description": "Ultraviolet glass with magenta and electric-blue light: thin Outfit type, drifting orbs and stardust, and round capsule title bars with an aurora ring that ignite one after another at page load. Dark and light variants. Builds on Magic Red.",
+  "requires": "0.1",
+  "parent": "magic-red",
+  "stylesheets": ["tokens.css", "theme.css"],
+  "scripts": [],
+  "defaults": { "scheme": "nebula", "radius": 24, "mode": "dark" },
+  "supports": { "darkLight": true, "panels": ["left", "right"] }
+}

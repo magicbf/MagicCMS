@@ -44,7 +44,7 @@
 | **Events & tournaments plugin** (calendar, sign-ups, waitlist, .ics, brackets, panel) | ✅ | `plugins/events` |
 | **Notifications centre** (bell, merged entries, read/clear) + **forum subscriptions** (follow topics/subcategories, auto-follow, signed one-click unsubscribe) | ✅ | see [§14](#14-built-in-panels--modules), [§15](#15-forum) |
 | **Recruitment plugin** (application form, positions, custom questions, status tracking, notes, applicant notifications) | ✅ | `plugins/recruit` |
-| **Bundled themes**: Magic Red (default), **Hazard Protocol** (terminal / hazard-yellow) **Aurora Glass** (bright frosted glass, light by default) and **Mint Facet** (sharp chamfered mint on graphite) – each with light + dark variants and an auto-applied colour scheme | ✅ | `themes/`, see [THEMING](docs/THEMING.md) |
+| **Bundled themes**: Magic Red (default), **Hazard Protocol** (terminal / hazard-yellow) **Aurora Glass** (bright frosted glass, light by default) **Mint Facet** (sharp chamfered mint on graphite) and **Nebula Bloom** (ultraviolet-magenta-blue glass with thin type and round capsule title bars) – each with light + dark variants and an auto-applied colour scheme | ✅ | `themes/`, see [THEMING](docs/THEMING.md) |
 | **Backups & safe updates** (db / full backups, restore, automatic + cron, validated update packages, automatic rollback, CLI tools) | ✅ | see [§4.5](#45-updating--backups) |
 | **Footer builder** (5 styles, own link columns, social buttons, scrolling ticker, live strip, giant wordmark, top decoration, panels in footer columns) and **logo-only header** option | ✅ | Admin → Footer, Admin → Settings |
 | **Partners strip** (full-width panel above the footer, logos scroll right → left, hideable in Admin → Panels) | ✅ | Admin → Partners |
@@ -227,7 +227,8 @@ MagicCMS/
 │   ├── magic-red/            # default theme: theme.json  tokens.css  theme.css  [templates/]
 │   ├── hazard-protocol/      # terminal / hazard-yellow theme (child of magic-red)
 │   ├── aurora-glass/         # bright frosted-glass theme, light by default (child of magic-red)
-│   └── mint-facet/           # sharp chamfered mint-on-graphite theme (child of magic-red)
+│   ├── mint-facet/           # sharp chamfered mint-on-graphite theme (child of magic-red)
+│   └── nebula-bloom/         # ultraviolet / magenta / blue glass, thin type, capsule title bars (child of magic-red)
 ├── views/                    # core templates: layout, header, nav, footer, panel, pagination, 404 …
 ├── assets/                   # core.css (structure), core.js, admin.js, logo.svg, logo-mark.svg
 ├── lang/                     # en.php (source language), add de.php, fr.php …

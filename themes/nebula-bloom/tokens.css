@@ -1,0 +1,40 @@
+/* Nebula Bloom – tokens (overrides Magic Red). Void-indigo ground, ultraviolet glass, magenta + electric-blue light. */
+:root {
+  --c-primary:#7b4dff; --c-primary-hi:#ff2fb9; --c-primary-lo:#3b1c9e; --c-accent:#3aa0ff;
+  --c-text-on-primary:#ffffff; --c-on-bar:#ffffff;
+
+  --c-bg:#0b0618; --c-bg-2:#120a28; --c-surface:#170b33; --c-surface-2:#21104a; --c-border:#2f1b63;
+  --glass:linear-gradient(160deg,rgba(60,32,120,.46) 0%,rgba(20,9,48,.58) 100%);
+  --glass-border:rgba(190,150,255,.20); --glass-hl:rgba(255,235,255,.12);
+  --field-bg:rgba(16,8,40,.62); --field-border:rgba(190,150,255,.26);
+  --pill-bg:rgba(40,20,90,.55);
+  --btn-bg:#170b33; --btn-fg:#f4eeff; --btn-border:rgba(190,150,255,.28);
+
+  --c-text:#f4eeff; --c-text-dim:#cbbfe8; --c-text-faint:#a597c8;
+  --c-success:#4be0b0; --c-warning:#ffc15a; --c-danger:#ff6b8a; --c-info:#6fc2ff;
+
+  --nb-blue:#3aa0ff; --nb-violet:#7b4dff; --nb-pink:#ff2fb9; --nb-orchid:#c58bff;
+  --g-primary:linear-gradient(110deg,var(--nb-blue) 0%,var(--nb-violet) 48%,var(--nb-pink) 100%);
+  --g-titlebar:none;
+  --nb-aurora:conic-gradient(from var(--nb-a,0deg),#3aa0ff,#7b4dff,#ff2fb9,#c58bff,#3aa0ff);
+  --nb-glow:0 0 0 1px rgba(190,150,255,.14),0 24px 60px -24px rgba(123,77,255,.55),0 10px 30px -18px rgba(255,47,185,.35);
+  --shadow:var(--nb-glow);
+
+  --radius-sm:12px; --radius:22px; --radius-lg:34px;
+  --font-body:"Outfit",system-ui,"Segoe UI",Roboto,sans-serif;
+  --font-display:"Outfit",system-ui,sans-serif;
+  --fs-base:15.5px; --lh:1.65;
+}
+:root[data-theme="light"] {
+  --c-bg:#f6f0ff; --c-bg-2:#fbf8ff; --c-surface:#ffffff; --c-surface-2:#efe6ff; --c-border:#ddd0fb;
+  --glass:linear-gradient(160deg,rgba(255,255,255,.88) 0%,rgba(240,229,255,.66) 100%);
+  --glass-border:rgba(123,77,255,.22); --glass-hl:#ffffff;
+  --field-bg:rgba(255,255,255,.9); --field-border:rgba(123,77,255,.28);
+  --pill-bg:rgba(255,255,255,.82);
+  --btn-bg:#ffffff; --btn-fg:#24123f; --btn-border:rgba(123,77,255,.28);
+  --c-text:#24123f; --c-text-dim:#5a4680; --c-text-faint:#7c6aa3;
+  --c-success:#0e8f68; --c-warning:#a36100; --c-danger:#c4264d; --c-info:#1a6fc4;
+  --c-accent:#1d7fe0; --nb-blue:#2d8cf0; --nb-violet:#6a3df0; --nb-pink:#e01fa6;
+  --nb-glow:0 0 0 1px rgba(123,77,255,.14),0 24px 56px -26px rgba(123,77,255,.45),0 10px 26px -18px rgba(224,31,166,.3);
+  --shadow:var(--nb-glow);
+}

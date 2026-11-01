@@ -1,0 +1,185 @@
+/* Nebula Bloom – child of Magic Red. Overrides the look only; layout, panels and modules come from the parent. */
+@font-face{font-family:"Outfit";src:url("fonts/outfit-latin-wght-normal.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+@property --nb-a{syntax:"<angle>";inherits:false;initial-value:0deg}
+
+:root{
+  --nb-dust:radial-gradient(1px 1px at 12% 22%,rgba(255,255,255,.6),transparent),radial-gradient(1px 1px at 68% 14%,rgba(255,255,255,.42),transparent),radial-gradient(1.6px 1.6px at 84% 62%,rgba(255,190,240,.55),transparent),radial-gradient(1px 1px at 30% 80%,rgba(160,205,255,.55),transparent),radial-gradient(1px 1px at 52% 46%,rgba(255,255,255,.32),transparent),radial-gradient(1.4px 1.4px at 92% 12%,rgba(200,170,255,.6),transparent);
+  --nb-ring-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+}
+:root[data-theme="light"]{
+  --nb-dust:radial-gradient(1px 1px at 12% 22%,rgba(123,77,255,.35),transparent),radial-gradient(1px 1px at 68% 14%,rgba(224,31,166,.28),transparent),radial-gradient(1.6px 1.6px at 84% 62%,rgba(224,31,166,.3),transparent),radial-gradient(1px 1px at 30% 80%,rgba(45,140,240,.35),transparent),radial-gradient(1px 1px at 52% 46%,rgba(123,77,255,.25),transparent);
+}
+
+/* ---------- type: thin Outfit ---------- */
+body.mcms{font-weight:300;letter-spacing:.006em}
+b,strong{font-weight:500}
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:200;letter-spacing:-.01em;text-transform:none}
+.page-title{font:200 clamp(2.3rem,4.4vw,3.4rem)/1.04 var(--font-display);letter-spacing:-.02em}
+.admin-title{font:200 2.5rem/1.05 var(--font-display);letter-spacing:-.02em}
+.section-title{font:300 1.35rem var(--font-display);text-transform:none;letter-spacing:0}
+.article-title{font:200 clamp(2.2rem,5vw,3.6rem)/1.02 var(--font-display);letter-spacing:-.02em}
+.eyebrow{font-size:13px;font-weight:300;letter-spacing:.14em;text-transform:none;color:var(--nb-orchid)}
+:root[data-theme="light"] .eyebrow{color:var(--nb-violet)}
+.muted,small,.help{font-weight:300}
+a{color:var(--nb-orchid)}
+:root[data-theme="light"] a{color:var(--nb-violet)}
+:where(a):hover{color:var(--nb-pink)}
+::selection{background:var(--nb-pink);color:#fff}
+:focus-visible{outline:2px solid var(--nb-orchid);outline-offset:3px;border-radius:14px}
+
+/* ---------- background: drifting orbs + stardust ---------- */
+.fx-a{top:-340px;left:32%;width:1050px;height:820px;background:radial-gradient(circle,var(--nb-violet) 0%,transparent 66%);opacity:.5}
+.fx-b{top:380px;left:-340px;width:860px;height:860px;background:radial-gradient(circle,var(--nb-pink) 0%,transparent 66%);opacity:.26}
+.fx-c{bottom:-380px;right:-260px;width:980px;height:980px;background:radial-gradient(circle,var(--nb-blue) 0%,transparent 66%);opacity:.32}
+.fx-grid{inset:0;background:radial-gradient(circle,rgba(210,180,255,.28) 1px,transparent 1.6px) 0 0/46px 46px;-webkit-mask-image:radial-gradient(ellipse 75% 60% at 55% 0%,#000 0%,transparent 76%);mask-image:radial-gradient(ellipse 75% 60% at 55% 0%,#000 0%,transparent 76%)}
+:root[data-theme="light"] .fx-a{opacity:.38}:root[data-theme="light"] .fx-b{opacity:.2}:root[data-theme="light"] .fx-c{opacity:.26}
+:root[data-theme="light"] .fx-grid{background:radial-gradient(circle,rgba(123,77,255,.28) 1px,transparent 1.6px) 0 0/46px 46px}
+
+/* ---------- header ---------- */
+.site-header::before{background:radial-gradient(circle,color-mix(in srgb,var(--nb-violet) 55%,transparent),transparent 66%)}
+.site-header::after{height:1px;background:linear-gradient(90deg,transparent 3%,var(--nb-blue),var(--nb-violet) 45%,var(--nb-pink) 75%,transparent 97%);opacity:.8}
+.brand-mark{border-radius:26px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 12px 36px -8px rgba(255,47,185,.6),0 0 0 1px rgba(190,150,255,.3)}
+.brand-logo{filter:drop-shadow(0 8px 22px rgba(123,77,255,.5))}
+.brand-name,.brand-xl .brand-name{font:200 clamp(28px,3.4vw,42px)/1 var(--font-display);letter-spacing:.005em;text-transform:none;
+  background:linear-gradient(100deg,#fff 10%,var(--nb-orchid) 58%,var(--nb-pink));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;filter:drop-shadow(0 0 18px rgba(255,47,185,.3))}
+:root[data-theme="light"] .brand-name,:root[data-theme="light"] .brand-xl .brand-name{background-image:linear-gradient(100deg,#24123f 10%,var(--nb-violet) 58%,var(--nb-pink));filter:none}
+.brand-sub{font:300 12.5px var(--font-body);letter-spacing:.16em;text-transform:none;color:var(--nb-orchid)}
+:root[data-theme="light"] .brand-sub{color:var(--nb-violet)}
+.header-user{border-radius:999px;border-color:var(--glass-border)}
+
+/* ---------- navigation: capsule with an aurora ring ---------- */
+.site-nav:not(.nav-vertical) .nav-list{position:relative;border:0;border-radius:999px;padding:6px;gap:2px;background:var(--glass);box-shadow:var(--nb-glow),inset 0 1px 0 var(--glass-hl);-webkit-backdrop-filter:blur(20px) saturate(1.6);backdrop-filter:blur(20px) saturate(1.6)}
+.site-nav:not(.nav-vertical) .nav-list::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:var(--nb-aurora);-webkit-mask:var(--nb-ring-mask);-webkit-mask-composite:xor;mask:var(--nb-ring-mask);mask-composite:exclude;opacity:.5;pointer-events:none}
+.nav-btn{--fill:var(--g-primary);--fill-color:#fff;--fill-shadow:0 10px 28px -8px rgba(255,47,185,.65),inset 0 1px 0 rgba(255,255,255,.45);font:300 15.5px var(--font-body);letter-spacing:.02em;text-transform:none;color:var(--c-text-dim);border-radius:999px}
+.nav-btn:hover{color:var(--c-text);background:color-mix(in srgb,var(--nb-violet) 20%,transparent)}
+:is(.nav-item.is-active>.nav-btn,.nav-btn.is-active){font-weight:400;background-size:160% 100%}
+.nav-sub li{border-radius:26px;background:var(--glass);border-color:var(--glass-border);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.nav-burger{border-radius:50%}
+
+/* ---------- glass slabs: stardust, soft coloured light, one sharp corner ---------- */
+.card,.panel,.stat-tile{position:relative;isolation:isolate;border:0;
+  border-radius:var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-sm);
+  background:var(--nb-dust),var(--glass);
+  -webkit-backdrop-filter:blur(22px) saturate(1.6);backdrop-filter:blur(22px) saturate(1.6);
+  box-shadow:var(--nb-glow),inset 0 1px 0 var(--glass-hl)}
+.card::before,.panel::before,.stat-tile::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(70% 55% at 100% 100%,color-mix(in srgb,var(--nb-pink) 15%,transparent),transparent 70%),radial-gradient(60% 45% at 0 0,color-mix(in srgb,var(--nb-blue) 13%,transparent),transparent 70%)}
+.card::after,.panel::after,.stat-tile::after{content:"";position:absolute;inset:0;z-index:6;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(150deg,rgba(255,255,255,.34),rgba(255,255,255,.04) 38%,transparent 60%,color-mix(in srgb,var(--nb-pink) 45%,transparent));
+  -webkit-mask:var(--nb-ring-mask);-webkit-mask-composite:xor;mask:var(--nb-ring-mask);mask-composite:exclude}
+:root[data-theme="light"] .card::after,:root[data-theme="light"] .panel::after,:root[data-theme="light"] .stat-tile::after{background:linear-gradient(150deg,#fff,rgba(123,77,255,.18) 40%,transparent 62%,rgba(224,31,166,.35))}
+.card:hover,.panel:hover{border-color:transparent}
+
+/* ---------- the memorable part: round capsule title bars ---------- */
+.card-title,.panel-title{position:relative;overflow:hidden;margin:12px 12px 0;min-height:52px;padding:5px 10px 5px 24px;gap:12px;border:0;border-radius:999px;
+  font:200 23px/1 var(--font-display);letter-spacing:.005em;text-transform:none;color:#fff;text-shadow:0 0 20px rgba(255,120,220,.55);
+  background:
+    radial-gradient(120% 140% at 10% -50%,rgba(255,255,255,.45),transparent 55%),
+    linear-gradient(180deg,rgba(255,255,255,.14),transparent 52%),
+    linear-gradient(100deg,rgba(58,160,255,.42),rgba(123,77,255,.5) 46%,rgba(255,47,185,.44));
+  background-size:100% 100%;background-position:0 0;
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -10px 18px -10px rgba(20,0,60,.55),0 12px 30px -14px rgba(255,47,185,.7);
+  animation:none}
+.panel-title{padding-left:7px}
+.card-title small{font:300 13px var(--font-body);opacity:.85;text-shadow:none}
+.panel-title h3{font:inherit;letter-spacing:inherit;text-transform:none}
+/* aurora ring around the capsule */
+.card-title::before,.panel-title::before{content:"";position:absolute;inset:0;z-index:0;border-radius:inherit;padding:1.5px;pointer-events:none;background:var(--nb-aurora);
+  -webkit-mask:var(--nb-ring-mask);-webkit-mask-composite:xor;mask:var(--nb-ring-mask);mask-composite:exclude;opacity:.95;-webkit-mask-image:none}
+.card-title::before,.panel-title::before{-webkit-mask:var(--nb-ring-mask);mask:var(--nb-ring-mask);-webkit-mask-composite:xor;mask-composite:exclude}
+/* light that sweeps across the capsule */
+.card-title::after,.panel-title::after{content:"";position:absolute;inset:0;z-index:0;height:auto;top:0;bottom:auto;pointer-events:none;background:linear-gradient(104deg,transparent 38%,rgba(255,255,255,.5) 50%,transparent 62%);box-shadow:none;transform:translateX(-125%);animation:none}
+.card-title>*,.panel-title>*{position:relative;z-index:1}
+/* glass-bead icon and toggle */
+.panel-icon{width:38px;height:38px;border-radius:50%;font-size:16px;border:0;animation:none;
+  background:radial-gradient(circle at 31% 24%,#fff 0,rgba(255,255,255,.6) 13%,transparent 36%),radial-gradient(circle at 72% 88%,var(--nb-pink),transparent 62%),linear-gradient(140deg,var(--nb-blue),var(--nb-violet));
+  box-shadow:inset 0 -7px 11px rgba(25,0,80,.5),0 7px 18px -4px rgba(255,47,185,.75),0 0 0 3px rgba(255,255,255,.1)}
+.panel-toggle{width:34px;height:34px;border-radius:50%;margin:0;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+/* the capsule's colour leaks into the panel */
+:is(.card-title+.card-body,.panel-title+.panel-body){background:radial-gradient(120% 80px at 18% 0,color-mix(in srgb,var(--nb-pink) 14%,transparent),transparent 82%)}
+.panel-body{padding:16px 18px 20px}
+
+/* motion: capsules ignite one after another when the page opens; the ring spins while you hover a panel */
+@media (prefers-reduced-motion:no-preference){
+  html:not([data-motion="off"]) :is(.card-title,.panel-title){animation:nb-ignite 1.1s var(--ease) .2s 1 both}
+  html:not([data-motion="off"]) :is(.col-left,.col-right)>.panel:nth-child(2) .panel-title{animation-delay:.35s}
+  html:not([data-motion="off"]) :is(.col-left,.col-right)>.panel:nth-child(3) .panel-title{animation-delay:.5s}
+  html:not([data-motion="off"]) :is(.col-left,.col-right)>.panel:nth-child(4) .panel-title{animation-delay:.65s}
+  html:not([data-motion="off"]) :is(.col-left,.col-right)>.panel:nth-child(n+5) .panel-title{animation-delay:.8s}
+  html:not([data-motion="off"]) :is(.card,.panel):hover>:is(.card-title,.panel-title)::before{animation:nb-spin 4s linear infinite}
+  html:not([data-motion="off"]) :is(.card,.panel):hover>:is(.card-title,.panel-title)::after{animation:nb-sweep 1.1s var(--ease) 1}
+  html:not([data-motion="off"]) .panel-icon{animation:none}
+  @keyframes nb-ignite{0%{clip-path:inset(0 100% 0 0 round 999px);opacity:.2}55%{opacity:1}100%{clip-path:inset(0 0 0 0 round 999px)}}
+  @keyframes nb-spin{to{--nb-a:360deg}}
+  @keyframes nb-sweep{from{transform:translateX(-125%)}to{transform:translateX(125%)}}
+}
+
+/* ---------- buttons, badges, fields ---------- */
+.btn{border-radius:999px;font:400 15px var(--font-body);letter-spacing:.02em;text-transform:none;min-height:46px;padding:0 26px}
+.btn-sm{min-height:36px;padding:0 18px;font-size:13px}
+.btn-primary{background:var(--g-primary);background-size:180% 100%;background-position:0 0;border:0;color:#fff;box-shadow:0 14px 34px -12px rgba(255,47,185,.7),inset 0 1px 0 rgba(255,255,255,.42);transition:background-position .7s var(--ease),box-shadow .3s,transform .3s}
+.btn-primary:hover{color:#fff;background-position:100% 0;box-shadow:0 18px 42px -10px rgba(255,47,185,.85),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn-ghost{background:var(--pill-bg);border-color:var(--glass-border);color:var(--c-text)}
+.btn-ghost:hover{border-color:var(--nb-orchid);color:var(--c-text);box-shadow:0 0 24px -8px var(--nb-violet)}
+.badge{border-radius:999px;font-weight:400;letter-spacing:.04em;text-transform:none;font-size:11.5px}
+.input,.select,.textarea{border-radius:22px;font-weight:300;background:var(--field-bg)}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--nb-orchid);box-shadow:0 0 0 4px color-mix(in srgb,var(--nb-violet) 28%,transparent),0 0 28px -8px var(--nb-pink)}
+.avatar{box-shadow:0 0 0 2px rgba(255,255,255,.14),0 8px 22px -8px var(--nb-violet)}
+.tab{border-radius:999px;font-weight:300}
+.tab.is-active{background:var(--g-primary);color:#fff;font-weight:400}
+
+/* ---------- stats ---------- */
+.stat-tile{border-radius:34px 34px 34px 10px;padding:22px 24px}
+.stat-tile span{font:300 13px var(--font-body);letter-spacing:.06em;text-transform:none;color:var(--c-text-dim)}
+.stat-tile strong{font:100 58px/1 var(--font-display);letter-spacing:-.03em;background:linear-gradient(100deg,#fff,var(--nb-orchid) 55%,var(--nb-pink));-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+:root[data-theme="light"] .stat-tile strong{background-image:linear-gradient(100deg,#24123f,var(--nb-violet) 55%,var(--nb-pink))}
+.stat-tile.is-hot span{color:var(--nb-pink)}.stat-tile.is-hot strong{-webkit-text-fill-color:transparent}
+.grad-text{background:linear-gradient(100deg,var(--nb-blue),var(--nb-violet) 50%,var(--nb-pink));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+
+/* ---------- hero: a small cosmos ---------- */
+.hero,.hero-lite{border:0;border-radius:52px 52px 52px 16px;color:#fff;box-shadow:var(--nb-glow)}
+.hero-bg,.hero-lite{background:
+  radial-gradient(60% 90% at 10% 8%,rgba(58,160,255,.55),transparent 62%),
+  radial-gradient(55% 80% at 92% 18%,rgba(255,47,185,.5),transparent 60%),
+  radial-gradient(70% 90% at 55% 112%,rgba(123,77,255,.75),transparent 66%),
+  linear-gradient(180deg,#1b0c40,#0d0620)}
+.hero-bg::before{inset:0;transform:none;background:var(--nb-dust),repeating-radial-gradient(circle at 80% 52%,transparent 0 40px,rgba(255,255,255,.07) 40px 41px);-webkit-mask-image:radial-gradient(circle at 80% 52%,#000 0,transparent 70%);mask-image:radial-gradient(circle at 80% 52%,#000 0,transparent 70%)}
+.hero-bg::after{background-image:none;background:radial-gradient(40% 60% at 100% 100%,rgba(255,47,185,.25),transparent 70%);-webkit-mask-image:none;mask-image:none}
+.hero-lite::before{background:var(--nb-dust)}.hero-lite::after{background:none}
+.hero .hero-title,.hero-title{font-weight:100;font-size:clamp(3rem,9vw,7.4rem);line-height:.94;letter-spacing:-.035em;text-transform:none;
+  background:linear-gradient(100deg,#fff 0%,#eadcff 38%,#ffc4ef 68%,#a8d4ff 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;text-shadow:none;filter:drop-shadow(0 0 30px rgba(190,120,255,.5))}
+.hero .eyebrow,.hero-lite .eyebrow{color:#e5d2ff;opacity:1;font-weight:300;letter-spacing:.16em}
+.hero .lead,.hero-lite .lead,.hero-sub{font-weight:300;color:#ddd0f7;opacity:1}
+.hero .btn-dark{background:#fff;color:#2a1356;border:0;box-shadow:0 14px 34px -12px rgba(255,255,255,.55)}
+.hero .btn-dark:hover{color:#2a1356}
+.hero .btn-glass,.hero-lite .btn-glass{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.4);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.hero-fx-embers .hero-fx i{border-radius:50%;background:radial-gradient(circle,#fff 0,var(--nb-pink) 45%,transparent 70%);box-shadow:0 0 14px 3px color-mix(in srgb,var(--nb-pink) 70%,transparent)}
+.hero-fx-embers .hero-fx i:nth-child(even){background:radial-gradient(circle,#fff 0,var(--nb-blue) 45%,transparent 70%);box-shadow:0 0 14px 3px color-mix(in srgb,var(--nb-blue) 70%,transparent)}
+.hero-wrap-full .hero{border-radius:0}
+.hero-arrow,.hero-dots button{border-radius:50%}
+
+/* ---------- news, footer, misc ---------- */
+.news-card{border-radius:34px 34px 34px 10px}
+.news-card:hover{box-shadow:0 30px 70px -26px rgba(255,47,185,.55),var(--nb-glow)}
+.pos-opt,.att-file{border-radius:26px}
+.poll-bar i{background:var(--g-primary)}
+.site-footer{background:var(--nb-dust),linear-gradient(180deg,transparent,color-mix(in srgb,var(--c-bg-2) 80%,transparent) 30%)}
+.site-footer::before{height:2px;background:linear-gradient(90deg,transparent 2%,var(--nb-blue),var(--nb-violet) 40%,var(--nb-pink) 72%,transparent 98%);opacity:.9;box-shadow:0 0 22px -2px var(--nb-violet)}
+.site-footer h4{font:300 19px var(--font-display);letter-spacing:0;text-transform:none;color:var(--c-text)}
+.site-footer h4::after{background:linear-gradient(90deg,var(--nb-violet),transparent)}
+.site-footer .fcol ul a:hover{color:var(--nb-pink)}
+.f-social:hover,.f-social:focus-visible{box-shadow:0 10px 26px -8px var(--sc)}
+@media (max-width:640px){.card-title,.panel-title{font-size:21px;min-height:48px}.stat-tile strong{font-size:48px}}
+
+/* ---------- light-mode contrast fixes ---------- */
+:root[data-theme="light"] a.btn-primary,:root[data-theme="light"] .btn-primary:hover,:root[data-theme="light"] a.btn-primary:hover{color:#fff}
+:root[data-theme="light"] .btn-ghost,:root[data-theme="light"] a.btn-ghost{color:var(--c-text)}
+:root[data-theme="light"] .hero .eyebrow,:root[data-theme="light"] .hero-lite .eyebrow{color:#e5d2ff}
+:root[data-theme="light"] .hero a.btn-glass,:root[data-theme="light"] .hero .btn-glass{color:#fff}
+:root[data-theme="light"] .hero a.btn-dark{color:#2a1356}
+:root[data-theme="light"] :is(.card-title,.panel-title){font-weight:300;text-shadow:0 1px 14px rgba(60,0,120,.55);
+  background:radial-gradient(120% 140% at 10% -50%,rgba(255,255,255,.5),transparent 55%),linear-gradient(180deg,rgba(255,255,255,.16),transparent 52%),linear-gradient(100deg,rgba(45,140,240,.9),rgba(106,61,240,.92) 46%,rgba(224,31,166,.88))}
+:root[data-theme="light"] .nav-btn{color:var(--c-text-dim)}
+.hero .hero-title,.hero-title{font-size:clamp(3rem,7.2vw,6rem)}
+:root[data-theme="light"] :is(.nav-item.is-active>.nav-btn,.nav-btn.is-active),:root[data-theme="light"] .tab.is-active{color:#fff}
