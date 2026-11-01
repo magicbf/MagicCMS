@@ -148,7 +148,7 @@ final class Installer
             'site.name' => $site['name'], 'site.tagline' => 'Play bold. Win together.', 'site.description' => $site['name'] . ' – powered by MagicCMS',
             'site.lang' => 'en', 'site.timezone' => $site['timezone'], 'site.maintenance' => false,
             'site.footer' => '© {year} ' . $site['name'],
-            'layout.mode' => 'both', 'theme.active' => $site['theme'],
+            'layout.mode' => 'right', 'theme.active' => $site['theme'],
             'auth.registration' => 'open',
             'upload.avatar_max_mb' => 5, 'online.window_min' => 5,
             'appearance.mode_default' => 'dark', 'appearance.allow_user_mode' => true, 'appearance.scheme' => 'crimson',
@@ -181,11 +181,13 @@ final class Installer
         // Panels
         $vis = fn(string $who = 'all', bool $mobile = true) => json_encode(['who' => $who, 'mobile' => $mobile]);
         $panels = [
-            ['user_box', 'Account', 'left', 1], ['online_users', 'Online Users', 'left', 2],
-            ['chat', 'Shoutbox', 'right', 1], ['site_stats', 'Site Stats', 'right', 2],
+            // One column on the right is the default layout. The login/register/account area lives in the header, so the
+            // "Account" panel is installed switched OFF (enable it in Admin → Panels if your theme has no account area on top).
+            ['chat', 'Shoutbox', 'right', 1, 1], ['site_stats', 'Site Stats', 'right', 2, 1], ['online_users', 'Online Users', 'right', 3, 1],
+            ['user_box', 'Account', 'right', 9, 0],
         ];
-        foreach ($panels as [$key, $title, $pos, $ord]) {
-            $db->exec('INSERT INTO {panels} (panel_key, title, position, sort_order, enabled, visibility) VALUES (?,?,?,?,1,?)', [$key, $title, $pos, $ord, $vis()]);
+        foreach ($panels as [$key, $title, $pos, $ord, $on]) {
+            $db->exec('INSERT INTO {panels} (panel_key, title, position, sort_order, enabled, visibility) VALUES (?,?,?,?,?,?)', [$key, $title, $pos, $ord, $on, $vis()]);
         }
 
         // Navigation + demo page

@@ -8,7 +8,12 @@ server {
     location ~ ^/(core|config|migrations|lang|cache|tools|backups)/ { deny all; }
     location ~ ^/(modules|panels|plugins|views)/.*\.php$ { deny all; }
     location ~ ^/themes/.*/templates/ { deny all; }
-    location ^~ /uploads/ { location ~ \.php$ { deny all; } }
+    # user uploads: never execute, never sniff, never run scripts even if an SVG slipped through
+    location ^~ /uploads/ {
+        location ~ \.php$ { deny all; }
+        add_header X-Content-Type-Options nosniff always;
+        add_header Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'none'; sandbox" always;
+    }
 
     location / { try_files $uri $uri/ /index.php?$query_string; }
     location ~ \.php$ {

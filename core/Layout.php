@@ -29,12 +29,12 @@ final class Layout
         return isset(self::RHYTHMS[$r]) ? $r : 'even';
     }
 
-    /** @return array{mode:string,left:array,right:array} */
+    /** @return array{mode:string,left:array,right:array,above:array} */
     public static function resolve(?string $override): array
     {
-        $mode = in_array($override, self::MODES, true) ? $override : (string) setting('layout.mode', 'both');
+        $mode = in_array($override, self::MODES, true) ? $override : (string) setting('layout.mode', 'right');
         if (!in_array($mode, self::MODES, true)) {
-            $mode = 'both';
+            $mode = 'right';
         }
         $left = in_array($mode, ['left', 'both'], true) ? Panels::render('left') : [];
         $right = in_array($mode, ['right', 'both'], true) ? Panels::render('right') : [];
@@ -43,6 +43,6 @@ final class Layout
             [$left, $right] = [$right, $left];
         }
         $eff = ($left && $right) ? 'both' : ($left ? 'left' : ($right ? 'right' : 'none'));
-        return ['mode' => $eff, 'left' => $left, 'right' => $right];
+        return ['mode' => $eff, 'left' => $left, 'right' => $right, 'above' => Panels::render('above_footer')];
     }
 }

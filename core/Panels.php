@@ -92,6 +92,10 @@ final class Panels
             if ($html === '') {
                 continue;
             }
+            if (!empty($reg['meta']['bare'])) { // full-width section painted by the panel itself
+                $out[] = $html;
+                continue;
+            }
             $v = json_decode((string) $p['visibility'], true) ?: [];
             $out[] = render('panel', [
                 'panel' => ['id' => (int) $p['id'], 'key' => $p['panel_key'], 'title' => $p['title'], 'icon' => (string) ($reg['meta']['icon'] ?? ''), 'hideMobile' => empty($v['mobile'] ?? true)],

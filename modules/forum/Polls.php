@@ -100,10 +100,13 @@ final class Polls
         if (count($ids) > (int) $poll['max_choices']) {
             return t('You can choose at most {n} options.', ['n' => $poll['max_choices']]);
         }
-        db()->exec('DELETE FROM {forum_poll_votes} WHERE poll_id = ? AND user_id = ?', [$poll['id'], $userId]);
-        foreach ($ids as $i) {
-            db()->exec('INSERT INTO {forum_poll_votes} (poll_id, option_id, user_id, created_at) VALUES (?,?,?,?)', [$poll['id'], $i, $userId, now()]);
-        }
+        db()->transaction(function () use ($poll, $userId, $ids): void {
+            db()->val('SELECT id FROM {forum_polls} WHERE id = ? FOR UPDATE', [$poll['id']]); // serialise parallel requests of the same member
+            db()->exec('DELETE FROM {forum_poll_votes} WHERE poll_id = ? AND user_id = ?', [$poll['id'], $userId]);
+            foreach ($ids as $i) {
+                db()->exec('INSERT INTO {forum_poll_votes} (poll_id, option_id, user_id, created_at) VALUES (?,?,?,?)', [$poll['id'], $i, $userId, now()]);
+            }
+        });
         return null;
     }
 }

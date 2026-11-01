@@ -1,2 +1,0 @@
-CREATE TABLE IF NOT EXISTS {updtest} (id INT NOT NULL PRIMARY KEY, note VARCHAR(40) NOT NULL) ENGINE=InnoDB;
-INSERT INTO {updtest} (id, note) VALUES (1, "migrated");

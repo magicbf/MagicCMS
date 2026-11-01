@@ -99,7 +99,7 @@ final class AdminController
         Settings::set('recruit.enabled', input('enabled') === '1');
         Settings::set('recruit.require_login', input('require_login') === '1');
         Settings::set('recruit.intro', mb_substr((string) input('intro'), 0, 1000));
-        $mails = array_filter(array_map('trim', explode(',', (string) input('notify_emails'))), static fn($m) => filter_var($m, FILTER_VALIDATE_EMAIL));
+        $mails = array_filter(array_map('trim', explode(',', (string) input('notify_emails'))), static fn($m) => valid_email($m));
         Settings::set('recruit.notify_emails', implode(', ', array_slice($mails, 0, 5)));
         Settings::set('recruit.retention_days', max(0, min(3650, (int) input('retention_days', 180))));
         flash('success', t('Settings saved.'));

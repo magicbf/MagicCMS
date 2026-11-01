@@ -26,6 +26,6 @@ return function (MagicCMS\Core\Database $db): void {
         $ord = (int) $db->val('SELECT COALESCE(MAX(sort_order),0)+1 FROM {menu_items} WHERE menu_id = ?', [$menu]);
         $db->exec("INSERT INTO {menu_items} (menu_id, label, icon, target_type, target_ref, visibility, sort_order) VALUES (?,?,?,'module','roster',?,?)", [$menu, 'Roster', '🛡️', json_encode(['who' => 'all', 'mobile' => true]), $ord]);
     }
-    $ord = (int) $db->val("SELECT COALESCE(MAX(sort_order),0)+1 FROM {panels} WHERE position = 'left'");
-    $db->exec("INSERT INTO {panels} (panel_key, title, position, sort_order, enabled, visibility) VALUES ('roster_squad', 'Our Squad', 'left', ?, 0, ?)", [$ord, json_encode(['who' => 'all', 'mobile' => true])]);
+    $ord = (int) $db->val("SELECT COALESCE(MAX(sort_order),0)+1 FROM {panels} WHERE position = 'right'");
+    $db->exec("INSERT INTO {panels} (panel_key, title, position, sort_order, enabled, visibility) VALUES ('roster_squad', 'Our Squad', 'right', ?, 0, ?)", [$ord, json_encode(['who' => 'all', 'mobile' => true])]);
 };

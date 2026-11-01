@@ -38,6 +38,10 @@ final class Appearance
     {
         $changed = [];
         $d = (array) ($meta['defaults'] ?? []);
+        if (($meta['supports']['accountInHeader'] ?? true) === false) { // theme without login/register in its header
+            db()->exec("UPDATE {panels} SET enabled = 1 WHERE panel_key = 'user_box'");
+            $changed[] = t('Account panel switched on (this theme has no account area in the header)');
+        }
         if (isset($d['scheme']) && isset(self::PRESETS[$d['scheme']])) {
             Settings::set('appearance.scheme', $d['scheme']);
             $changed[] = t('colour scheme “{n}”', ['n' => self::PRESETS[$d['scheme']][0]]);

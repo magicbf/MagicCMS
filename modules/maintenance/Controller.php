@@ -148,6 +148,10 @@ final class Controller
     public function prepare(): never
     {
         $tmp = null;
+        if ($old = $this->incoming()) { // only one prepared package at a time
+            @unlink($old);
+            unset($_SESSION['upd_file']);
+        }
         try {
             if (input('source') === 'online') {
                 $l = $_SESSION['upd_latest'] ?? null;

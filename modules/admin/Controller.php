@@ -59,11 +59,12 @@ final class Controller
         if (in_array($tz, \DateTimeZone::listIdentifiers(), true)) {
             Settings::set('site.timezone', $tz);
         }
-        Settings::set('layout.mode', self::pick((string) input('layout_mode'), Layout::MODES, 'both'));
+        Settings::set('layout.mode', self::pick((string) input('layout_mode'), Layout::MODES, 'right'));
         Settings::set('layout.header', self::pick((string) input('layout_header'), array_keys(Layout::HEADERS), 'classic'));
         Settings::set('layout.rhythm', self::pick((string) input('layout_rhythm'), array_keys(Layout::RHYTHMS), 'even'));
         Settings::set('layout.mirror', !empty($_POST['layout_mirror']));
         Settings::set('auth.registration', self::pick((string) input('registration'), ['open', 'approval', 'closed'], 'open'));
+        Settings::set('auth.reg_limit', max(0, min(1000, (int) input('reg_limit', 5))));
         Settings::set('upload.avatar_max_mb', max(1, min(5, (int) input('avatar_mb', 5))));
         Settings::set('online.window_min', max(1, min(60, (int) input('online_min', 5))));
         Settings::set('auth.email_verify', !empty($_POST['email_verify']));
@@ -79,7 +80,7 @@ final class Controller
         Settings::set('mail.driver', self::pick((string) input('driver'), ['mail', 'smtp', 'log'], 'mail'));
         Settings::set('mail.from_name', mb_substr((string) input('from_name'), 0, 80));
         $fe = (string) input('from_email');
-        Settings::set('mail.from_email', filter_var($fe, FILTER_VALIDATE_EMAIL) ? $fe : '');
+        Settings::set('mail.from_email', valid_email($fe) ? $fe : '');
         Settings::set('mail.smtp_host', mb_substr((string) input('smtp_host'), 0, 190));
         Settings::set('mail.smtp_port', max(1, min(65535, (int) input('smtp_port', 587))));
         Settings::set('mail.smtp_secure', self::pick((string) input('smtp_secure'), ['none', 'tls', 'ssl'], 'tls'));
@@ -246,7 +247,10 @@ final class Controller
             flash('danger', t('This panel can only be added once.'));
             $this->back('/admin/panels');
         }
-        $pos = self::pick((string) input('position'), ['left', 'right'], 'left');
+        $pos = self::pick((string) input('position'), ['left', 'right', 'above_footer'], 'left');
+        if (isset($reg['meta']['positions']) && !in_array($pos, $reg['meta']['positions'], true)) {
+            $pos = (string) $reg['meta']['positions'][0];
+        }
         $ord = (int) db()->val('SELECT COALESCE(MAX(sort_order),0)+1 FROM {panels} WHERE position = ?', [$pos]);
         db()->exec(
             'INSERT INTO {panels} (panel_key, title, position, sort_order, enabled, visibility) VALUES (?,?,?,?,1,?)',
@@ -261,7 +265,7 @@ final class Controller
     {
         db()->exec(
             'UPDATE {panels} SET title = ?, position = ?, sort_order = ?, enabled = ?, visibility = ? WHERE id = ?',
-            [mb_substr((string) input('title'), 0, 120) ?: 'Panel', self::pick((string) input('position'), ['left', 'right'], 'left'), (int) input('sort_order'), empty($_POST['enabled']) ? 0 : 1, self::visibilityJson(), (int) $p['id']]
+            [mb_substr((string) input('title'), 0, 120) ?: 'Panel', self::pick((string) input('position'), ['left', 'right', 'above_footer'], 'left'), (int) input('sort_order'), empty($_POST['enabled']) ? 0 : 1, self::visibilityJson(), (int) $p['id']]
         );
         flash('success', t('Panel saved.'));
         $this->back('/admin/panels');

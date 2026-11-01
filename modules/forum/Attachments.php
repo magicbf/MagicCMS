@@ -96,6 +96,8 @@ final class Attachments
         if (!self::allowed()) {
             return [t('You cannot attach files.')];
         }
+        $used = (int) db()->val('SELECT COALESCE(SUM(size),0) FROM {forum_attachments} WHERE user_id = ?', [user()['id']]);
+        $quota = max(10, min(5000, (int) setting('forum.attach_quota_mb', 200))) * 1048576;
         $room = self::maxFiles() - self::count($postId);
         foreach ($files as $f) {
             $label = self::cleanName($f['name']);
@@ -103,7 +105,12 @@ final class Attachments
                 $errors[] = t('{f}: too many attachments (maximum {n} per post).', ['f' => $label, 'n' => self::maxFiles()]);
                 continue;
             }
+            if ($used + (int) $f['size'] > $quota) {
+                $errors[] = $label . ': ' . t('your attachment storage is full ({n} MB) – delete old attachments first.', ['n' => (int) ($quota / 1048576)]);
+                continue;
+            }
             try {
+                $used += (int) $f['size'];
                 self::store($postId, $f);
                 $room--;
             } catch (\RuntimeException $e) {

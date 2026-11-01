@@ -28,6 +28,16 @@ final class Backup
         return $d;
     }
 
+    /** Remove abandoned temporary files (interrupted uploads/downloads). */
+    public static function cleanTemp(): void
+    {
+        foreach (glob(self::dir() . '/.*') ?: [] as $f) {
+            if (is_file($f) && preg_match('/^\.(incoming|upload|restore|tmp)-/', basename($f)) && filemtime($f) < time() - 6 * 3600) {
+                @unlink($f);
+            }
+        }
+    }
+
     public static function validName(string $n): bool
     {
         return (bool) preg_match(self::NAME, $n);
@@ -122,8 +132,12 @@ final class Backup
     {
         $label = trim(preg_replace('/[^a-z0-9]+/', '-', strtolower($label)), '-') ?: 'manual';
         $label = substr($label, 0, 24);
-        $stamp = gmdate('Ymd-His');
         $dir = self::dir();
+        $t = time();
+        while (glob("$dir/*-" . gmdate('Ymd-His', $t) . "-$label.*")) { // never overwrite an existing backup
+            $t++;
+        }
+        $stamp = gmdate('Ymd-His', $t);
         if (!is_dir($dir) || !is_writable($dir)) {
             throw new \RuntimeException(t('The backup folder is not writable: {d}', ['d' => $dir]));
         }
@@ -162,6 +176,7 @@ final class Backup
     /** @return array<int,array{name:string,size:int,time:int,type:string,label:string}> newest first */
     public static function all(): array
     {
+        self::cleanTemp();
         $out = [];
         foreach (glob(self::dir() . '/*') ?: [] as $f) {
             $n = basename($f);
@@ -218,6 +233,43 @@ final class Backup
         return isset($h['prefix'], $h['schema']) ? ['version' => (string) ($h['version'] ?? '?'), 'schema' => (int) $h['schema'], 'prefix' => $h['prefix'], 'created' => (string) ($h['created'] ?? '')] : null;
     }
 
+    /** True when $sql is exactly ONE statement: the only ';' outside quotes/backticks is the final character. */
+    public static function singleStatement(string $sql): bool
+    {
+        $n = strlen($sql);
+        $q = '';
+        for ($i = 0; $i < $n; $i++) {
+            $c = $sql[$i];
+            if ($q !== '') {
+                if ($c === '\\' && $q !== '`') {
+                    $i++;
+                } elseif ($c === $q) {
+                    $q = '';
+                }
+                continue;
+            }
+            if ($c === "'" || $c === '"' || $c === '`') {
+                $q = $c;
+            } elseif ($c === ';') {
+                return $i === $n - 1;
+            } elseif ($c === '#' || ($c === '-' && ($sql[$i + 1] ?? '') === '-') || ($c === '/' && ($sql[$i + 1] ?? '') === '*')) {
+                return false; // comments could hide a second statement
+            }
+        }
+        return $q === '' && str_ends_with($sql, ';');
+    }
+
+    /** Only the statements our own dumps contain are allowed – a backup file can never run anything else. */
+    public static function allowedLine(string $line, string $prefix): bool
+    {
+        $t = preg_quote($prefix, '/');
+        $ok = preg_match('/^SET (NAMES utf8mb4|FOREIGN_KEY_CHECKS=[01]|UNIQUE_CHECKS=[01]|sql_mode=\'NO_AUTO_VALUE_ON_ZERO\');$/', $line)
+            || preg_match('/^DROP TABLE IF EXISTS `' . $t . '[a-z0-9_]+`;$/', $line)
+            || preg_match('/^CREATE TABLE `' . $t . '[a-z0-9_]+` \(/', $line)
+            || preg_match('/^INSERT INTO `' . $t . '[a-z0-9_]+` VALUES \(/', $line);
+        return $ok && self::singleStatement($line) && !preg_match('/^CREATE TABLE .*\b(SELECT|DATA DIRECTORY|INDEX DIRECTORY)\b/is', preg_replace("/'(?:[^'\\\\]|\\\\.)*'/s", "''", $line) ?? $line);
+    }
+
     /** Verify a dump is complete and belongs to this installation's table prefix. @return string|null error */
     public static function verify(string $gzFile): ?string
     {
@@ -233,9 +285,22 @@ final class Backup
         }
         $gz = gzopen($gzFile, 'rb');
         $last = '';
-        while (($line = gzgets($gz, 1 << 20)) !== false) {
-            if (trim($line) !== '') {
-                $last = trim($line);
+        $buf = '';
+        $prefix = Bootstrap::$db->prefix();
+        while (($chunk = gzgets($gz, 1 << 20)) !== false) {
+            $buf .= $chunk;
+            if (!str_ends_with($buf, "\n")) {
+                continue; // long line spanning several reads
+            }
+            $line = trim($buf);
+            $buf = '';
+            if ($line === '') {
+                continue;
+            }
+            $last = $line;
+            if (!str_starts_with($line, '--') && !self::allowedLine($line, $prefix)) {
+                gzclose($gz);
+                return t('The backup contains statements that MagicCMS never writes – refused for safety.');
             }
         }
         gzclose($gz);

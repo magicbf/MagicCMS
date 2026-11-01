@@ -295,7 +295,11 @@ final class Updater
         $prefix = (string) $insp['_prefix'];
         self::baseline(); // make sure "locally modified" can be reported later
         $db = Backup::create('pre-update')['name'];
-        $stamp = gmdate('Ymd-His');
+        $t = time();
+        while (is_file(Backup::dir() . '/code-' . MCMS_VERSION . '-' . gmdate('Ymd-His', $t) . '.zip')) {
+            $t++;
+        }
+        $stamp = gmdate('Ymd-His', $t);
         $codeBackup = 'code-' . MCMS_VERSION . "-$stamp.zip";
         $cb = new \ZipArchive();
         if ($cb->open(Backup::dir() . '/' . $codeBackup, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {

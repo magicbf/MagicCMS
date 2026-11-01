@@ -70,6 +70,6 @@ return function (MagicCMS\Core\Database $db): void {
         $ord = (int) $db->val('SELECT COALESCE(MAX(sort_order),0)+1 FROM {menu_items} WHERE menu_id = ?', [$menu]);
         $db->exec("INSERT INTO {menu_items} (menu_id, label, icon, target_type, target_ref, visibility, sort_order) VALUES (?,?,?,'module','news',?,?)", [$menu, 'News', '📰', json_encode(['who' => 'all', 'mobile' => true]), $ord]);
     }
-    $ord = (int) $db->val("SELECT COALESCE(MAX(sort_order),0)+1 FROM {panels} WHERE position = 'left'");
-    $db->exec("INSERT INTO {panels} (panel_key, title, position, sort_order, enabled, visibility) VALUES ('latest_news', 'Latest News', 'left', ?, 1, ?)", [$ord, json_encode(['who' => 'all', 'mobile' => true])]);
+    $ord = (int) $db->val("SELECT COALESCE(MAX(sort_order),0)+1 FROM {panels} WHERE position = 'right'");
+    $db->exec("INSERT INTO {panels} (panel_key, title, position, sort_order, enabled, visibility) VALUES ('latest_news', 'Latest News', 'right', ?, 1, ?)", [$ord, json_encode(['who' => 'all', 'mobile' => true])]);
 };
