@@ -17,7 +17,7 @@
   --ec-sheet:#f5f8f6; --ec-line:#dce6e0;
   --g-primary:linear-gradient(180deg,#8cf45e 0%,#4fbd2b 55%,#2f8a1c 100%);
   --g-titlebar:none;
-  --shadow:0 24px 60px -24px rgba(0,0,0,.9);
+  --shadow:0 10px 20px -14px rgba(0,0,0,.8);
 
   --radius-sm:4px; --radius:6px; --radius-lg:10px;
   --font-body:"Inter",system-ui,"Segoe UI",Roboto,sans-serif;

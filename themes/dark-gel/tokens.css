@@ -19,8 +19,8 @@
   --g-titlebar:none;
   --dg-gloss:linear-gradient(180deg,rgba(255,255,255,.34) 0%,rgba(255,255,255,.1) 49%,rgba(255,255,255,0) 51%);
   --dg-weave:repeating-linear-gradient(45deg,rgba(255,255,255,.045) 0 2px,transparent 2px 4px),repeating-linear-gradient(-45deg,rgba(0,10,40,.28) 0 2px,transparent 2px 4px);
-  --dg-glow:0 0 0 1px rgba(96,176,255,.14),0 18px 44px -20px rgba(31,134,224,.55);
-  --shadow:0 20px 44px -22px rgba(0,0,0,.8);
+  --dg-glow:0 0 0 1px rgba(96,176,255,.14),0 10px 22px -14px rgba(31,134,224,.6);
+  --shadow:0 10px 20px -14px rgba(0,0,0,.8);
 
   --radius-sm:8px; --radius:14px; --radius-lg:20px;
   --font-body:"Inter",system-ui,"Segoe UI",Roboto,sans-serif;
@@ -36,6 +36,6 @@
   --btn-bg:#ffffff; --btn-fg:#0e2447; --btn-border:rgba(31,110,200,.28);
   --c-text:#0e2447; --c-text-dim:#44628f; --c-text-faint:#6a84ad;
   --c-success:#0b9b6a; --c-warning:#a86300; --c-danger:#cc2a3d; --c-info:#0f6fc2;
-  --dg-glow:0 0 0 1px rgba(31,110,200,.14),0 16px 38px -22px rgba(31,110,200,.5);
-  --shadow:0 16px 36px -22px rgba(20,60,120,.45);
+  --dg-glow:0 0 0 1px rgba(31,110,200,.14),0 10px 22px -14px rgba(31,110,200,.5);
+  --shadow:0 10px 20px -14px rgba(20,60,120,.5);
 }

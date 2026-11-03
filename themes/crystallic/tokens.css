@@ -20,7 +20,7 @@
   --cr-cut:16px;
   --cr-edge:linear-gradient(140deg,rgba(255,255,255,.62),rgba(126,184,218,.22) 34%,transparent 58%,rgba(185,166,255,.4));
   --cr-line:rgba(255,255,255,.72);
-  --shadow:0 18px 40px -20px rgba(0,0,0,.7);
+  --shadow:0 10px 20px -14px rgba(0,0,0,.7);
 
   --radius-sm:0px; --radius:0px; --radius-lg:0px;
   --font-body:"Inter",system-ui,"Segoe UI",Roboto,sans-serif;
@@ -40,5 +40,5 @@
   --cr-steel:linear-gradient(135deg,#ffffff 0%,#c9d2e2 38%,#8d99b0 52%,#dde4f0 74%,#ffffff 100%);
   --cr-edge:linear-gradient(140deg,#ffffff,rgba(63,143,191,.30) 36%,transparent 60%,rgba(122,98,224,.38));
   --cr-line:rgba(90,104,140,.55);
-  --shadow:0 18px 38px -22px rgba(40,54,100,.35);
+  --shadow:0 10px 20px -14px rgba(40,54,100,.4);
 }

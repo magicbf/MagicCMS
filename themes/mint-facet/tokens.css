@@ -26,7 +26,7 @@
     linear-gradient(135deg,#8bf5e2 0%,#69dcbe 48%,#3fb99c 100%);
   --mf-ink:var(--c-primary);          /* mint text on dark; deep teal in the light variant */
   --mf-cut:14px;                      /* chamfer size */
-  --shadow:0 18px 30px rgba(0,0,0,.35);
+  --shadow:0 10px 20px -12px rgba(0,0,0,.5);
 
   --radius-sm:0px; --radius:0px; --radius-lg:0px;
   --font-body:"Hanken Grotesk",system-ui,"Segoe UI",Roboto,sans-serif;
@@ -42,5 +42,5 @@
   --c-text:#0f1a1f; --c-text-dim:#2e3f47; --c-text-faint:#566870;
   --c-success:#0f7a4a; --c-warning:#8a5a00; --c-danger:#b3261e; --c-info:#1565a8;
   --c-accent:#0b7a66; --mf-ink:#0b7a66;
-  --shadow:0 14px 28px rgba(15,26,31,.12);
+  --shadow:0 10px 20px -12px rgba(15,26,31,.25);
 }
