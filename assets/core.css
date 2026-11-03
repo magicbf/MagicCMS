@@ -1,7 +1,7 @@
 /* MagicCMS core: STRUCTURE ONLY (grid, responsive behaviour, utilities). Visual design lives in themes. */
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;min-height:100vh;display:flex;flex-direction:column}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;position:relative}
 img,svg,video{max-width:100%;height:auto}
 .container{width:100%;max-width:var(--container-w,1280px);margin:0 auto;padding:0 var(--gap,20px)}
 .skip-link{position:absolute;left:-999px;top:0;z-index:200}.skip-link:focus{left:8px;top:8px}
@@ -11,7 +11,7 @@ img,svg,video{max-width:100%;height:auto}
 .hp{position:absolute;left:-9999px;height:0;overflow:hidden}
 
 /* decor layer: themes paint it (aurora, grid, grain…) or hide it */
-.bg-fx{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}.bg-fx>*{position:absolute;display:block}
+.bg-fx{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden}   /* spans the whole page, so the glow never stops at one screen height */.bg-fx>*{position:absolute;display:block}
 .brand-text{display:flex;flex-direction:column;gap:3px;line-height:1;min-width:0}
 
 /* header: tall brand row + full-width menu bar (sticky) */
