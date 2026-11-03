@@ -4,7 +4,7 @@ $navItems = MagicCMS\Core\Nav::tree('main');
 $brandHtml = static function (string $extra = '') use ($custom, $showName): string { ob_start(); ?>
 <a class="brand brand-xl<?= $showName ? '' : ' brand-only' ?><?= $extra ? ' ' . e($extra) : '' ?>" href="<?= e(url('')) ?>">
       <img class="<?= $custom ? 'brand-logo' : 'brand-mark' ?>" data-fallback="<?= e(asset('logo-mark.svg')) ?>" src="<?= e(site_logo()) ?>" alt="<?= !$showName ? e(setting('site.name', 'MagicCMS')) : '' ?>" height="64"<?= $custom ? '' : ' width="64"' ?>>
-      <?php if ($showName): ?><span class="brand-text"><b class="brand-name"><?= e(setting('site.name', 'MagicCMS')) ?></b><?php if ((string) setting('site.tagline', '') !== ''): ?><small class="brand-sub"><?= e(setting('site.tagline')) ?></small><?php endif ?></span><?php endif ?>
+      <?php if ($showName): ?><span class="brand-text"><b class="brand-name"><?= e(setting('site.name', 'MagicCMS')) ?></b><?php if ((string) setting('site.tagline', '') !== '' && setting('site.show_tagline', true)): ?><small class="brand-sub"><?= e(setting('site.tagline')) ?></small><?php endif ?></span><?php endif ?>
     </a>
 <?php return (string) ob_get_clean(); };
 $actionsHtml = static function () use ($layout, $u): string { ob_start(); ?>

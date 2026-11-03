@@ -122,8 +122,13 @@ final class Appearance
         $dark = $lum > 0.24;
         $css .= '--c-on-bar:' . ($dark ? '#1a0703' : '#ffffff') . ';--bar-text-shadow:' . ($dark ? '0 1px 0 rgba(255,255,255,.35)' : '0 1px 2px rgba(60,0,0,.45)') . ';';
         $r = max(0, min(32, (int) setting('appearance.radius', 16)));
-        $css .= '--radius:' . $r . 'px;--radius-sm:' . intdiv($r, 2) . 'px;--radius-lg:' . intdiv($r * 3, 2) . 'px;}';
-        return $css;
+        $css .= '--radius:' . $r . 'px;--radius-sm:' . intdiv($r, 2) . 'px;--radius-lg:' . intdiv($r * 3, 2) . 'px;';
+        if ($v = Layout::logoSize()) { $css .= '--logo-h:' . $v . 'px;'; }
+        if ($v = Layout::nameSize()) { $css .= '--name-size:' . $v . 'px;'; }
+        if ($v = Layout::nameColor()) { $css .= '--name-color:' . $v . ';'; }
+        if ($v = Layout::sidebarW()) { $css .= '--sidebar-w:' . $v . 'px;'; }
+        if ($v = Layout::containerW()) { $css .= '--container-w:' . $v . 'px;'; }
+        return $css . '}';
     }
 
     public static function motion(): string

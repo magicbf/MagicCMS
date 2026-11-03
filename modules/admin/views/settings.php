@@ -41,6 +41,31 @@
       <select class="select" name="layout_brand_align" aria-label="<?= e(t('Logo alignment')) ?>"><?php foreach (MagicCMS\Core\Layout::BRAND_ALIGN as $k => $l): ?><option value="<?= e($k) ?>" <?= MagicCMS\Core\Layout::brandAlign() === $k ? 'selected' : '' ?>><?= e(t('Logo: ' . $l)) ?></option><?php endforeach ?></select>
       <small class="help"><?= e(t('These apply to the “Top bar” header style, which shows at most 6 menu buttons – any further items go into a “More” dropdown.')) ?></small></div>
   </div>
+  <h3 class="section-title"><?= e(t('Header look')) ?></h3>
+  <p class="muted"><?= e(t('A visual treatment for the header area. It works on top of every theme and header style.')) ?></p>
+  <div class="hs-picker hl-picker" role="radiogroup" aria-label="<?= e(t('Header look')) ?>">
+  <?php foreach (MagicCMS\Core\Layout::LOOKS as $k => $label): ?>
+    <label class="hs-opt"><input type="radio" name="layout_header_look" value="<?= e($k) ?>" <?= MagicCMS\Core\Layout::headerLook() === $k ? 'checked' : '' ?>><span class="hl-swatch hl-<?= e($k) ?>" aria-hidden="true"><i></i><b></b></span><b><?= e(t($label)) ?></b></label>
+  <?php endforeach ?>
+  </div>
+
+  <h3 class="section-title"><?= e(t('Logo and site name')) ?></h3>
+  <div class="hdr-preview" id="hdr-preview" aria-hidden="true"><div class="hp-brand"><img src="<?= e(site_logo()) ?>" alt=""><span class="hp-text"><b><?= e(setting('site.name', 'MagicCMS')) ?></b><small><?= e(setting('site.tagline', '')) ?></small></span></div></div>
+  <div class="form-grid">
+    <div class="form-row"><label class="label"><?= e(t('Logo height')) ?> (<output id="o-logo"><?= MagicCMS\Core\Layout::logoSize() ?: t('auto') ?></output>)</label><input type="range" name="layout_logo_size" min="0" max="200" step="2" value="<?= MagicCMS\Core\Layout::logoSize() ?>" data-prev="logo" data-out="o-logo" data-auto><small class="help"><?= e(t('0 = automatic (the theme decides). Applies to the header logo.')) ?></small></div>
+    <div class="form-row"><label class="label"><?= e(t('Site name size')) ?> (<output id="o-name"><?= MagicCMS\Core\Layout::nameSize() ?: t('auto') ?></output>)</label><input type="range" name="layout_name_size" min="0" max="80" step="1" value="<?= MagicCMS\Core\Layout::nameSize() ?>" data-prev="name" data-out="o-name" data-auto></div>
+    <div class="form-row"><label class="label"><?= e(t('Site name position')) ?></label><select class="select" name="layout_name_pos" data-prev="pos"><?php foreach (MagicCMS\Core\Layout::NAME_POS as $k => $l): ?><option value="<?= e($k) ?>" <?= MagicCMS\Core\Layout::namePos() === $k ? 'selected' : '' ?>><?= e(t($l)) ?></option><?php endforeach ?></select></div>
+    <div class="form-row"><label class="label"><?= e(t('Site name colour')) ?></label>
+      <div class="role-colors"><label class="checkbox"><input type="checkbox" name="layout_name_color_on" value="1" data-prev="coloron" <?= MagicCMS\Core\Layout::nameColor() ? 'checked' : '' ?>> <?= e(t('Custom')) ?></label><input type="color" name="layout_name_color" value="<?= e(MagicCMS\Core\Layout::nameColor() ?: '#ffffff') ?>" data-prev="color"></div></div>
+  </div>
+  <label class="checkbox"><input type="checkbox" name="show_tagline" value="1" data-prev="tag" <?= setting('site.show_tagline', true) ? 'checked' : '' ?>> <?= e(t('Show the tagline under the site name')) ?></label>
+  <small class="help"><?= e(t('To show only the logo, untick “Show the site name” further up.')) ?></small>
+
+  <h3 class="section-title"><?= e(t('Widths')) ?></h3>
+  <div class="form-grid">
+    <div class="form-row"><label class="label"><?= e(t('Side panel width')) ?> (<output id="o-side"><?= MagicCMS\Core\Layout::sidebarW() ? MagicCMS\Core\Layout::sidebarW() . ' px' : t('auto') ?></output>)</label><input type="range" name="layout_sidebar_w" min="0" max="460" step="10" value="<?= MagicCMS\Core\Layout::sidebarW() ?>" data-out="o-side" data-auto data-unit="px"><small class="help"><?= e(t('0 = automatic. 220–460 px. Applies to the left and right panel columns.')) ?></small></div>
+    <div class="form-row"><label class="label"><?= e(t('Page width')) ?></label><select class="select" name="layout_container_w"><?php foreach (MagicCMS\Core\Layout::CONTAINER_WIDTHS as $k => $l): ?><option value="<?= (int) $k ?>" <?= MagicCMS\Core\Layout::containerW() === (int) $k ? 'selected' : '' ?>><?= e(t($l)) ?></option><?php endforeach ?></select><small class="help"><?= e(t('The maximum width of header, content and footer on large screens.')) ?></small></div>
+  </div>
   <p><button class="btn btn-primary"><?= e(t('Save settings')) ?></button></p>
 </div></form>
 

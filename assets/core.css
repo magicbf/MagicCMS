@@ -680,3 +680,40 @@ html:not([data-motion="off"]) .chat .chat-msg.is-new{animation:chat-in .35s var(
 .post-author .droles{justify-content:center}
 .chat-head .drole{font-size:9px;padding:0 6px}
 .member-tile .droles{justify-content:center;margin-top:3px}
+
+/* =====================================================================
+   0.1.1 – Header looks, logo / site-name controls, widths
+   (Admin → Settings → Header look / Logo and site name / Widths)
+   ===================================================================== */
+/* --- logo size: applies to the header / rail brand only --- */
+html[data-logo] :is(.site-header,.site-rail,.hd-topbar) .brand :is(.brand-logo,.brand-mark){height:var(--logo-h)!important;width:auto!important;max-width:min(100%,560px);object-fit:contain}
+html[data-logo] :is(.site-header,.site-rail,.hd-topbar) .brand .brand-mark{width:var(--logo-h)!important}
+@media (max-width:640px){html[data-logo] :is(.site-header,.site-rail,.hd-topbar) .brand :is(.brand-logo,.brand-mark){height:min(var(--logo-h),72px)!important}html[data-logo] :is(.site-header,.site-rail,.hd-topbar) .brand .brand-mark{width:min(var(--logo-h),72px)!important}}
+/* --- site name: size, colour, position --- */
+html[data-hname] :is(.site-header,.site-rail,.hd-topbar) .brand-name{font-size:var(--name-size)!important;line-height:1.05!important;white-space:normal}
+@media (max-width:640px){html[data-hname] :is(.site-header,.site-rail,.hd-topbar) .brand-name{font-size:min(var(--name-size),34px)!important}}
+html[data-ncolor] :is(.site-header,.site-rail,.hd-topbar) .brand-name{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;-webkit-text-fill-color:var(--name-color)!important;color:var(--name-color)!important;text-shadow:none!important;filter:none!important}
+html[data-name-pos="below"] :is(.site-header,.site-rail,.hd-topbar) .brand{flex-direction:column!important;align-items:center!important;text-align:center;gap:.55rem}
+html[data-name-pos="below"] :is(.site-header,.site-rail,.hd-topbar) .brand-text{align-items:center}
+html[data-name-pos="below"] .hd-tb-brand .brand{margin-inline:auto}
+html[data-name-pos="below"] :is(.site-header.hd-inline,.hd-i-brand) .brand{flex-direction:row!important}   /* a slim bar keeps the name beside the logo */
+
+/* --- header looks --- */
+html:is([data-hlook="glass"],[data-hlook="solid"],[data-hlook="gradient"],[data-hlook="neon"],[data-hlook="carbon"],[data-hlook="transparent"]) :is(.site-header:not(.hd-float):not(.hd-tb-brand),.hd-topbar,.hd-island,.site-rail)::before,
+html:is([data-hlook="glass"],[data-hlook="solid"],[data-hlook="gradient"],[data-hlook="neon"],[data-hlook="carbon"],[data-hlook="transparent"]) :is(.site-header:not(.hd-float):not(.hd-tb-brand),.hd-topbar,.hd-island,.site-rail)::after{display:none!important}
+html[data-hlook="glass"] :is(.site-header:not(.hd-float):not(.hd-tb-brand),.hd-topbar,.hd-island,.site-rail){background:linear-gradient(180deg,color-mix(in srgb,var(--c-text) 11%,transparent),color-mix(in srgb,var(--c-text) 3%,transparent))!important;-webkit-backdrop-filter:blur(20px) saturate(1.5)!important;backdrop-filter:blur(20px) saturate(1.5)!important;border:0!important;border-bottom:1px solid var(--glass-border,rgba(255,255,255,.14))!important;box-shadow:0 14px 34px -22px rgba(0,0,0,.7),inset 0 1px 0 var(--glass-hl,rgba(255,255,255,.1))!important}
+html[data-hlook="solid"] :is(.site-header:not(.hd-float):not(.hd-tb-brand),.hd-topbar,.hd-island,.site-rail){background:var(--c-surface)!important;border:0!important;border-bottom:3px solid var(--c-primary)!important;box-shadow:0 12px 26px -20px rgba(0,0,0,.7)!important}
+html[data-hlook="gradient"] :is(.site-header:not(.hd-float):not(.hd-tb-brand),.hd-topbar,.hd-island,.site-rail){background:linear-gradient(105deg,var(--c-primary-lo),var(--c-primary) 55%,var(--c-primary-hi))!important;border:0!important;box-shadow:0 16px 36px -22px var(--c-primary)!important}
+html[data-hlook="gradient"] :is(.site-header:not(.hd-float):not(.hd-tb-brand),.hd-topbar,.hd-island,.site-rail) :is(.brand-name,.brand-sub){background:none!important;-webkit-text-fill-color:var(--c-on-bar)!important;color:var(--c-on-bar)!important;text-shadow:0 1px 2px rgba(0,0,0,.25)!important;filter:none!important}
+html[data-hlook="neon"] :is(.site-header:not(.hd-float):not(.hd-tb-brand),.hd-topbar,.hd-island,.site-rail){background:#0b0c12!important;border:0!important;border-bottom:2px solid var(--c-primary-hi)!important;box-shadow:0 10px 34px -12px var(--c-primary),0 2px 0 color-mix(in srgb,var(--c-primary) 40%,transparent)!important}
+html[data-hlook="neon"] :is(.site-header:not(.hd-float):not(.hd-tb-brand),.hd-topbar,.hd-island,.site-rail) :is(.brand-name,.brand-sub){background:none!important;-webkit-text-fill-color:#fff!important;color:#fff!important;filter:none!important}
+html[data-hlook="neon"] :is(.site-header:not(.hd-float):not(.hd-tb-brand),.hd-topbar,.hd-island,.site-rail) .brand-name{text-shadow:0 0 22px color-mix(in srgb,var(--c-primary-hi) 85%,transparent),0 0 3px var(--c-primary-hi)!important}
+html[data-hlook="neon"] :is(.site-header:not(.hd-float):not(.hd-tb-brand),.hd-topbar,.hd-island,.site-rail) .brand-sub{-webkit-text-fill-color:var(--c-primary-hi)!important;color:var(--c-primary-hi)!important}
+html[data-hlook="carbon"] :is(.site-header:not(.hd-float):not(.hd-tb-brand),.hd-topbar,.hd-island,.site-rail){background:repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0 2px,transparent 2px 4px),repeating-linear-gradient(-45deg,rgba(0,0,0,.32) 0 2px,transparent 2px 4px),linear-gradient(180deg,#2b3532,#151b19)!important;border:0!important;border-bottom:2px solid var(--c-primary-hi)!important;box-shadow:0 14px 30px -20px #000,inset 0 1px 0 rgba(255,255,255,.14)!important;color:#eef3f0}
+html[data-hlook="carbon"] :is(.site-header:not(.hd-float):not(.hd-tb-brand),.hd-topbar,.hd-island,.site-rail) :is(.brand-name,.brand-sub){background:none!important;-webkit-text-fill-color:#f2f6f4!important;color:#f2f6f4!important;filter:none!important}
+html[data-hlook="carbon"] :is(.site-header:not(.hd-float):not(.hd-tb-brand),.hd-topbar,.hd-island,.site-rail) .brand-sub{-webkit-text-fill-color:var(--c-primary-hi)!important;color:var(--c-primary-hi)!important}
+html[data-hlook="transparent"] :is(.site-header:not(.hd-float):not(.hd-tb-brand),.hd-topbar){background:none!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html[data-ncolor] :is(.site-header,.site-rail,.hd-topbar) .brand-name{-webkit-text-fill-color:var(--name-color)!important;color:var(--name-color)!important}
+
+/* a custom site-name colour always wins over a look's own text colour */
+html[data-ncolor][data-hlook] :is(.site-header:not(.hd-float):not(.hd-tb-brand),.site-header,.hd-topbar,.hd-island,.site-rail) .brand .brand-name{background:none!important;-webkit-text-fill-color:var(--name-color)!important;color:var(--name-color)!important;text-shadow:none!important}

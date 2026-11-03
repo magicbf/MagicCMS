@@ -61,6 +61,14 @@ final class Controller
         }
         Settings::set('layout.mode', self::pick((string) input('layout_mode'), Layout::MODES, 'right'));
         Settings::set('layout.header', self::pick((string) input('layout_header'), array_keys(Layout::HEADERS), 'classic'));
+        Settings::set('layout.header_look', self::pick((string) input('layout_header_look'), array_keys(Layout::LOOKS), 'theme'));
+        Settings::set('layout.logo_size', ($v = (int) input('layout_logo_size', 0)) > 0 ? max(28, min(200, $v)) : 0);
+        Settings::set('layout.name_size', ($v = (int) input('layout_name_size', 0)) > 0 ? max(14, min(80, $v)) : 0);
+        Settings::set('layout.name_pos', self::pick((string) input('layout_name_pos'), array_keys(Layout::NAME_POS), 'right'));
+        Settings::set('layout.name_color', !empty($_POST['layout_name_color_on']) && is_hex((string) input('layout_name_color')) ? strtolower((string) input('layout_name_color')) : '');
+        Settings::set('site.show_tagline', !empty($_POST['show_tagline']));
+        Settings::set('layout.sidebar_w', ($v = (int) input('layout_sidebar_w', 0)) > 0 ? max(220, min(460, $v)) : 0);
+        Settings::set('layout.container_w', array_key_exists((int) input('layout_container_w', 0), Layout::CONTAINER_WIDTHS) ? (int) input('layout_container_w', 0) : 0);
         Settings::set('layout.acct_shape', self::pick((string) input('layout_acct_shape'), array_keys(Layout::ACCT_SHAPES), 'buttons'));
         Settings::set('layout.brand_align', self::pick((string) input('layout_brand_align'), array_keys(Layout::BRAND_ALIGN), 'left'));
         Settings::set('layout.topbar_sticky', !empty($_POST['layout_topbar_sticky']));

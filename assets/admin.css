@@ -338,3 +338,22 @@ body.ed-lock{overflow:hidden}
 .adm .upd-hash{word-break:break-all;font-size:11.5px}
 .adm .upd-confirm{margin-top:10px;padding:16px 18px;border-radius:14px;border:1px solid color-mix(in srgb,var(--c-primary) 45%,var(--c-border));background:color-mix(in srgb,var(--c-primary) 6%,transparent)}
 .adm .upd-stats{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+
+/* ---- header look picker + brand preview ---- */
+.adm .hl-picker{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.adm .hl-swatch{position:relative;display:block;height:54px;border-radius:10px;overflow:hidden;border:1px solid var(--c-border);background:linear-gradient(180deg,#232634,#14161f)}
+.adm .hl-swatch i{position:absolute;left:10px;top:12px;width:26px;height:26px;border-radius:7px;background:var(--g-primary)}
+.adm .hl-swatch b{position:absolute;left:44px;top:19px;width:46px;height:8px;border-radius:5px;background:rgba(255,255,255,.55);box-shadow:0 14px 0 -1px rgba(255,255,255,.22)}
+.adm .hl-swatch::after{content:"";position:absolute;inset:0;pointer-events:none}
+.adm .hl-theme{background:repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0 6px,transparent 6px 12px),linear-gradient(180deg,#232634,#14161f)}
+.adm .hl-glass::after{background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.05));border-bottom:1px solid rgba(255,255,255,.3);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.adm .hl-solid{background:#2a2e3d;box-shadow:inset 0 -3px 0 var(--c-primary)}
+.adm .hl-gradient{background:linear-gradient(105deg,var(--c-primary-lo),var(--c-primary) 55%,var(--c-primary-hi))}
+.adm .hl-neon{background:#0b0c12;box-shadow:inset 0 -2px 0 var(--c-primary-hi),0 6px 18px -6px var(--c-primary)}
+.adm .hl-carbon{background:repeating-linear-gradient(45deg,rgba(255,255,255,.06) 0 2px,transparent 2px 4px),linear-gradient(180deg,#2b3532,#151b19);box-shadow:inset 0 -2px 0 var(--c-primary-hi)}
+.adm .hl-transparent{background:repeating-conic-gradient(rgba(255,255,255,.08) 0 25%,transparent 0 50%) 0 0/12px 12px}
+.adm .hdr-preview{margin:6px 0 16px;padding:18px 22px;border-radius:14px;background:linear-gradient(180deg,#1b1e2b,#10121a);border:1px solid var(--c-border);overflow:hidden}
+.adm .hp-brand{display:flex;align-items:center;gap:14px;color:#fff;transition:all .12s}
+.adm .hp-brand img{height:56px;width:auto;max-width:260px;object-fit:contain;border-radius:10px}
+.adm .hp-text{display:flex;flex-direction:column;gap:3px;min-width:0}.adm .hp-text b{font-size:24px;line-height:1.05;letter-spacing:.02em}.adm .hp-text small{opacity:.7}
+.adm .hdr-preview.is-below .hp-brand{flex-direction:column;text-align:center}.adm .hdr-preview.is-below .hp-text{align-items:center}

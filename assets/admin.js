@@ -49,6 +49,20 @@
     f.querySelectorAll('[data-r]').forEach(function (el) { el.addEventListener('input', sync); el.addEventListener('change', sync); });
     f.querySelectorAll('.rc-dot').forEach(function (b) { b.addEventListener('click', function () { f.querySelector('[data-r=color]').value = b.dataset.color; sync(); }); });
   });
+  // Header settings: "auto" label on zero, live preview of logo + name
+  (function () {
+    var pv = d.getElementById('hdr-preview'); if (!pv) return;
+    var f = pv.closest('form'), img = pv.querySelector('img'), txt = pv.querySelector('.hp-text'), nm = txt.querySelector('b'), tg = txt.querySelector('small');
+    function q(n) { return f.querySelector('[data-prev="' + n + '"]'); }
+    function sync() {
+      var l = +q('logo').value, n = +q('name').value, below = q('pos').value === 'below', col = q('coloron').checked ? q('color').value : '';
+      img.style.height = (l || 56) + 'px'; nm.style.fontSize = (n || 24) + 'px'; nm.style.color = col || '';
+      pv.classList.toggle('is-below', below); tg.hidden = !q('tag').checked;
+      f.querySelectorAll('input[data-auto]').forEach(function (r) { var o = d.getElementById(r.dataset.out); if (o && +r.value === 0) o.textContent = 'auto'; else if (o && r.dataset.unit) o.textContent = r.value + ' ' + r.dataset.unit; });
+    }
+    f.querySelectorAll('[data-prev],input[data-auto]').forEach(function (el) { el.addEventListener('input', function () { setTimeout(sync, 0); }); el.addEventListener('change', function () { setTimeout(sync, 0); }); });
+    sync();
+  })();
   // Show only the target field that matches the chosen link type
   d.querySelectorAll('[data-ref-switch]').forEach(function (sel) {
     var form = sel.closest('fieldset') || sel.closest('form');
