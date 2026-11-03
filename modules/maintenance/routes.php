@@ -19,7 +19,11 @@ return function (Router $r): void {
     $r->post('/admin/maintenance/settings', [$c, 'settings'], $p);
     $r->get('/admin/maintenance/update', [$c, 'update'], $l);
     $r->post('/admin/maintenance/update/check', [$c, 'check'], $p);
+    $r->post('/admin/maintenance/update/source', [$c, 'sourceSave'], $p);
+    $r->post('/admin/maintenance/update/branches', [$c, 'branches'], $p);
     $r->post('/admin/maintenance/update/prepare', [$c, 'prepare'], $p);
+    $r->post('/admin/maintenance/update/cancel', [$c, 'cancel'], $p);
+    $r->post('/admin/maintenance/update/mark-current', [$c, 'markCurrent'], $p);
     $r->get('/admin/maintenance/update/review', [$c, 'review'], $l);
     $r->post('/admin/maintenance/update/apply', [$c, 'apply'], $p);
     $r->get('/admin/maintenance/update/finish', [$c, 'finish'], $l);

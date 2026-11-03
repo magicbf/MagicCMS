@@ -111,7 +111,8 @@ final class Updater
      */
     public static function inspect(string $zipFile): array
     {
-        $r = ['ok' => false, 'errors' => [], 'warnings' => [], 'version' => '', 'notes' => '', 'files' => [], 'modified' => [], 'replace' => 0, 'new' => 0, 'release' => []];
+        $r = ['ok' => false, 'errors' => [], 'warnings' => [], 'version' => '', 'notes' => '', 'files' => [], 'modified' => [], 'replace' => 0, 'new' => 0, 'release' => [],
+            'hash' => [], 'todo' => [], 'added' => [], 'changed' => [], 'unchanged' => 0, 'obsolete' => [], 'kept' => [], 'commit' => '', 'phpChecked' => 0];
         if (!class_exists(\ZipArchive::class)) {
             $r['errors'][] = t('The PHP zip extension is required for updates.');
             return $r;
@@ -147,7 +148,7 @@ final class Updater
         $r['notes'] = mb_substr((string) ($meta['notes'] ?? ''), 0, 4000);
         if (version_compare($r['version'], MCMS_VERSION, '<')) {
             $r['errors'][] = t('This package (v{a}) is older than the installed version (v{b}). Downgrades are not supported – use a backup instead.', ['a' => $r['version'], 'b' => MCMS_VERSION]);
-        } elseif (version_compare($r['version'], MCMS_VERSION, '==')) {
+        } elseif (version_compare($r['version'], MCMS_VERSION, '==') && empty($meta['commit'])) {
             $r['warnings'][] = t('Same version as installed – this will re-install the code files (a repair).');
         }
         if (isset($meta['min_php']) && version_compare(PHP_VERSION, (string) $meta['min_php'], '<')) {
@@ -223,16 +224,43 @@ final class Updater
                 }
             }
             $r['files'][$n] = (int) $st['size'];
-            if (is_file(MCMS_ROOT . '/' . $n)) {
+            $h = hash('sha256', $data);
+            $r['hash'][$n] = $h;
+            if (str_ends_with($n, '.php')) {
+                $r['phpChecked']++;
+            }
+            $local = MCMS_ROOT . '/' . $n;
+            if (!is_file($local)) {
+                $r['new']++;
+                $r['added'][] = $n;
+                $r['todo'][] = $n;
+            } elseif (!hash_equals($h, (string) hash_file('sha256', $local))) {
                 $r['replace']++;
+                $r['changed'][] = $n;
+                $r['todo'][] = $n;
                 if (isset($modified[$n])) {
-                    $r['modified'][] = $n;
+                    $r['modified'][] = $n;   // customised on this site AND different from the package → will be overwritten
                 }
             } else {
-                $r['new']++;
+                $r['unchanged']++;           // identical → left alone
             }
         }
         $zip->close();
+        $r['commit'] = preg_match('/^[a-f0-9]{40}$/', (string) ($meta['commit'] ?? '')) ? (string) $meta['commit'] : '';
+        // files the PREVIOUS release shipped and this one no longer contains: removed after the update has proven itself
+        $shipped = self::baseline()['shipped'] ?? null;
+        if (is_array($shipped)) {
+            foreach ($shipped as $f) {
+                if (!is_string($f) || isset($r['files'][$f]) || !self::purgeable($f) || !is_file(MCMS_ROOT . '/' . $f)) {
+                    continue;
+                }
+                if (isset($base[$f]) && hash_equals((string) $base[$f], (string) hash_file('sha256', MCMS_ROOT . '/' . $f))) {
+                    $r['obsolete'][] = $f;
+                } else {
+                    $r['kept'][] = $f;   // customised on this site: never deleted
+                }
+            }
+        }
         if (!isset($r['files']['core/Bootstrap.php']) || !isset($r['files']['index.php'])) {
             $r['errors'][] = t('The package does not contain the core files.');
         }
@@ -242,6 +270,27 @@ final class Updater
         $r['_prefix'] = $prefix;
         $r['ok'] = !$r['errors'];
         return $r;
+    }
+
+    /** Only files from the plain code folders may ever be removed by an update; never migrations/ or lang/ (site-specific additions). */
+    public static function purgeable(string $f): bool
+    {
+        if ($f === '' || str_contains($f, '..') || str_starts_with($f, '/') || str_contains($f, "\0") || !str_contains($f, '/') || !preg_match(self::EXT, $f)) {
+            return false;
+        }
+        $top = explode('/', $f)[0];
+        return in_array($top, self::DIRS, true) && !in_array($top, ['migrations', 'lang'], true);
+    }
+
+    private static function pruneEmptyDirs(string $dir): void
+    {
+        $root = MCMS_ROOT . '/';
+        while (str_starts_with($dir . '/', $root) && $dir !== MCMS_ROOT && is_dir($dir) && !(new \FilesystemIterator($dir))->valid()) {
+            if (!@rmdir($dir)) {
+                break;
+            }
+            $dir = dirname($dir);
+        }
     }
 
     /** Pre-flight: can the web server write everything it must? @return string[] problems */
@@ -258,7 +307,7 @@ final class Updater
             $bad[] = t('Not enough free disk space (need about {n} MB).', ['n' => (int) ceil($need / 1048576)]);
         }
         $dirs = [];
-        foreach (array_keys($insp['files']) as $f) {
+        foreach (($insp['todo'] ?? array_keys($insp['files'])) as $f) {
             $p = MCMS_ROOT . '/' . $f;
             $d = is_file($p) ? $p : dirname($p);
             while (!file_exists($d) && $d !== MCMS_ROOT) {
@@ -292,6 +341,9 @@ final class Updater
         if (is_file(self::marker())) {
             throw new \RuntimeException(t('A previous update has not been finished yet. Finish or roll it back first.'));
         }
+        if (!$insp['todo'] && !$insp['obsolete']) {
+            throw new \RuntimeException(t('Nothing to update: every file already matches this version.'));
+        }
         $prefix = (string) $insp['_prefix'];
         self::baseline(); // make sure "locally modified" can be reported later
         $db = Backup::create('pre-update')['name'];
@@ -307,7 +359,7 @@ final class Updater
         }
         $cb->addFromString('release.json', json_encode(['name' => 'MagicCMS-code-backup', 'version' => MCMS_VERSION, 'created' => gmdate('c')]));
         $created = [];
-        foreach (array_keys($insp['files']) as $f) {
+        foreach (array_merge($insp['todo'], $insp['obsolete']) as $f) {   // everything this update replaces or later removes can be restored
             $p = MCMS_ROOT . '/' . $f;
             if (is_file($p)) {
                 $cb->addFile($p, 'files/' . $f);
@@ -322,6 +374,7 @@ final class Updater
         file_put_contents(self::marker(), json_encode([
             'from' => MCMS_VERSION, 'to' => $insp['version'], 'at' => gmdate('c'), 'dbBackup' => $db, 'codeBackup' => $codeBackup,
             'created' => $created, 'maintenance' => $prevMaint, 'status' => 'pending',
+            'obsolete' => $insp['obsolete'], 'commit' => $insp['commit'], 'prevCommit' => self::installedCommit(), 'count' => count($insp['todo']),
         ]));
         Settings::set('site.maintenance', true);
 
@@ -329,7 +382,7 @@ final class Updater
         $zip->open($zipFile);
         $written = 0;
         try {
-            foreach (array_keys($insp['files']) as $f) {
+            foreach ($insp['todo'] as $f) {
                 $data = $zip->getFromName($prefix . $f);
                 if ($data === false) {
                     throw new \RuntimeException(t('Cannot read {p}', ['p' => $f]));
@@ -351,11 +404,11 @@ final class Updater
             $files[$f] = hash_file('sha256', MCMS_ROOT . '/' . $f);
         }
         $old = self::baseline()['files'];
-        @file_put_contents(self::manifestFile(), json_encode(['version' => $insp['version'], 'created' => gmdate('c'), 'files' => $files + $old], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        @file_put_contents(self::manifestFile(), json_encode(['version' => $insp['version'], 'created' => gmdate('c'), 'commit' => $insp['commit'], 'shipped' => array_keys($insp['files']), 'files' => $files + $old], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
         if (function_exists('opcache_reset')) {
             @opcache_reset();
         }
-        return ['from' => MCMS_VERSION, 'to' => $insp['version'], 'files' => $written, 'dbBackup' => $db, 'codeBackup' => $codeBackup];
+        return ['from' => MCMS_VERSION, 'to' => $insp['version'], 'files' => $written, 'dbBackup' => $db, 'codeBackup' => $codeBackup, 'changed' => count($insp['changed']), 'added' => count($insp['added']), 'obsolete' => count($insp['obsolete']), 'unchanged' => $insp['unchanged'], 'commit' => $insp['commit']];
     }
 
     private static function writeAtomic(string $dest, string $data): void
@@ -419,9 +472,31 @@ final class Updater
             return null;
         }
         Settings::set('site.maintenance', (bool) ($m['maintenance'] ?? false));
+        // The new version booted and migrated: only now are files the new release no longer ships removed.
+        $purged = [];
+        foreach ((array) ($m['obsolete'] ?? []) as $f) {
+            if (is_string($f) && self::purgeable($f) && is_file(MCMS_ROOT . '/' . $f) && @unlink(MCMS_ROOT . '/' . $f)) {
+                $purged[] = $f;
+                self::pruneEmptyDirs(dirname(MCMS_ROOT . '/' . $f));
+            }
+        }
+        if ($purged) {
+            $mf = self::manifestFile();
+            $man = is_file($mf) ? json_decode((string) file_get_contents($mf), true) : null;
+            if (is_array($man)) {
+                $man['files'] = array_diff_key((array) ($man['files'] ?? []), array_flip($purged));
+                @file_put_contents($mf, json_encode($man, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+            }
+        }
+        if (preg_match('/^[a-f0-9]{40}$/', (string) ($m['commit'] ?? ''))) {
+            Settings::set('update.commit', $m['commit']);
+        }
+        Settings::set('update.status', ['at' => gmdate('c'), 'newer' => false]);
         $hist = (array) setting('update.history', []);
-        array_unshift($hist, ['from' => $m['from'], 'to' => MCMS_VERSION, 'at' => gmdate('c'), 'dbBackup' => $m['dbBackup'], 'codeBackup' => $m['codeBackup'], 'created' => $m['created'] ?? []]);
+        array_unshift($hist, ['from' => $m['from'], 'to' => MCMS_VERSION, 'at' => gmdate('c'), 'dbBackup' => $m['dbBackup'], 'codeBackup' => $m['codeBackup'], 'created' => $m['created'] ?? [],
+            'commit' => (string) ($m['commit'] ?? ''), 'prevCommit' => (string) ($m['prevCommit'] ?? ''), 'purged' => count($purged), 'count' => (int) ($m['count'] ?? 0)]);
         Settings::set('update.history', array_slice($hist, 0, 10));
+        $m['purged'] = $purged;
         @unlink(self::marker());
         return $m;
     }
@@ -454,69 +529,434 @@ final class Updater
         }
     }
 
-    // ------------------------------------------------------------------ online check
-    public static function feedUrl(): string
+    // ------------------------------------------------------------------ online update (GitHub)
+    /** Hosts an update may be fetched from. Anything else (also after a redirect) is refused. */
+    private const HOSTS = ['api.github.com', 'codeload.github.com', 'github.com', 'objects.githubusercontent.com', 'release-assets.githubusercontent.com', 'raw.githubusercontent.com'];
+    private const REPO_DEFAULT = 'magicbf/MagicCMS';
+    private const FEED_DEFAULT = 'https://api.github.com/repos/magicbf/MagicCMS/releases/latest';
+
+    /** "owner/name" of the GitHub repository updates are pulled from. */
+    public static function repo(): string
     {
-        return (string) setting('update.feed', 'https://api.github.com/repos/magicbf/MagicCMS/releases/latest');
+        $r = (string) setting('update.repo', self::REPO_DEFAULT);
+        return preg_match('#^[A-Za-z0-9_.\-]{1,39}/[A-Za-z0-9_.\-]{1,100}$#', $r) ? $r : self::REPO_DEFAULT;
     }
 
-    private static function http(string $url, int $timeout = 10, int $max = 5 * 1048576): string
+    /** 'auto' (latest release, else the default branch) | 'release' | 'branch:<name>' */
+    public static function channel(): string
     {
-        $host = (string) parse_url($url, PHP_URL_HOST);
-        $local = in_array($host, ['localhost', '127.0.0.1', '::1'], true);
-        if (!preg_match('#^https://#i', $url) && !($local && preg_match('#^http://#i', $url))) {
-            throw new \RuntimeException(t('Updates are only fetched over HTTPS.'));
+        $c = (string) setting('update.channel', 'auto');
+        if ($c === 'auto' || $c === 'release') {
+            return $c;
         }
-        $ctx = stream_context_create(['http' => ['timeout' => $timeout, 'header' => "User-Agent: MagicCMS/" . MCMS_VERSION . "\r\nAccept: application/json, application/octet-stream\r\n", 'follow_location' => 1, 'max_redirects' => 4]]);
+        return preg_match('#^branch:[A-Za-z0-9._/\-]{1,100}$#', $c) && !str_contains($c, '..') ? $c : 'auto';
+    }
+
+    public static function feedUrl(): string
+    {
+        return (string) setting('update.feed', self::FEED_DEFAULT);
+    }
+
+    private static function isLoopback(string $host): bool
+    {
+        return in_array($host, ['localhost', '127.0.0.1', '::1', '[::1]'], true);
+    }
+
+    /** Test hook: base URLs can be pointed at a local server, but ONLY a loopback one. */
+    private static function base(string $key, string $default): string
+    {
+        $v = rtrim((string) setting($key, $default), '/');
+        return $v !== $default && self::isLoopback((string) parse_url($v, PHP_URL_HOST)) ? $v : $default;
+    }
+
+    private static function assertUrl(string $url): void
+    {
+        $p = parse_url($url);
+        $host = strtolower((string) ($p['host'] ?? ''));
+        $scheme = strtolower((string) ($p['scheme'] ?? ''));
+        $ok = ($scheme === 'https' && in_array($host, self::HOSTS, true)) || (in_array($scheme, ['http', 'https'], true) && self::isLoopback($host));
+        if (!$ok || isset($p['user']) || isset($p['pass'])) {
+            throw new \RuntimeException(t('Refused to fetch from “{h}”: updates may only come from GitHub over HTTPS.', ['h' => $host ?: $url]));
+        }
+    }
+
+    /**
+     * One HTTP GET with a size cap, no automatic redirects (each hop is checked against the host list) and TLS verification.
+     * @return array{0:int,1:string,2:string} status, Location header, body
+     */
+    private static function request(string $url, int $max, int $timeout, string $accept): array
+    {
+        $ua = 'MagicCMS-Updater/' . MCMS_VERSION;
+        if (function_exists('curl_init')) {
+            $body = '';
+            $loc = '';
+            $ch = curl_init($url);
+            $loopback = self::isLoopback((string) parse_url($url, PHP_URL_HOST));
+            curl_setopt_array($ch, [
+                CURLOPT_FOLLOWLOCATION => false, CURLOPT_TIMEOUT => $timeout, CURLOPT_CONNECTTIMEOUT => min(10, $timeout),
+                CURLOPT_USERAGENT => $ua, CURLOPT_HTTPHEADER => ['Accept: ' . $accept, 'X-GitHub-Api-Version: 2022-11-28'],
+                CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2,
+                CURLOPT_PROTOCOLS => $loopback ? (CURLPROTO_HTTPS | CURLPROTO_HTTP) : CURLPROTO_HTTPS,
+                CURLOPT_HEADERFUNCTION => static function ($c, $h) use (&$loc) {
+                    if (stripos($h, 'location:') === 0) {
+                        $loc = trim(substr($h, 9));
+                    }
+                    return strlen($h);
+                },
+                CURLOPT_WRITEFUNCTION => static function ($c, $d) use (&$body, $max) {
+                    $body .= $d;
+                    return strlen($body) > $max ? 0 : strlen($d);   // returning less than received aborts the transfer
+                },
+            ]);
+            $ok = curl_exec($ch);
+            $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+            $err = curl_errno($ch);
+            curl_close($ch);
+            if ($ok === false && $err === CURLE_WRITE_ERROR) {
+                throw new \RuntimeException(t('The download is larger than the allowed {n} MB – aborted.', ['n' => (int) ($max / 1048576)]));
+            }
+            if ($ok === false || $code === 0) {
+                throw new \RuntimeException(t('Could not reach the update server.'));
+            }
+            return [$code, $loc, $body];
+        }
+        $ctx = stream_context_create(['http' => ['timeout' => $timeout, 'header' => "User-Agent: $ua\r\nAccept: $accept\r\n", 'follow_location' => 0, 'ignore_errors' => true], 'ssl' => ['verify_peer' => true, 'verify_peer_name' => true]]);
         $fh = @fopen($url, 'rb', false, $ctx);
         if (!$fh) {
             throw new \RuntimeException(t('Could not reach the update server.'));
         }
-        $data = stream_get_contents($fh, $max + 1);
+        $body = stream_get_contents($fh, $max + 1);
         fclose($fh);
-        if ($data === false || strlen($data) > $max) {
-            throw new \RuntimeException(t('The update server sent an unexpected response.'));
+        $code = 0;
+        $loc = '';
+        foreach ((array) ($http_response_header ?? []) as $h) {
+            if (preg_match('#^HTTP/\S+ (\d{3})#', $h, $m)) {
+                $code = (int) $m[1];
+            } elseif (stripos($h, 'location:') === 0) {
+                $loc = trim(substr($h, 9));
+            }
         }
-        return $data;
+        if ($body === false || strlen($body) > $max) {
+            throw new \RuntimeException(t('The download is larger than the allowed {n} MB – aborted.', ['n' => (int) ($max / 1048576)]));
+        }
+        return [$code, $loc, $body];
     }
 
-    /** @return array{version:string,notes:string,url:string,sha256:string,newer:bool} */
-    public static function latest(): array
+    /** GET with manual, host-checked redirects (max 5). */
+    private static function fetch(string $url, int $max = 5 * 1048576, int $timeout = 15, string $accept = 'application/vnd.github+json'): string
     {
-        $j = json_decode(self::http(self::feedUrl()), true);
+        for ($i = 0; $i < 6; $i++) {
+            self::assertUrl($url);
+            [$code, $loc, $body] = self::request($url, $max, $timeout, $accept);
+            if (in_array($code, [301, 302, 303, 307, 308], true) && $loc !== '') {
+                $pu = parse_url($url);
+                $url = preg_match('#^https?://#i', $loc) ? $loc : ($pu['scheme'] . '://' . $pu['host'] . (isset($pu['port']) ? ':' . $pu['port'] : '') . '/' . ltrim($loc, '/'));
+                continue;
+            }
+            if ($code === 403 || $code === 429) {
+                throw new \RuntimeException(t('GitHub is limiting requests right now (rate limit). Please try again in a few minutes.'));
+            }
+            if ($code === 404) {
+                throw new \RuntimeException(t('Not found on GitHub (404): is the repository “{r}” public and spelled correctly?', ['r' => self::repo()]), 404);
+            }
+            if ($code < 200 || $code >= 300) {
+                throw new \RuntimeException(t('The update server answered with an error ({c}).', ['c' => $code]), $code);
+            }
+            return $body;
+        }
+        throw new \RuntimeException(t('Too many redirects – aborted.'));
+    }
+
+    private static function api(string $path, int $timeout = 12): array
+    {
+        $j = json_decode(self::fetch(self::base('update.api_base', 'https://api.github.com') . $path, 2 * 1048576, $timeout), true);
+        if (!is_array($j)) {
+            throw new \RuntimeException(t('The update server sent an unexpected response.'));
+        }
+        return $j;
+    }
+
+    /** Installed build (commit sha) – '' when this site was not installed from a tracked commit yet. */
+    public static function installedCommit(): string
+    {
+        $c = (string) setting('update.commit', '');
+        return preg_match('/^[a-f0-9]{40}$/', $c) ? $c : '';
+    }
+
+    /**
+     * What is the newest version on GitHub? Releases first (when published), otherwise the tip of a branch.
+     * @return array<string,mixed>
+     */
+    public static function latest(int $timeout = 12): array
+    {
+        $feed = self::feedUrl();
+        if ($feed !== self::FEED_DEFAULT && $feed !== '') {
+            return self::latestFromFeed($feed);   // a custom JSON feed set by the site owner
+        }
+        $repo = self::repo();
+        $ch = self::channel();
+        $info = self::api('/repos/' . $repo, $timeout);
+        $ref = (string) ($info['default_branch'] ?? 'main');
+        $release = null;
+        if ($ch === 'auto' || $ch === 'release') {
+            try {
+                $release = self::api('/repos/' . $repo . '/releases/latest', $timeout);
+            } catch (\Throwable $e) {
+                if ($ch === 'release') {
+                    throw new \RuntimeException(t('This repository has no published release yet. Choose “latest commit of a branch” in the update settings.'), 0, $e);
+                }
+            }
+        } else {
+            $ref = substr($ch, 7);
+        }
+        $kind = $release ? 'release' : 'branch';
+        $version = MCMS_VERSION;
+        $url = '';
+        $sha256 = '';
+        $notes = '';
+        $asset = false;
+        if ($release) {
+            $ref = (string) ($release['tag_name'] ?? '');
+            $version = ltrim($ref, 'vV');
+            $notes = mb_substr((string) ($release['body'] ?? ''), 0, 4000);
+            foreach ((array) ($release['assets'] ?? []) as $a) {
+                if (!$url && preg_match('/\.zip$/i', (string) ($a['name'] ?? ''))) {
+                    $u = (string) ($a['browser_download_url'] ?? '');
+                    if (preg_match('#^https://github\.com/#', $u)) {
+                        $url = $u;
+                        $asset = true;
+                        $sha256 = preg_match('/^sha256:([a-f0-9]{64})$/i', (string) ($a['digest'] ?? ''), $m) ? strtolower($m[1]) : '';
+                    }
+                }
+            }
+            if (!preg_match('/^\d+\.\d+\.\d+([\-+][\w.]+)?$/', $version)) {
+                throw new \RuntimeException(t('The latest release tag “{t}” is not a version number like 1.2.3.', ['t' => $ref]));
+            }
+        }
+        $c = self::api('/repos/' . $repo . '/commits/' . rawurlencode($ref), $timeout);
+        $sha = strtolower((string) ($c['sha'] ?? ''));
+        if (!preg_match('/^[a-f0-9]{40}$/', $sha)) {
+            throw new \RuntimeException(t('The update server sent an unexpected response.'));
+        }
+        $installed = self::installedCommit();
+        $commits = [];
+        try {
+            if ($installed !== '' && $installed !== $sha) {
+                $cmp = self::api('/repos/' . $repo . '/compare/' . $installed . '...' . $sha, $timeout);
+                $list = (array) ($cmp['commits'] ?? []);
+            } else {
+                $list = (array) self::api('/repos/' . $repo . '/commits?sha=' . rawurlencode($ref) . '&per_page=10', $timeout);
+            }
+            foreach (array_slice(array_reverse($list), 0, 40) as $x) {
+                $commits[] = ['sha' => substr((string) ($x['sha'] ?? ''), 0, 7), 'msg' => mb_substr(strtok((string) ($x['commit']['message'] ?? ''), "\n") ?: '', 0, 140), 'author' => mb_substr((string) ($x['commit']['author']['name'] ?? ''), 0, 60), 'date' => (string) ($x['commit']['author']['date'] ?? '')];
+            }
+            if ($installed !== '' && $installed !== $sha) {
+                $commits = array_reverse($commits);   // newest first
+            }
+        } catch (\Throwable) {
+            $commits = [];
+        }
+        $newer = $kind === 'release'
+            ? (version_compare($version, MCMS_VERSION, '>') || (version_compare($version, MCMS_VERSION, '==') && $installed !== '' && $installed !== $sha))
+            : ($installed !== $sha);
+        return [
+            'kind' => $kind, 'repo' => $repo, 'ref' => $ref, 'commit' => $sha, 'short' => substr($sha, 0, 7), 'version' => $version,
+            'notes' => $notes !== '' ? $notes : mb_substr((string) ($c['commit']['message'] ?? ''), 0, 1000), 'url' => $url, 'asset' => $asset, 'sha256' => $sha256,
+            'newer' => $newer, 'unknown' => $installed === '', 'installed' => $installed, 'commits' => $commits,
+            'date' => (string) ($c['commit']['author']['date'] ?? ''), 'author' => (string) ($c['commit']['author']['name'] ?? ''), 'checked' => gmdate('c'),
+        ];
+    }
+
+    /** Legacy: a plain JSON feed ({version, url, sha256, notes}). */
+    private static function latestFromFeed(string $feed): array
+    {
+        $j = json_decode(self::fetch($feed, 5 * 1048576, 12), true);
         if (!is_array($j)) {
             throw new \RuntimeException(t('The update server sent an unexpected response.'));
         }
         $version = ltrim((string) ($j['version'] ?? $j['tag_name'] ?? ''), 'vV');
         $url = (string) ($j['url'] ?? '');
         $sha = (string) ($j['sha256'] ?? '');
-        foreach ((array) ($j['assets'] ?? []) as $a) { // GitHub release
+        foreach ((array) ($j['assets'] ?? []) as $a) {
             $n = (string) ($a['name'] ?? '');
             if (!$url && preg_match('/\.zip$/i', $n)) {
                 $url = (string) ($a['browser_download_url'] ?? '');
-            }
-            if (!$sha && preg_match('/\.sha256$/i', $n)) {
-                try {
-                    $sha = strtolower(substr(trim(self::http((string) $a['browser_download_url'], 10, 4096)), 0, 64));
-                } catch (\Throwable) {
-                }
             }
         }
         if (!preg_match('/^\d+\.\d+\.\d+([\-+][\w.]+)?$/', $version)) {
             throw new \RuntimeException(t('The update server did not announce a valid version.'));
         }
-        return ['version' => $version, 'notes' => mb_substr((string) ($j['notes'] ?? $j['body'] ?? ''), 0, 4000), 'url' => $url, 'sha256' => preg_match('/^[a-f0-9]{64}$/', $sha) ? $sha : '', 'newer' => version_compare($version, MCMS_VERSION, '>')];
+        return ['kind' => 'feed', 'repo' => $feed, 'ref' => $version, 'commit' => '', 'short' => '', 'version' => $version, 'notes' => mb_substr((string) ($j['notes'] ?? $j['body'] ?? ''), 0, 4000),
+            'url' => $url, 'asset' => true, 'sha256' => preg_match('/^[a-f0-9]{64}$/', $sha) ? $sha : '', 'newer' => version_compare($version, MCMS_VERSION, '>'), 'unknown' => false, 'installed' => '', 'commits' => [], 'date' => '', 'author' => '', 'checked' => gmdate('c')];
     }
 
-    /** Download a package into the backup folder (never into the web root). @return string path */
-    public static function download(string $url, string $sha256): string
+    /** Branch names offered in the update settings. @return string[] */
+    public static function branches(): array
     {
-        $data = self::http($url, 60, self::MAX_BYTES);
-        if ($sha256 !== '' && !hash_equals($sha256, hash('sha256', $data))) {
-            throw new \RuntimeException(t('The download does not match its published checksum – aborted.'));
+        $out = [];
+        foreach (self::api('/repos/' . self::repo() . '/branches?per_page=30') as $b) {
+            if (preg_match('#^[A-Za-z0-9._/\-]{1,100}$#', (string) ($b['name'] ?? ''))) {
+                $out[] = (string) $b['name'];
+            }
         }
+        return $out;
+    }
+
+    /** Cached result of the last check (for the dashboard hint). */
+    public static function status(): array
+    {
+        $s = (array) setting('update.status', []);
+        return $s;
+    }
+
+    /** Check at most every 12 h (superadmin dashboard). Never throws; a slow GitHub must not slow the page down. */
+    public static function autoCheck(): void
+    {
+        if (!setting('update.auto_check', true)) {
+            return;
+        }
+        $s = self::status();
+        if (!empty($s['at']) && time() - (int) strtotime((string) $s['at']) < 43200) {
+            return;
+        }
+        try {
+            $l = self::latest(4);
+            self::remember($l);
+        } catch (\Throwable) {
+            Settings::set('update.status', ['at' => gmdate('c'), 'newer' => false, 'error' => true]);
+        }
+    }
+
+    public static function remember(array $l): void
+    {
+        Settings::set('update.status', ['at' => gmdate('c'), 'newer' => (bool) $l['newer'], 'short' => (string) $l['short'], 'version' => (string) $l['version'], 'ref' => (string) $l['ref'], 'kind' => (string) $l['kind']]);
+    }
+
+    /**
+     * Download into the backup folder (never into the web root) and return the path of a standard update package.
+     * A pre-built release zip is used as is; a source snapshot is converted into the same package format first.
+     * @param array<string,mixed> $l result of latest()
+     */
+    public static function download(array $l, string $legacySha = ''): string
+    {
+        if (!is_array($l)) {
+            throw new \RuntimeException(t('Check for updates first.'));
+        }
+        if ($l['asset'] ?? false) {
+            $data = self::fetch((string) $l['url'], self::MAX_BYTES, 90, 'application/octet-stream');
+            if (($l['sha256'] ?? '') !== '' && !hash_equals((string) $l['sha256'], hash('sha256', $data))) {
+                throw new \RuntimeException(t('The download does not match its published checksum – aborted.'));
+            }
+            return self::stage($data);
+        }
+        $sha = (string) ($l['commit'] ?? '');
+        if (!preg_match('/^[a-f0-9]{40}$/', $sha) || !preg_match('#^[A-Za-z0-9_.\-]{1,39}/[A-Za-z0-9_.\-]{1,100}$#', (string) $l['repo'])) {
+            throw new \RuntimeException(t('The update server did not announce a usable version.'));
+        }
+        // pinned to the exact commit that was checked: a branch that moves in the meantime cannot change what we download
+        $raw = self::fetch(self::base('update.codeload_base', 'https://codeload.github.com') . '/' . $l['repo'] . '/zip/' . $sha, self::MAX_BYTES, 120, 'application/zip');
+        return self::buildPackage($raw, $l);
+    }
+
+    /** Delete downloaded packages that were never installed (the admin closed the browser, the session ended …). */
+    public static function cleanStaging(int $maxAge = 3600): int
+    {
+        $n = 0;
+        foreach (array_merge(glob(Backup::dir() . '/.incoming-*.zip') ?: [], glob(Backup::dir() . '/.src-*.zip') ?: []) as $f) {
+            if (is_file($f) && time() - (int) filemtime($f) > $maxAge && @unlink($f)) {
+                $n++;
+            }
+        }
+        return $n;
+    }
+
+    private static function stage(string $data): string
+    {
         $p = Backup::dir() . '/.incoming-' . bin2hex(random_bytes(6)) . '.zip';
-        file_put_contents($p, $data);
+        if (file_put_contents($p, $data) === false) {
+            throw new \RuntimeException(t('Cannot write to the backup folder.'));
+        }
         return $p;
+    }
+
+    /** Turn a GitHub source snapshot into a standard package: only code folders, with a release.json carrying per-file hashes. */
+    private static function buildPackage(string $raw, array $l): string
+    {
+        if (!class_exists(\ZipArchive::class)) {
+            throw new \RuntimeException(t('The PHP zip extension is required for updates.'));
+        }
+        $tmpSrc = Backup::dir() . '/.src-' . bin2hex(random_bytes(6)) . '.zip';
+        file_put_contents($tmpSrc, $raw);
+        $zip = new \ZipArchive();
+        if ($zip->open($tmpSrc) !== true) {
+            @unlink($tmpSrc);
+            throw new \RuntimeException(t('This is not a valid zip file.'));
+        }
+        $prefix = '';
+        if ($zip->numFiles > 0 && preg_match('#^([^/]+/)#', (string) $zip->getNameIndex(0), $m)) {
+            $prefix = $m[1];
+        }
+        $outPath = Backup::dir() . '/.incoming-' . bin2hex(random_bytes(6)) . '.zip';
+        $out = new \ZipArchive();
+        $out->open($outPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        $hashes = [];
+        $skipped = 0;
+        $total = 0;
+        $version = null;
+        try {
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $st = $zip->statIndex($i);
+                $raw = (string) $st['name'];
+                if ($prefix !== '' && !str_starts_with($raw, $prefix)) {
+                    throw new \RuntimeException(t('Unsafe path in package: {p}', ['p' => $raw]));
+                }
+                $n = self::cleanPath($raw, $prefix);
+                if ($n === null) {
+                    if (preg_match('#(^|/)\.\.(/|$)#', $raw) || str_starts_with($raw, '/') || str_contains($raw, "\0")) {
+                        throw new \RuntimeException(t('Unsafe path in package: {p}', ['p' => $raw]));
+                    }
+                    continue;   // directories, hidden files (.github, .gitignore …)
+                }
+                $top = explode('/', $n)[0];
+                if ($n === 'setup.php' || $n === 'release.json' || !((in_array($top, self::DIRS, true) && str_contains($n, '/')) || in_array($n, self::FILES, true)) || !preg_match(self::EXT, $n)) {
+                    $skipped++;   // config, uploads, tests, CI files … are not part of an update
+                    continue;
+                }
+                $zip->getExternalAttributesIndex($i, $opsys, $attr);
+                if ($opsys === \ZipArchive::OPSYS_UNIX && (($attr >> 16) & 0170000) === 0120000) {
+                    throw new \RuntimeException(t('Symbolic links are not allowed: {p}', ['p' => $n]));
+                }
+                if ($st['size'] > 25 * 1048576 || ($total += (int) $st['size']) > self::MAX_BYTES || count($hashes) >= self::MAX_FILES) {
+                    throw new \RuntimeException(t('The package is unreasonably large.'));
+                }
+                $data = $zip->getFromIndex($i);
+                if ($data === false) {
+                    throw new \RuntimeException(t('Cannot read {p}', ['p' => $n]));
+                }
+                $out->addFromString($n, $data);
+                $hashes[$n] = hash('sha256', $data);
+                if ($n === 'core/Bootstrap.php' && preg_match("/define\('MCMS_VERSION', '([^']+)'\)/", $data, $mm)) {
+                    $version = $mm[1];
+                }
+            }
+            if ($version === null || !isset($hashes['index.php'])) {
+                throw new \RuntimeException(t('The package does not contain the core files.'));
+            }
+            $notes = trim($l['message'] ?? '') !== '' ? (string) $l['message'] : (string) ($l['notes'] ?? '');
+            $out->addFromString('release.json', json_encode([
+                'name' => 'MagicCMS', 'version' => $version, 'commit' => $l['commit'], 'notes' => mb_substr($notes, 0, 4000), 'files' => $hashes,
+                'source' => ['repo' => $l['repo'], 'ref' => $l['ref'], 'kind' => $l['kind'], 'skipped' => $skipped, 'built' => gmdate('c')],
+            ], JSON_UNESCAPED_SLASHES));
+            $out->close();
+            $zip->close();
+            @unlink($tmpSrc);
+        } catch (\Throwable $e) {
+            @$zip->close();
+            @$out->close();
+            @unlink($tmpSrc);
+            @unlink($outPath);
+            throw $e;
+        }
+        return $outPath;
     }
 }

@@ -1,9 +1,10 @@
 <?php /** @var ?array $m @var ?array $r @var int $schema @var int $latest */ ?>
 <div class="card"><h2 class="card-title">✅ <?= e(t('Update finished')) ?></h2><div class="card-body">
-<?php if ($m || $r): $from = $m['from'] ?? $r['from']; ?>
-  <p><?= e(t('MagicCMS was updated from v{a} to v{b}.', ['a' => $from, 'b' => MCMS_VERSION])) ?></p>
+<?php if ($m || $r): $from = $m['from'] ?? $r['from']; $purged = count((array) ($m['purged'] ?? [])); ?>
+  <p><?= e(t('MagicCMS was updated from v{a} to v{b}.', ['a' => $from, 'b' => MCMS_VERSION])) ?><?php if (!empty($m['commit'])): ?> <code><?= e(substr($m['commit'], 0, 7)) ?></code><?php endif ?></p>
   <ul><li><?= e(t('Database schema: {a} (latest {b}).', ['a' => $schema, 'b' => $latest])) ?></li>
-  <?php if ($r): ?><li><?= e(t('{n} files installed.', ['n' => $r['files']])) ?></li><?php endif ?>
+  <?php if ($r): ?><li><?= e(t('{n} files installed ({c} changed, {a} new, {u} already identical).', ['n' => $r['files'], 'c' => $r['changed'] ?? 0, 'a' => $r['added'] ?? 0, 'u' => $r['unchanged'] ?? 0])) ?></li><?php endif ?>
+  <li><?= $purged ? e(t('{n} old file(s) that this version no longer ships were removed.', ['n' => $purged])) : e(t('No old files had to be removed.')) ?></li>
   <li><?= e(t('Safety copies are in the backup folder: {a} and {b}.', ['a' => $m['dbBackup'] ?? $r['dbBackup'], 'b' => $m['codeBackup'] ?? $r['codeBackup']])) ?></li>
   <li><?= e(t('Maintenance mode is back to what it was before.')) ?></li></ul>
 <?php else: ?><p class="muted"><?= e(t('There is nothing to finish.')) ?></p><?php endif ?>

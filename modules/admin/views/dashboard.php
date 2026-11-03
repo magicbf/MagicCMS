@@ -5,6 +5,7 @@ $ico = ['<circle cx="9" cy="8" r="3.4"/><path d="M2.8 20c0-3.5 2.8-5.8 6.2-5.8s6
         '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 13h6M9 17h6"/>',
         '<path d="M4 5.5A1.5 1.5 0 015.5 4h13A1.5 1.5 0 0120 5.5v9a1.5 1.5 0 01-1.5 1.5H10l-4.5 4v-4A1.5 1.5 0 014 14.5z"/>'];
 $quick = [['/admin/pages', t('New page'), 'admin.pages'], ['/admin/appearance', t('Appearance'), 'admin.appearance'], ['/admin/settings', t('Settings'), 'admin.settings']]; ?>
+<?php if (can('admin.system')): MagicCMS\Core\Updater::autoCheck(); $upd = MagicCMS\Core\Updater::status(); if (!empty($upd['newer'])): ?><div class="alert alert-info">⬆ <span><strong><?= e(t('A MagicCMS update is available.')) ?></strong> <?= e(!empty($upd['short']) ? 'v' . ($upd['version'] ?? '') . ' · ' . $upd['short'] : 'v' . ($upd['version'] ?? '')) ?> <a href="<?= e(url('admin/maintenance/update')) ?>"><?= e(t('Review the update')) ?></a> – <?= e(t('you see exactly what changes before anything is installed.')) ?></span></div><?php endif; endif ?>
 <?php if ($setupLeft): ?><div class="alert alert-warning">⚠ <span><strong><?= e(t('Delete setup.php from your server.')) ?></strong> <?= e(t('The installer is locked, but the file should not stay on a live site.')) ?></span></div><?php endif ?>
 <section class="adm-hello">
   <div><h2><?= e($greet) ?>, <?= e($u['username'] ?? '') ?> 👋</h2><p><?= e(t('Here is what is happening on {site} right now.', ['site' => setting('site.name', 'MagicCMS')])) ?></p></div>

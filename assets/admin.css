@@ -307,3 +307,34 @@ body.ed-lock{overflow:hidden}
 .adm .rm-x{width:22px;height:22px;border-radius:50%;border:0;background:none;color:var(--c-text-faint);cursor:pointer;font-size:11px}.adm .rm-x:hover{background:var(--c-danger);color:#fff}
 .adm .rm-add{display:flex;gap:8px}.adm .rm-add .input{flex:1}
 .adm .role-settings{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.adm .role-settings .label{margin:0}.adm .role-settings .select{width:auto}
+
+/* ---- online update ---- */
+.adm .upd-versions{display:flex;align-items:stretch;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.adm .upd-ver{flex:1 1 220px;display:grid;gap:3px;padding:14px 18px;border-radius:14px;background:var(--pill-bg);border:1px solid var(--c-border)}
+.adm .upd-ver span{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--c-text-faint)}
+.adm .upd-ver b{font-size:26px;letter-spacing:-.02em}.adm .upd-ver small{color:var(--c-text-dim)}
+.adm .upd-ver.is-new,.adm .upd-ver.is-compare{border-color:color-mix(in srgb,var(--c-primary) 60%,transparent);background:color-mix(in srgb,var(--c-primary) 10%,transparent);box-shadow:0 0 24px -10px var(--c-primary)}
+.adm .upd-ver.is-ok{border-color:color-mix(in srgb,var(--c-success) 50%,transparent);background:color-mix(in srgb,var(--c-success) 8%,transparent)}
+.adm .upd-arrow{align-self:center;font-size:22px;color:var(--c-text-faint)}
+.adm .upd-state{margin:0 0 12px;font-weight:600}.adm .upd-state.is-ok{color:var(--c-success)}.adm .upd-state.is-new,.adm .upd-state.is-compare{color:var(--c-primary-hi)}
+.adm .upd-notes{max-height:180px;overflow:auto;white-space:pre-wrap}
+.adm .upd-commits,.adm .upd-files{margin:10px 0;border:1px solid var(--c-border);border-radius:12px;background:var(--pill-bg);padding:2px 14px}
+.adm .upd-commits summary,.adm .upd-files summary{cursor:pointer;padding:10px 0;font-weight:600}
+.adm .upd-commits ul{list-style:none;margin:0 0 10px;padding:0}.adm .upd-commits li{display:flex;gap:8px;align-items:baseline;padding:5px 0;border-top:1px solid var(--c-border)}
+.adm .upd-commits li span{flex:1}
+.adm .upd-actions{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 4px}
+.adm .upd-flow{margin:14px 0 0;padding-left:1.3em;color:var(--c-text-dim);font-size:13.5px;display:grid;gap:4px}.adm .upd-flow b{color:var(--c-text)}
+.adm .upd-h{margin:22px 0 8px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--c-text-faint)}
+.adm .upd-tag{display:inline-grid;place-items:center;min-width:26px;padding:0 8px;height:22px;border-radius:99px;font-size:12px;font-weight:700;margin-right:6px}
+.adm .upd-tag.new{background:color-mix(in srgb,var(--c-success) 20%,transparent);color:var(--c-success)}
+.adm .upd-tag.chg{background:color-mix(in srgb,var(--c-warning) 20%,transparent);color:var(--c-warning)}
+.adm .upd-tag.del{background:color-mix(in srgb,var(--c-danger) 20%,transparent);color:var(--c-danger)}
+.adm .upd-dir{padding:6px 0 10px;border-top:1px solid var(--c-border)}.adm .upd-dir ul{margin:6px 0 0;padding-left:1.2em;columns:2;column-gap:24px}
+@media (max-width:700px){.adm .upd-dir ul{columns:1}}
+.adm .upd-checks{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.adm .upd-checks li{position:relative;padding-left:26px;font-size:13.5px;color:var(--c-text-dim)}
+.adm .upd-checks li::before{content:"✔";position:absolute;left:0;top:0;color:var(--c-success);font-weight:700}
+.adm .upd-checks li.info::before{content:"ℹ";color:var(--c-info)}
+.adm .upd-hash{word-break:break-all;font-size:11.5px}
+.adm .upd-confirm{margin-top:10px;padding:16px 18px;border-radius:14px;border:1px solid color-mix(in srgb,var(--c-primary) 45%,var(--c-border));background:color-mix(in srgb,var(--c-primary) 6%,transparent)}
+.adm .upd-stats{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
