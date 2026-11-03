@@ -21,6 +21,7 @@ $actionsHtml = static function () use ($layout, $u): string { ob_start(); ?>
         <a class="btn btn-ghost" href="<?= e(url('login')) ?>"><?= e(t('Login')) ?></a>
         <?php if (setting('auth.registration', 'open') !== 'closed'): ?><a class="btn btn-primary hide-mobile" href="<?= e(url('register')) ?>"><?= e(t('Register')) ?></a><?php endif ?>
       <?php endif ?>
+      <button class="btn btn-ghost hdr-menu" type="button" aria-expanded="false" aria-label="<?= e(t('Menu')) ?>"><span class="hdr-burger" aria-hidden="true"></span><span class="hdr-menu-t"><?= e(t('Menu')) ?></span></button>
     </div>
 <?php return (string) ob_get_clean(); };
 $classic = static function (string $wrap = '') use ($brandHtml, $actionsHtml, $navItems): string { ob_start(); ?>

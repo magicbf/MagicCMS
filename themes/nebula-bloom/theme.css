@@ -183,3 +183,5 @@ a{color:var(--nb-orchid)}
 :root[data-theme="light"] .nav-btn{color:var(--c-text-dim)}
 .hero .hero-title,.hero-title{font-size:clamp(3rem,7.2vw,6rem)}
 :root[data-theme="light"] :is(.nav-item.is-active>.nav-btn,.nav-btn.is-active),:root[data-theme="light"] .tab.is-active{color:#fff}
+
+@media (max-width:899.98px){.site-nav:not(.nav-vertical) .nav-list{border-radius:28px}}

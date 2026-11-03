@@ -232,3 +232,14 @@ html{background:#1c1f1f}body.mcms{background:transparent}
   .site-footer .flatest small{display:none}
   .site-footer .footer-bottom{padding:10px 18px;min-height:0;gap:6px}
 }
+
+/* phones: the account row (panels, Login, Menu) is a normal full-width row under the brand, not the desktop top strip */
+@media (max-width:899.98px){
+  .site-header::before{display:none}
+  .header-top{padding-top:14px;padding-inline:0}
+  .header-actions{position:static;height:auto;width:100%;gap:8px;flex-wrap:wrap}
+  .header-actions .btn{height:44px;min-height:44px;border-left:0;border-radius:0;font-size:11px;
+    background:linear-gradient(180deg,rgba(255,255,255,.1),transparent 48%),linear-gradient(180deg,#34443f,#1d2825);color:var(--ec-green)}
+  .header-actions .btn-primary{color:#06130a;background:linear-gradient(180deg,rgba(255,255,255,.4),transparent 50%),var(--g-primary)}
+  .header-actions>.icon-btn{width:44px;height:44px;background:linear-gradient(180deg,#34443f,#1d2825);color:var(--ec-green)}
+}

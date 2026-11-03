@@ -30,6 +30,16 @@
     new IntersectionObserver(function (en) { bar.classList.toggle('is-stuck', !en[0].isIntersecting); }, { threshold: 0 }).observe(sentinel);
   }
 
+  /* ---- phone menu button (lives in the header's action row, next to Login / light-dark) ---- */
+  $$('.hdr-menu').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var nav = $('.site-nav:not(.nav-vertical)'); if (!nav) return;
+      var open = nav.classList.toggle('is-open');
+      b.setAttribute('aria-expanded', open); b.classList.toggle('is-open', open);
+      var bu = $('.nav-burger', nav); if (bu) bu.setAttribute('aria-expanded', open);
+    });
+  });
+
   /* ---- nav burger + touch dropdowns ---- */
   $$('.nav-burger').forEach(function (b) {
     b.addEventListener('click', function () {
