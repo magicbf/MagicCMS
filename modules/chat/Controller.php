@@ -10,13 +10,22 @@ final class Controller
         $after = max(0, (int) input('after', 0));
         $rows = db()->all(
             'SELECT * FROM (
-                SELECT m.id, m.message, m.created_at, u.id AS uid, u.username, u.avatar, r.level AS lvl, r.slug AS role
+                SELECT m.id, m.message, m.created_at, u.id AS uid, u.username, u.avatar, r.level AS lvl, r.slug AS role, r.name AS role_name
                 FROM {chat_messages} m JOIN {users} u ON u.id = m.user_id JOIN {roles} r ON r.id = u.role_id
                 WHERE m.id > ? ORDER BY m.id DESC LIMIT 40) t ORDER BY id ASC',
             [$after]
         );
         $myLevel = \MagicCMS\Core\Auth::level();
+        $meId = user() ? (int) user()['id'] : 0;
+        $today = fmt_date(now(), 'Y-m-d');
+        $yesterday = fmt_date(gmdate('Y-m-d H:i:s', time() - 86400), 'Y-m-d');
         foreach ($rows as &$r) {
+            $day = fmt_date($r['created_at'], 'Y-m-d');
+            $r['day'] = $day;
+            $r['day_label'] = $day === $today ? t('Today') : ($day === $yesterday ? t('Yesterday') : fmt_date($r['created_at'], 'M j'));
+            $r['ts'] = (int) strtotime($r['created_at'] . ' UTC');
+            $r['role_short'] = ['superadmin' => t('Owner'), 'admin' => t('Admin'), 'moderator' => t('Mod')][$r['role']] ?? '';
+            $r['me'] = $meId && $meId === (int) $r['uid'];
             $r['can_delete'] = can('chat.moderate') && ($myLevel >= (int) $r['lvl'] || (user() && (int) user()['id'] === (int) $r['uid']));
             unset($r['lvl']);
             $r['avatar_url'] = avatar_url(['id' => $r['uid'], 'avatar' => $r['avatar']], 32);
@@ -24,7 +33,11 @@ final class Controller
             $r['profile'] = url('user/' . $r['username']);
             unset($r['avatar'], $r['created_at']);
         }
-        json_out(['ok' => true, 'messages' => $rows, 'can_delete' => can('chat.moderate')]);
+        $meta = [
+            'chatters' => (int) db()->val('SELECT COUNT(DISTINCT user_id) FROM {chat_messages} WHERE created_at > ?', [gmdate('Y-m-d H:i:s', time() - 900)]),
+            'today' => (int) db()->val('SELECT COUNT(*) FROM {chat_messages} WHERE created_at > ?', [gmdate('Y-m-d H:i:s', time() - 86400)]),
+        ];
+        json_out(['ok' => true, 'messages' => $rows, 'can_delete' => can('chat.moderate'), 'meta' => $meta]);
     }
 
     public function post(): void

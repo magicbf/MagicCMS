@@ -98,38 +98,76 @@
 
   /* ---- shoutbox ---- */
   $$('[data-chat]').forEach(function (box) {
-    var log = $('.chat-log', box), form = $('.chat-form', box), input = form && $('.chat-input', form);
-    var last = 0, delay = (parseInt(box.dataset.interval, 10) || 5) * 1000, timer, canDel = false;
+    var log = $('.chat-log', box), form = $('.chat-form', box), input = form && $('.chat-input', form), empty = $('.chat-empty', box),
+        pill = $('.chat-new', box), counter = $('.chat-count', box), me = (box.dataset.me || '').toLowerCase();
+    var last = 0, delay = (parseInt(box.dataset.interval, 10) || 5) * 1000, timer, unseen = 0, lastUser = null, lastTs = 0, lastDay = '', first = true;
+    var STAFF = { superadmin: 1, admin: 1, moderator: 1 };
+
+    /* message text → safe DOM: emoji/flags, links and @mentions are built from text nodes, never from HTML */
+    function decorate(frag, mine) {
+      var hit = false;
+      Array.prototype.slice.call(frag.childNodes).forEach(function (n) {
+        if (n.nodeType !== 3) return;
+        var parts = n.nodeValue.split(/(https?:\/\/[^\s<>"]+|@[A-Za-z0-9_.\-]{2,32})/g);
+        if (parts.length < 2) return;
+        var f = d.createDocumentFragment();
+        parts.forEach(function (p) {
+          if (/^https?:\/\//i.test(p)) { var a = d.createElement('a'); a.href = p; a.rel = 'nofollow ugc noopener'; a.target = '_blank'; a.className = 'chat-link'; a.textContent = p.length > 38 ? p.slice(0, 36) + '…' : p; f.appendChild(a); }
+          else if (/^@[A-Za-z0-9_.\-]{2,32}$/.test(p)) { var s = d.createElement('span'); s.className = 'chat-at'; s.textContent = p; if (me && p.slice(1).toLowerCase() === me) { s.className += ' is-me'; hit = true; } f.appendChild(s); }
+          else if (p) f.appendChild(d.createTextNode(p));
+        });
+        frag.replaceChild(f, n);
+      });
+      return hit;
+    }
+
     function render(m) {
-      var row = d.createElement('div'); row.className = 'chat-msg'; row.dataset.id = m.id;
-      var img = d.createElement('img'); img.className = 'avatar avatar-xs'; img.src = m.avatar_url; img.alt = ''; img.width = img.height = 24;
-      var who = d.createElement('a'); who.className = 'chat-user role-' + m.role; who.href = m.profile; who.textContent = m.username;
-      var t = d.createElement('time'); t.textContent = m.time;
-      var txt = d.createElement('span'); txt.className = 'chat-text';   // text nodes only: never HTML
-      if (window.MCMSEmoji) txt.appendChild(window.MCMSEmoji.toNodes(m.message)); else txt.textContent = m.message;
-      row.appendChild(img); row.appendChild(who); row.appendChild(t); row.appendChild(txt);
+      if (empty) { empty.remove(); empty = null; }
+      if (m.day !== lastDay) { var dv = d.createElement('div'); dv.className = 'chat-day'; dv.innerHTML = '<span></span>'; dv.firstChild.textContent = m.day_label; log.appendChild(dv); lastDay = m.day; lastUser = null; }
+      var follow = lastUser === m.uid && m.ts - lastTs < 300;
+      var row = d.createElement('div'); row.className = 'chat-msg' + (m.me ? ' is-me' : '') + (follow ? ' is-follow' : ''); row.dataset.id = m.id;
+      var img = d.createElement('img'); img.className = 'avatar avatar-xs'; img.src = m.avatar_url; img.alt = ''; img.width = img.height = 30;
+      var bub = d.createElement('div'); bub.className = 'chat-bub';
+      var head = d.createElement('div'); head.className = 'chat-head';
+      var who = d.createElement('a'); who.className = 'chat-user role-' + m.role; who.href = m.profile; who.textContent = m.username; head.appendChild(who);
+      if (STAFF[m.role]) { var rt = d.createElement('span'); rt.className = 'chat-role role-' + m.role; rt.textContent = m.role_short || m.role_name; rt.title = m.role_name; head.appendChild(rt); }
+      var t = d.createElement('time'); t.textContent = m.time; head.appendChild(t);
+      var txt = d.createElement('div'); txt.className = 'chat-text';   // text nodes only: never HTML
+      var frag = window.MCMSEmoji ? window.MCMSEmoji.toNodes(m.message) : d.createDocumentFragment();
+      if (!window.MCMSEmoji) frag.appendChild(d.createTextNode(m.message));
+      if (decorate(frag, m.me) && !m.me) row.className += ' is-mention';
+      txt.appendChild(frag);
+      bub.appendChild(head); bub.appendChild(txt);
+      row.appendChild(img); row.appendChild(bub);
       if (m.can_delete) {
         var x = d.createElement('button'); x.className = 'chat-del'; x.type = 'button'; x.textContent = '✕'; x.setAttribute('aria-label', 'Delete');
         x.addEventListener('click', function () { post(box.dataset.delete + m.id).then(function () { row.remove(); }); });
         row.appendChild(x);
       }
-      log.appendChild(row);
+      if (!first) row.className += ' is-new';
+      log.appendChild(row); lastUser = m.uid; lastTs = m.ts;
     }
+    function toBottom() { log.scrollTop = log.scrollHeight; unseen = 0; if (pill) pill.hidden = true; }
     function poll() {
       fetch(box.dataset.endpoint + '?after=' + last, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
         .then(function (r) { return r.json(); })
         .then(function (j) {
-          if (!j.ok) return; canDel = !!j.can_delete;
-          var stick = log.scrollTop + log.clientHeight >= log.scrollHeight - 30;
-          j.messages.forEach(function (m) { render(m); last = Math.max(last, m.id); });
-          if (j.messages.length && (stick || last === j.messages[j.messages.length - 1].id)) log.scrollTop = log.scrollHeight;
+          if (!j.ok) return;
+          var stick = first || log.scrollTop + log.clientHeight >= log.scrollHeight - 40, mine = false, fresh = 0;
+          j.messages.forEach(function (m) { render(m); last = Math.max(last, m.id); if (!first && !m.me) fresh++; if (m.me) mine = true; });
+          if (j.meta) { var c = $('[data-chatters]', box), tdy = $('[data-today]', box); if (c) c.textContent = j.meta.chatters; if (tdy) tdy.textContent = j.meta.today; }
+          if (j.messages.length) { if (stick || mine) toBottom(); else if (fresh && pill) { unseen += fresh; pill.hidden = false; $('span', pill).textContent = unseen + ' ' + (unseen === 1 ? 'new message' : 'new messages'); } }
+          first = false;
         }).catch(function () {}).then(schedule);
     }
     function schedule() { clearTimeout(timer); timer = setTimeout(function () { d.hidden ? schedule() : poll(); }, delay); }
+    if (pill) pill.addEventListener('click', toBottom);
+    log.addEventListener('scroll', function () { if (log.scrollTop + log.clientHeight >= log.scrollHeight - 40 && pill) { pill.hidden = true; unseen = 0; } });
+    if (input && counter) input.addEventListener('input', function () { var left = 300 - input.value.length; counter.textContent = left; counter.classList.toggle('is-low', left < 40); counter.classList.toggle('is-on', input.value.length > 0); });
     if (form) form.addEventListener('submit', function (e) {
       e.preventDefault(); var v = input.value.trim(); if (!v) return; input.disabled = true;
       post(box.dataset.post, { message: v }).then(function (j) {
-        input.disabled = false; if (j.ok) { input.value = ''; poll(); } else if (j.error) { input.placeholder = j.error; }
+        input.disabled = false; if (j.ok) { input.value = ''; if (counter) { counter.textContent = '300'; counter.classList.remove('is-low', 'is-on'); } poll(); } else if (j.error) { input.placeholder = j.error; }
         input.focus();
       });
     });
