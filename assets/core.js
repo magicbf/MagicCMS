@@ -68,28 +68,25 @@
   });
   d.addEventListener('click', function (e) { if (!e.target.closest('.nav-item')) $$('.nav-item.is-open').forEach(function (o) { o.classList.remove('is-open'); }); });
 
-  /* ---- side drawers (small screens) ---- */
-  var overlay = $('.drawer-overlay');
-  function closeDrawers() { $$('.col-left,.col-right').forEach(function (c) { c.classList.remove('is-open'); }); if (overlay) overlay.classList.remove('is-open'); }
-  $$('.drawer-toggle').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var el = $('#drawer-' + b.dataset.drawer); if (!el) return;
-      var open = !el.classList.contains('is-open'); closeDrawers();
-      if (open) { el.classList.add('is-open'); overlay && overlay.classList.add('is-open'); }
-    });
-  });
-  if (overlay) overlay.addEventListener('click', closeDrawers);
-  d.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDrawers(); });
-
   /* ---- collapsible panels (remembered per browser) ---- */
   var store = {}; try { store = JSON.parse(localStorage.getItem('mcms_collapsed') || '{}'); } catch (e) {}
   $$('.panel[data-panel-id]').forEach(function (p) {
     var id = p.dataset.panelId, btn = $('.panel-toggle', p);
     function set(c) { p.classList.toggle('is-collapsed', c); btn && btn.setAttribute('aria-expanded', !c); }
-    set(!!store[id]);
-    btn && btn.addEventListener('click', function () {
+    // phones/tablets: panels stack under the content – the first two stay open, the rest start collapsed (until the visitor chooses)
+    var col = p.parentNode, stacked = matchMedia('(max-width:1099.98px)').matches && col && /col-(left|right)/.test(col.className);
+    var idx = stacked ? Array.prototype.indexOf.call(col.children, p) : 0;
+    set(id in store ? !!store[id] : (stacked && idx >= 2));
+    function toggle() {
       var c = !p.classList.contains('is-collapsed'); set(c); store[id] = c;
       try { localStorage.setItem('mcms_collapsed', JSON.stringify(store)); } catch (e) {}
+    }
+    btn && btn.addEventListener('click', toggle);
+    // on small screens the whole title bar is the tap target
+    var head = $('.panel-title', p);
+    head && head.addEventListener('click', function (e) {
+      if (e.target.closest('a,button,input,select,textarea') || !matchMedia('(max-width:1099.98px)').matches) return;
+      toggle();
     });
   });
 

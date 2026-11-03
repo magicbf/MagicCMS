@@ -33,15 +33,15 @@ img,svg,video{max-width:100%;height:auto}
   .layout-left .site-grid{grid-template-columns:var(--sidebar-w,280px) minmax(0,1fr)}
   .layout-right .site-grid{grid-template-columns:minmax(0,1fr) var(--sidebar-w,280px)}
   .layout-both .site-grid{grid-template-columns:var(--sidebar-w,280px) minmax(0,1fr) var(--sidebar-w,280px)}
-  .drawer-toggle,.drawer-overlay{display:none!important}
 }
-/* below 1100px: side columns turn into slide-in drawers */
+/* below 1100px: the side columns stack under the main content (tablet: two panels per row, phone: one) */
 @media (max-width:1099.98px){
-  .col-left,.col-right{position:fixed;top:0;bottom:0;width:min(88vw,340px);overflow:auto;z-index:60;padding:var(--gap,20px);transition:transform .3s ease;visibility:hidden}
-  .col-left{left:0;transform:translateX(-105%)}.col-right{right:0;transform:translateX(105%)}
-  .col-left.is-open,.col-right.is-open{transform:none;visibility:visible}
-  .drawer-overlay{position:fixed;inset:0;z-index:55;opacity:0;pointer-events:none;transition:opacity .3s ease;background:rgba(0,0,0,.6)}
-  .drawer-overlay.is-open{opacity:1;pointer-events:auto}
+  .col-main{order:1}.col-left{order:2}.col-right{order:3}
+  .col-left,.col-right{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--gap,20px);align-items:start}
+  .col-left:empty,.col-right:empty{display:none}
+}
+@media (min-width:700px) and (max-width:1099.98px){
+  .col-left,.col-right{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:767.98px){.hide-mobile{display:none!important}}
 
@@ -197,7 +197,6 @@ form.inline{display:inline;margin:0}
   .site-rail .header-actions{flex-wrap:wrap;margin:0;gap:.5rem}
   .site-rail .header-user{width:100%}
   .site-rail .header-actions>.btn{flex:1 1 auto}
-  .site-rail .drawer-toggle{display:none!important}
 }
 
 /* nav items in the narrower header slots: size to content instead of stretching */
@@ -529,3 +528,5 @@ img.flag{display:inline-block;height:1.05em;width:auto;aspect-ratio:4/3;vertical
   .header-actions>.header-user .avatar{width:34px;height:34px;min-width:34px}
   .header-actions>.btn:not(.hide-mobile){height:42px;min-height:42px}
 }
+
+@media (max-width:1099.98px){.col-left .panel-title,.col-right .panel-title{cursor:pointer;-webkit-tap-highlight-color:transparent}}

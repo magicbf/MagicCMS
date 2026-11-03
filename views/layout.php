@@ -26,7 +26,6 @@
 <?php if ($layout['right']): ?><aside class="col-right" id="drawer-right" aria-label="<?= e(t('Right panels')) ?>"><?= implode("\n", $layout['right']) ?></aside><?php endif ?>
 </div>
 </div>
-<div class="drawer-overlay" data-drawer-close></div>
 <?php if (!empty($layout['above']) && !str_contains($bodyClass, 'page-admin') && !str_contains($bodyClass, 'page-auth')): ?><div class="above-footer"><?= implode("\n", $layout['above']) ?></div><?php endif ?>
 <?= render('footer') ?>
 <?= hook('layout.render.footer') ?>
