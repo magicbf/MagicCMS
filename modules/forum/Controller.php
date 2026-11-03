@@ -146,6 +146,7 @@ final class Controller
              WHERE p.topic_id = ? ORDER BY p.id LIMIT ' . Forum::PER_PAGE_POSTS . ' OFFSET ' . (($page - 1) * Forum::PER_PAGE_POSTS),
             [$t['id']]
         );
+        \MagicCMS\Core\DisplayRoles::prime(array_column($posts, 'user_id'));
         if (empty($_SESSION['fviews'][$t['id']])) {
             $_SESSION['fviews'][$t['id']] = 1;
             db()->exec('UPDATE {forum_topics} SET views = views + 1 WHERE id = ?', [$t['id']]);

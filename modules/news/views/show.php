@@ -17,7 +17,7 @@ use MagicCMS\Modules\News\News; $color = News::catColor($p); ?>
 <section class="card" id="comments"><h2 class="card-title"><?= e(t('Comments')) ?> <small>(<?= count($comments) ?>)</small></h2><div class="card-body">
   <?php foreach ($comments as $c): ?>
     <div class="comment"><img class="avatar avatar-md" src="<?= e(avatar_url(['id' => $c['user_id'], 'avatar' => $c['avatar']], 64)) ?>" alt="" width="48" height="48" loading="lazy">
-      <div><div class="comment-head"><a class="role-<?= e($c['role_slug']) ?>" href="<?= e(url('user/' . $c['username'])) ?>"><strong><?= e($c['username']) ?></strong></a> <span class="muted small"><?= e(time_ago($c['created_at'])) ?></span>
+      <div><div class="comment-head"><a class="role-<?= e($c['role_slug']) ?>" href="<?= e(url('user/' . $c['username'])) ?>"><strong><?= e($c['username']) ?></strong></a> <?= MagicCMS\Core\DisplayRoles::html((int) $c['user_id'], 'comments') ?> <span class="muted small"><?= e(time_ago($c['created_at'])) ?></span>
         <?php if ((can('news.moderate') && MagicCMS\Core\Auth::level() >= (int) $c['role_level']) || (user() && (int) user()['id'] === (int) $c['user_id'])): ?><form method="post" action="<?= e(url('news/comment/' . (int) $c['id'] . '/delete')) ?>" class="inline"><?= csrf_field() ?><button class="btn btn-sm btn-danger" data-confirm="<?= e(t('Delete this comment?')) ?>">✕</button></form><?php endif ?></div>
         <p><?= MagicCMS\Core\Emoji::render(nl2br(e($c['body']))) ?></p></div></div>
   <?php endforeach; if (!$comments): ?><p class="muted"><?= e(t('No comments yet.')) ?></p><?php endif ?>

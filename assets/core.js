@@ -131,6 +131,12 @@
       var head = d.createElement('div'); head.className = 'chat-head';
       var who = d.createElement('a'); who.className = 'chat-user role-' + m.role; who.href = m.profile; who.textContent = m.username; head.appendChild(who);
       if (STAFF[m.role]) { var rt = d.createElement('span'); rt.className = 'chat-role role-' + m.role; rt.textContent = m.role_short || m.role_name; rt.title = m.role_name; head.appendChild(rt); }
+      (m.droles || []).forEach(function (r) {
+        var c = d.createElement('span'); c.className = 'drole drole-' + (/^(soft|solid|outline|glow)$/.test(r.style) ? r.style : 'soft'); c.title = r.name;
+        c.style.setProperty('--rc', /^#[0-9a-f]{6}$/i.test(r.color) ? r.color : '#888'); c.style.setProperty('--rt', /^#[0-9a-f]{6}$/i.test(r.text) ? r.text : '#fff');
+        if (r.icon) { var ic = d.createElement('i'); ic.textContent = r.icon; c.appendChild(ic); }
+        c.appendChild(d.createTextNode(r.name)); head.appendChild(c);
+      });
       var t = d.createElement('time'); t.textContent = m.time; head.appendChild(t);
       var txt = d.createElement('div'); txt.className = 'chat-text';   // text nodes only: never HTML
       var frag = window.MCMSEmoji ? window.MCMSEmoji.toNodes(m.message) : d.createDocumentFragment();

@@ -2,7 +2,7 @@
 $tabs = [
   'dashboard' => ['/admin', 'Dashboard', 'admin.access'], 'settings' => ['/admin/settings', 'Settings', 'admin.settings'],
   'appearance' => ['/admin/appearance', 'Appearance', 'admin.appearance'], 'navigation' => ['/admin/navigation', 'Navigation', 'admin.navigation'], 'footer' => ['/admin/footer', 'Footer', 'admin.appearance'],
-  'panels' => ['/admin/panels', 'Panels', 'admin.panels'], 'forum' => ['/admin/forum', 'Forum', 'admin.forum'], 'news' => ['/admin/news', 'News', 'admin.news'], 'hero' => ['/admin/hero', 'Hero', 'admin.hero'], 'pages' => ['/admin/pages', 'Pages', 'admin.pages'], 'users' => ['/admin/users', 'Users', 'admin.users'], 'modules' => ['/admin/modules', 'Modules', 'admin.modules'],
+  'panels' => ['/admin/panels', 'Panels', 'admin.panels'], 'forum' => ['/admin/forum', 'Forum', 'admin.forum'], 'news' => ['/admin/news', 'News', 'admin.news'], 'hero' => ['/admin/hero', 'Hero', 'admin.hero'], 'pages' => ['/admin/pages', 'Pages', 'admin.pages'], 'users' => ['/admin/users', 'Users', 'admin.users'], 'roles' => ['/admin/roles', 'Roles', 'admin.users'], 'modules' => ['/admin/modules', 'Modules', 'admin.modules'],
 ]; $tabs = MagicCMS\Core\Hooks::filter('admin.tabs', $tabs);
 
 /* Sidebar grouping + icons (24×24 stroke paths). Unknown tabs added by plugins land in "Extensions". */
@@ -10,7 +10,7 @@ $groups = [
   'Overview'  => ['dashboard'],
   'Content'   => ['news', 'pages', 'hero', 'forum', 'partners'],
   'Site'      => ['settings', 'appearance', 'navigation', 'footer', 'panels'],
-  'Community' => ['users', 'recruit'],
+  'Community' => ['users', 'roles', 'recruit'],
   'Esports'   => ['matches', 'roster', 'events'],
   'System'    => ['modules', 'maintenance'],
 ];
@@ -26,6 +26,7 @@ $icons = [
   'hero' => '<rect x="3" y="5" width="18" height="14" rx="2.4"/><circle cx="9" cy="10" r="1.6"/><path d="M3.5 17l5-4 4 3 3-2.5 5 3.5"/>',
   'pages' => '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 13h6M9 17h6"/>',
   'users' => '<circle cx="9" cy="8" r="3.4"/><path d="M2.8 20c0-3.5 2.8-5.8 6.2-5.8s6.2 2.3 6.2 5.8"/><path d="M16 5.2a3.4 3.4 0 010 6.4M18.2 14.6c2 .7 3.2 2.6 3.2 5.4"/>',
+  'roles' => '<path d="M3 12V4h8l9 9-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/>',
   'modules' => '<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/>',
   'matches' => '<path d="M5 5l14 14M19 5L5 19"/><circle cx="12" cy="12" r="2"/>',
   'roster' => '<path d="M12 3l7.5 3v5.3c0 4.7-3.1 8-7.5 9.7-4.4-1.7-7.5-5-7.5-9.7V6z"/>',

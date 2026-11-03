@@ -17,6 +17,7 @@ final class Controller
         );
         $myLevel = \MagicCMS\Core\Auth::level();
         $meId = user() ? (int) user()['id'] : 0;
+        \MagicCMS\Core\DisplayRoles::prime(array_column($rows, 'uid'));
         $today = fmt_date(now(), 'Y-m-d');
         $yesterday = fmt_date(gmdate('Y-m-d H:i:s', time() - 86400), 'Y-m-d');
         foreach ($rows as &$r) {
@@ -26,6 +27,7 @@ final class Controller
             $r['ts'] = (int) strtotime($r['created_at'] . ' UTC');
             $r['role_short'] = ['superadmin' => t('Superadmin'), 'admin' => t('Admin'), 'moderator' => t('Mod')][$r['role']] ?? '';
             $r['me'] = $meId && $meId === (int) $r['uid'];
+            $r['droles'] = \MagicCMS\Core\DisplayRoles::data((int) $r['uid'], 'shoutbox');
             $r['can_delete'] = can('chat.moderate') && ($myLevel >= (int) $r['lvl'] || (user() && (int) user()['id'] === (int) $r['uid']));
             unset($r['lvl']);
             $r['avatar_url'] = avatar_url(['id' => $r['uid'], 'avatar' => $r['avatar']], 32);

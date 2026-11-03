@@ -6,6 +6,7 @@
     <img class="avatar avatar-lg" src="<?= e(avatar_url($m, 128)) ?>" alt="" loading="lazy" width="64" height="64">
     <strong class="role-<?= e($m['role_slug']) ?>"><?= e($m['username']) ?></strong>
     <span class="muted"><?= e($m['role_name']) ?></span>
+    <?= MagicCMS\Core\DisplayRoles::html((int) $m['id'], 'members') ?>
   </a>
 <?php endforeach ?>
 </div></div>

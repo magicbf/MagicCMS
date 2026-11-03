@@ -37,6 +37,18 @@
     img.addEventListener('error', bad);
     if (img.complete && img.naturalWidth === 0) bad();
   })();
+  // Roles: live preview of the chip while editing, colour presets
+  d.querySelectorAll('[data-role-form]').forEach(function (f) {
+    var chip = f.querySelector('.role-preview .drole'); if (!chip) return;
+    function lum(h) { var c = [1, 3, 5].map(function (i) { var v = parseInt(h.substr(i, 2), 16) / 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; }
+    function sync() {
+      var col = f.querySelector('[data-r=color]').value, nm = f.querySelector('[data-r=name]').value || 'New role', ic = f.querySelector('[data-r=icon]').value, st = f.querySelector('[data-r=style]').value;
+      chip.className = 'drole drole-' + st; chip.style.setProperty('--rc', col); chip.style.setProperty('--rt', lum(col) > 0.42 ? '#101010' : '#ffffff');
+      chip.textContent = ''; if (ic) { var i = d.createElement('i'); i.textContent = ic; chip.appendChild(i); } chip.appendChild(d.createTextNode(nm));
+    }
+    f.querySelectorAll('[data-r]').forEach(function (el) { el.addEventListener('input', sync); el.addEventListener('change', sync); });
+    f.querySelectorAll('.rc-dot').forEach(function (b) { b.addEventListener('click', function () { f.querySelector('[data-r=color]').value = b.dataset.color; sync(); }); });
+  });
   // Show only the target field that matches the chosen link type
   d.querySelectorAll('[data-ref-switch]').forEach(function (sel) {
     var form = sel.closest('fieldset') || sel.closest('form');

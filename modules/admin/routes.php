@@ -1,6 +1,6 @@
 <?php
 use MagicCMS\Core\Router;
-use MagicCMS\Modules\Admin\Controller;
+use MagicCMS\Modules\Admin\{Controller, RolesController};
 
 return function (Router $r): void {
     $c = Controller::class;
@@ -21,6 +21,14 @@ return function (Router $r): void {
 
     $r->get('/admin/users', [$c, 'users'], ['perm' => 'admin.users', 'layout' => 'none']);
     $r->post('/admin/users/{id:\d+}', [$c, 'userSave'], ['perm' => 'admin.users']);
+
+    $rc = RolesController::class;
+    $r->get('/admin/roles', [$rc, 'index'], ['perm' => 'admin.users', 'layout' => 'none']);
+    $r->post('/admin/roles/save', [$rc, 'save'], ['perm' => 'admin.users']);
+    $r->post('/admin/roles/settings', [$rc, 'settings'], ['perm' => 'admin.users']);
+    $r->post('/admin/roles/{id:\d+}/delete', [$rc, 'delete'], ['perm' => 'admin.users']);
+    $r->post('/admin/roles/{id:\d+}/assign', [$rc, 'assign'], ['perm' => 'admin.users']);
+    $r->post('/admin/roles/{id:\d+}/unassign', [$rc, 'unassign'], ['perm' => 'admin.users']);
     $r->post('/admin/users/{id:\d+}/verify', [$c, 'userVerify'], ['perm' => 'admin.users']);
 
     $r->get('/admin/panels', [$c, 'panels'], ['perm' => 'admin.panels', 'layout' => 'none']);

@@ -56,6 +56,7 @@ final class Controller
             'SELECT c.*, u.username, u.avatar, r.slug AS role_slug, r.level AS role_level FROM {news_comments} c JOIN {users} u ON u.id = c.user_id JOIN {roles} r ON r.id = u.role_id WHERE c.news_id = ? ORDER BY c.id LIMIT 200',
             [$post['id']]
         );
+        \MagicCMS\Core\DisplayRoles::prime(array_column($comments, 'user_id'));
         $related = db()->all(
             'SELECT ' . News::SELECT . ' FROM {news} n ' . News::JOINS . ' WHERE ' . News::visible() . ' AND n.id <> ? AND n.category_id = ? ORDER BY n.publish_at DESC LIMIT 3',
             [$post['id'], $post['category_id']]

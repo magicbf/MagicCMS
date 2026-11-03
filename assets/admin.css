@@ -292,3 +292,18 @@ body.ed-lock{overflow:hidden}
 .adm .dev input:checked+span{color:#fff;background:var(--g-primary);box-shadow:0 4px 12px -6px var(--c-primary)}
 .adm .dev input:not(:checked)+span{text-decoration:line-through;opacity:.7}
 .adm .dev input:focus-visible+span{outline:2px solid var(--c-primary-hi);outline-offset:2px}
+
+/* ---- roles admin ---- */
+.adm .role-card .card-title{gap:12px}.adm .role-card .card-title small{color:var(--c-text-faint);font-weight:500}
+.adm .role-card .card-title::before{display:none}
+.adm .role-grid{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.adm .role-colors{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.adm .rc-dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--c-border);background:var(--c);cursor:pointer;padding:0;transition:transform .12s}.adm .rc-dot:hover{transform:scale(1.2)}
+.adm .places{display:flex;flex-wrap:wrap;margin:6px 0 14px;border-radius:14px}
+.adm .role-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.adm .role-actions .checkbox{margin:0}
+.adm .role-members{margin-top:18px;padding-top:14px;border-top:1px solid var(--c-border)}.adm .role-members h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--c-text-faint);margin-bottom:10px}
+.adm .rm-list{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0 0 12px;padding:0}
+.adm .rm-list li{display:inline-flex;align-items:center;gap:4px;padding:3px 4px 3px 12px;border-radius:99px;background:var(--pill-bg);border:1px solid var(--c-border)}
+.adm .rm-x{width:22px;height:22px;border-radius:50%;border:0;background:none;color:var(--c-text-faint);cursor:pointer;font-size:11px}.adm .rm-x:hover{background:var(--c-danger);color:#fff}
+.adm .rm-add{display:flex;gap:8px}.adm .rm-add .input{flex:1}
+.adm .role-settings{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.adm .role-settings .label{margin:0}.adm .role-settings .select{width:auto}

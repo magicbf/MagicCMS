@@ -13,6 +13,7 @@ $me = user(); $mod = Forum::isMod(); $modTopic = $mod && MagicCMS\Core\Auth::lev
     <a href="<?= e(url('user/' . $p['username'])) ?>"><img class="avatar avatar-xl" src="<?= e(avatar_url(['id' => $p['user_id'], 'avatar' => $p['avatar']], 128)) ?>" alt="" width="96" height="96" loading="lazy"></a>
     <a class="author-name role-<?= e($p['role_slug']) ?>" href="<?= e(url('user/' . $p['username'])) ?>"><?= e($p['username']) ?></a>
     <span class="badge role-<?= e($p['role_slug']) ?>"><?= e($p['role_name']) ?></span>
+    <?= MagicCMS\Core\DisplayRoles::html((int) $p['user_id'], 'forum') ?>
     <span class="muted small"><?= e(Forum::rank((int) $p['forum_posts'])) ?></span>
     <span class="muted small"><?= e(t('Posts')) ?>: <?= (int) $p['forum_posts'] ?></span>
     <span class="muted small"><?= e(t('Joined')) ?> <?= e(fmt_date($p['joined'], 'Y-m-d')) ?></span>

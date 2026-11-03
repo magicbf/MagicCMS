@@ -18,6 +18,7 @@ final class Controller
              FROM {users} u JOIN {roles} r ON r.id = u.role_id WHERE u.status = 'active'
              ORDER BY r.level DESC, u.username LIMIT $per OFFSET " . (($page - 1) * $per)
         );
+        \MagicCMS\Core\DisplayRoles::prime(array_column($rows, 'id'));
         return View::page(t('Members'), render('members/index', ['rows' => $rows, 'page' => $page, 'pages' => $pages, 'total' => $total]));
     }
 

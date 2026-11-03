@@ -666,3 +666,17 @@ html:not([data-motion="off"]) .chat .chat-msg.is-new{animation:chat-in .35s var(
 .chat .chat-login{margin:0;text-align:center}
 
 .chat-count{opacity:0;transition:opacity .15s}.chat-count.is-on{opacity:1}
+
+/* =====================================================================
+   Display roles (cosmetic titles next to usernames)
+   ===================================================================== */
+.droles{display:inline-flex;flex-wrap:wrap;gap:4px;vertical-align:middle;justify-content:inherit}
+.drole{--rc:#8a93a6;--rt:#fff;display:inline-flex;align-items:center;gap:4px;padding:0 8px;border-radius:99px;font:700 10px/1.75 var(--font-body,inherit);letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;font-style:normal}
+.drole i{font-style:normal;letter-spacing:0;font-size:11px}
+.drole-soft{color:color-mix(in srgb,var(--rc) 74%,var(--c-text,#fff));background:color-mix(in srgb,var(--rc) 17%,transparent);border:1px solid color-mix(in srgb,var(--rc) 46%,transparent)}
+.drole-solid{color:var(--rt);background:var(--rc);border:1px solid color-mix(in srgb,var(--rc) 70%,#000)}
+.drole-outline{color:color-mix(in srgb,var(--rc) 80%,var(--c-text,#fff));background:transparent;border:1.5px solid var(--rc)}
+.drole-glow{color:var(--rt);background:linear-gradient(180deg,color-mix(in srgb,var(--rc) 78%,#fff),var(--rc));border:1px solid color-mix(in srgb,var(--rc) 65%,#000);box-shadow:0 0 12px -1px var(--rc),inset 0 1px 0 rgba(255,255,255,.45)}
+.post-author .droles{justify-content:center}
+.chat-head .drole{font-size:9px;padding:0 6px}
+.member-tile .droles{justify-content:center;margin-top:3px}
