@@ -282,3 +282,13 @@ body.ed-lock{overflow:hidden}
 @media (max-width:720px){.ed-bar{top:64px}.ed-area{padding:16px}}
 
 .ed-area img.flag{display:inline-block;height:1.05em;width:auto;max-width:none;border-radius:2px;vertical-align:-.14em}
+
+/* panel rows: the three device marks */
+.adm .devs{display:inline-flex;align-items:center;gap:4px;margin:0;padding:3px 6px 3px 10px;border:1px solid var(--c-border);border-radius:999px;background:var(--pill-bg)}
+.adm .devs legend{float:left;padding:0 6px 0 0;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--c-text-faint)}
+.adm .dev{position:relative;display:inline-flex;cursor:pointer}
+.adm .dev input{position:absolute;opacity:0;width:0;height:0}
+.adm .dev span{padding:5px 10px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--c-text-faint);border:1px solid transparent;transition:all .15s;white-space:nowrap}
+.adm .dev input:checked+span{color:#fff;background:var(--g-primary);box-shadow:0 4px 12px -6px var(--c-primary)}
+.adm .dev input:not(:checked)+span{text-decoration:line-through;opacity:.7}
+.adm .dev input:focus-visible+span{outline:2px solid var(--c-primary-hi);outline-offset:2px}

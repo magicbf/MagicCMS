@@ -414,7 +414,7 @@ Everything is structure + theme tokens, so it works with every theme:
 | Viewport | Behaviour |
 |---|---|
 | ≥ 1100px | Grid with the enabled columns (left / content / right) |
-| < 1100px | Single column; side panels become **stacked panels** opened from header buttons (overlay, `Esc` closes) |
+| < 1100px | Single column; side panels become **stacked panels (masonry on tablets, accordion on phones; each panel can be shown/hidden per device – desktop, tablet, phone – in Admin → Panels)** opened from header buttons (overlay, `Esc` closes) |
 | < 900px | The main menu collapses into an animated hamburger; dropdowns open on tap |
 | < 768px | Panels/menu items flagged "hide on mobile" disappear |
 

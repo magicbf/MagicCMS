@@ -98,14 +98,24 @@ final class Panels
             }
             $v = json_decode((string) $p['visibility'], true) ?: [];
             if ($position === 'footer') { // footer column: plain heading + content, no card
-                $out[] = render('panel_footer', ['panel' => ['key' => $p['panel_key'], 'title' => $p['title']], 'html' => $html]);
+                $out[] = render('panel_footer', ['panel' => ['key' => $p['panel_key'], 'title' => $p['title'], 'hide' => self::hideClasses($v)], 'html' => $html]);
                 continue;
             }
             $out[] = render('panel', [
-                'panel' => ['id' => (int) $p['id'], 'key' => $p['panel_key'], 'title' => $p['title'], 'icon' => (string) ($reg['meta']['icon'] ?? ''), 'hideMobile' => empty($v['mobile'] ?? true)],
+                'panel' => ['id' => (int) $p['id'], 'key' => $p['panel_key'], 'title' => $p['title'], 'icon' => (string) ($reg['meta']['icon'] ?? ''), 'hide' => self::hideClasses($v)],
                 'html' => $html,
             ]);
         }
         return $out;
+    }
+
+    /** CSS classes that hide a panel on some device classes: desktop ≥1100px, tablet 700–1099px, phone <700px. */
+    public static function hideClasses(array $v): string
+    {
+        $c = [];
+        if (empty($v['desktop'] ?? true)) { $c[] = 'hide-desktop'; }
+        if (empty($v['tablet'] ?? true)) { $c[] = 'hide-tablet'; }
+        if (empty($v['mobile'] ?? true)) { $c[] = 'hide-phone'; }   // "mobile" is the phone flag (kept for existing sites)
+        return implode(' ', $c);
     }
 }

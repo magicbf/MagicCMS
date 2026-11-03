@@ -530,3 +530,23 @@ img.flag{display:inline-block;height:1.05em;width:auto;aspect-ratio:4/3;vertical
 }
 
 @media (max-width:1099.98px){.col-left .panel-title,.col-right .panel-title{cursor:pointer;-webkit-tap-highlight-color:transparent}}
+
+/* --- Per-device panel visibility (Admin → Panels → "Show on"): desktop ≥1100px · tablet 700–1099px · phone <700px --- */
+@media (max-width:699.98px){.hide-phone{display:none!important}}
+@media (min-width:700px) and (max-width:1099.98px){.hide-tablet{display:none!important}}
+@media (min-width:1100px){
+  .hide-desktop{display:none!important}
+  /* a sidebar whose panels are all hidden on desktop gives its column back to the content */
+  .col-left:not(:has(>.panel:not(.hide-desktop))),.col-right:not(:has(>.panel:not(.hide-desktop))){display:none}
+  .layout-left .site-grid:has(.col-left:not(:has(>.panel:not(.hide-desktop)))),
+  .layout-right .site-grid:has(.col-right:not(:has(>.panel:not(.hide-desktop)))){grid-template-columns:minmax(0,1fr)}
+  .layout-both .site-grid:has(.col-left:not(:has(>.panel:not(.hide-desktop)))){grid-template-columns:minmax(0,1fr) var(--sidebar-w,280px)}
+  .layout-both .site-grid:has(.col-right:not(:has(>.panel:not(.hide-desktop)))){grid-template-columns:var(--sidebar-w,280px) minmax(0,1fr)}
+  .layout-both .site-grid:has(.col-left:not(:has(>.panel:not(.hide-desktop)))):has(.col-right:not(:has(>.panel:not(.hide-desktop)))){grid-template-columns:minmax(0,1fr)}
+}
+
+/* --- Tablet: panels flow like masonry – the next panel sits right under the previous one, no gaps beside shorter panels --- */
+@media (min-width:700px) and (max-width:1099.98px){
+  .col-left,.col-right{display:block;column-count:2;column-gap:var(--gap,20px)}
+  .col-left>.panel,.col-right>.panel{break-inside:avoid;-webkit-column-break-inside:avoid;page-break-inside:avoid;margin:0 0 var(--gap,20px)!important}
+}

@@ -262,7 +262,10 @@ final class Controller
 
     private static function visibilityJson(): string
     {
-        return json_encode(['who' => self::pick((string) input('who'), ['all', 'guests', 'members', 'staff'], 'all'), 'mobile' => !empty($_POST['mobile'])]);
+        return json_encode([
+            'who' => self::pick((string) input('who'), ['all', 'guests', 'members', 'staff'], 'all'),
+            'desktop' => !empty($_POST['desktop']), 'tablet' => !empty($_POST['tablet']), 'mobile' => !empty($_POST['mobile']),
+        ]);
     }
 
     public function panelAdd(): void
@@ -284,7 +287,7 @@ final class Controller
         $ord = (int) db()->val('SELECT COALESCE(MAX(sort_order),0)+1 FROM {panels} WHERE position = ?', [$pos]);
         db()->exec(
             'INSERT INTO {panels} (panel_key, title, position, sort_order, enabled, visibility) VALUES (?,?,?,?,1,?)',
-            [$key, mb_substr((string) ($reg['meta']['title'] ?? $key), 0, 120), $pos, $ord, json_encode(['who' => 'all', 'mobile' => true])]
+            [$key, mb_substr((string) ($reg['meta']['title'] ?? $key), 0, 120), $pos, $ord, json_encode(['who' => 'all', 'desktop' => true, 'tablet' => true, 'mobile' => true])]
         );
         audit('panel.add', $key);
         flash('success', t('Panel added.'));

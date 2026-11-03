@@ -10,7 +10,11 @@
   <select class="select" name="position" aria-label="Position"><option value="left" <?= $pos === 'left' ? 'selected' : '' ?>><?= e(t('Left')) ?></option><option value="right" <?= $pos === 'right' ? 'selected' : '' ?>><?= e(t('Right')) ?></option><option value="above_footer" <?= $pos === 'above_footer' ? 'selected' : '' ?>><?= e(t('Above footer')) ?></option><option value="footer" <?= $pos === 'footer' ? 'selected' : '' ?>><?= e(t('Footer column')) ?></option></select>
   <input class="input narrow" type="number" name="sort_order" value="<?= (int) $r['sort_order'] ?>" aria-label="Order">
   <select class="select" name="who" aria-label="Visible to"><?php foreach (['all' => 'Everyone', 'guests' => 'Guests', 'members' => 'Members', 'staff' => 'Staff'] as $k => $l): ?><option value="<?= $k ?>" <?= ($v['who'] ?? 'all') === $k ? 'selected' : '' ?>><?= e(t($l)) ?></option><?php endforeach ?></select>
-  <label class="checkbox"><input type="checkbox" name="mobile" value="1" <?= ($v['mobile'] ?? true) ? 'checked' : '' ?>> <?= e(t('Mobile')) ?></label>
+  <fieldset class="devs" title="<?= e(t('Show this panel on…')) ?>"><legend><?= e(t('Show on')) ?></legend>
+    <label class="dev"><input type="checkbox" name="desktop" value="1" <?= ($v['desktop'] ?? true) ? 'checked' : '' ?>><span>🖥 <?= e(t('Desktop')) ?></span></label>
+    <label class="dev"><input type="checkbox" name="tablet" value="1" <?= ($v['tablet'] ?? true) ? 'checked' : '' ?>><span>📱 <?= e(t('Tablet')) ?></span></label>
+    <label class="dev"><input type="checkbox" name="mobile" value="1" <?= ($v['mobile'] ?? true) ? 'checked' : '' ?>><span>📲 <?= e(t('Phone')) ?></span></label>
+  </fieldset>
   <label class="checkbox"><input type="checkbox" name="enabled" value="1" <?= $r['enabled'] ? 'checked' : '' ?>> <?= e(t('On')) ?></label>
   <button class="btn btn-sm btn-primary"><?= e(t('Save')) ?></button>
   <?php if ($known && !empty($registry[$r['panel_key']]['meta']['settings'])): ?><a class="btn btn-sm btn-ghost" href="<?= e(url('admin/panels/' . (int) $r['id'])) ?>"><?= e(t('Settings')) ?></a><?php endif ?>
