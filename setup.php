@@ -1,7 +1,7 @@
 <?php
 /**
  * MagicCMS one-time installer.
- * Creates the database schema, the Superadministrator and config/config.php,
+ * Creates the database schema, the Superadmin and config/config.php,
  * then locks itself (config/installed.lock) and deletes this file.
  */
 declare(strict_types=1);
@@ -135,13 +135,13 @@ table{width:100%;border-collapse:collapse}td{padding:.4rem .2rem;border-bottom:1
     $guess = $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
     $themes = glob(__DIR__ . '/themes/*/theme.json') ?: [];
 ?>
-<div class="card"><h2>3 · Site &amp; Superadministrator</h2><div class="body">
+<div class="card"><h2>3 · Site &amp; Superadmin</h2><div class="body">
 <form method="post" autocomplete="off"><?= tok() ?><input type="hidden" name="act" value="install">
 <label>Site name</label><input name="site_name" value="<?= h($_POST['site_name'] ?? 'MagicCMS') ?>" required maxlength="60">
 <label>Site URL <small>(no trailing slash)</small></label><input name="site_url" value="<?= h($_POST['site_url'] ?? $guess) ?>" required>
 <div class="row"><div><label>Timezone</label><select name="timezone"><?php foreach (DateTimeZone::listIdentifiers() as $tz): ?><option <?= ($_POST['timezone'] ?? 'UTC') === $tz ? 'selected' : '' ?>><?= h($tz) ?></option><?php endforeach ?></select></div>
 <div><label>Theme</label><select name="theme"><?php foreach ($themes as $f): $sl = basename(dirname($f)); $m = json_decode((string) file_get_contents($f), true); ?><option value="<?= h($sl) ?>" <?= $sl === 'magic-red' ? 'selected' : '' ?>><?= h($m['name'] ?? $sl) ?></option><?php endforeach ?></select></div></div>
-<h3 style="margin:1.4rem 0 0">👑 Superadministrator account</h3><small>The first account is automatically the Superadministrator. You can promote other users to Administrator later.</small>
+<h3 style="margin:1.4rem 0 0">👑 Superadmin account</h3><small>The first account is automatically the Superadmin. You can promote other users to Administrator later.</small>
 <label>Username</label><input name="username" value="<?= h($_POST['username'] ?? '') ?>" required pattern="[A-Za-z0-9_\-]{3,20}">
 <label>Email</label><input name="email" type="email" value="<?= h($_POST['email'] ?? '') ?>" required>
 <div class="row"><div><label>Password <small>(8–72 chars)</small></label><input name="password" type="password" required minlength="8" maxlength="72"></div><div><label>Repeat password</label><input name="password2" type="password" required minlength="8" maxlength="72"></div></div>
@@ -152,7 +152,7 @@ table{width:100%;border-collapse:collapse}td{padding:.4rem .2rem;border-bottom:1
 
 <?php elseif ($step === 4 && $done): $gone = Installer::selfDelete(); ?>
 <div class="card"><h2>✔ Installation complete</h2><div class="body">
-<p>MagicCMS is installed. Your Superadministrator account <strong><?= h($done['user']) ?></strong> is ready.</p>
+<p>MagicCMS is installed. Your Superadmin account <strong><?= h($done['user']) ?></strong> is ready.</p>
 <?php if ($gone): ?><p class="ok">The installer (<code>setup.php</code>) has been deleted automatically.</p>
 <?php else: ?><div class="note"><strong>⚠ Delete <code>setup.php</code> manually.</strong><br>Your server did not allow automatic removal. The installer is already locked (<code>config/installed.lock</code>) and cannot be used again, but you should remove the file.</div><?php endif ?>
 <p><a class="btn" style="text-decoration:none" href="<?= h($done['url']) ?>/login">Go to login →</a></p>

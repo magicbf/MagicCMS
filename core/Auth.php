@@ -66,7 +66,7 @@ final class Auth
         return (int) (self::$user['role_level'] ?? 0);
     }
 
-    /** Superadministrators pass every check; others need the permission on their role. */
+    /** Superadmins pass every check; others need the permission on their role. */
     public static function can(string $perm): bool
     {
         if (self::level() >= 100) {

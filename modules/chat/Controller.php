@@ -24,7 +24,7 @@ final class Controller
             $r['day'] = $day;
             $r['day_label'] = $day === $today ? t('Today') : ($day === $yesterday ? t('Yesterday') : fmt_date($r['created_at'], 'M j'));
             $r['ts'] = (int) strtotime($r['created_at'] . ' UTC');
-            $r['role_short'] = ['superadmin' => t('Owner'), 'admin' => t('Admin'), 'moderator' => t('Mod')][$r['role']] ?? '';
+            $r['role_short'] = ['superadmin' => t('Superadmin'), 'admin' => t('Admin'), 'moderator' => t('Mod')][$r['role']] ?? '';
             $r['me'] = $meId && $meId === (int) $r['uid'];
             $r['can_delete'] = can('chat.moderate') && ($myLevel >= (int) $r['lvl'] || (user() && (int) user()['id'] === (int) $r['uid']));
             unset($r['lvl']);

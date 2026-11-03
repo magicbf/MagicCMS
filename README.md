@@ -20,7 +20,7 @@
 | Setup wizard, lock file, self-delete | ✅ | 4-step wizard; Superadmin created on install |
 | Registration / login / logout | ✅ | open / approval / closed modes, honeypot, brute-force throttle, remember-me |
 | Passwords | ✅ | Argon2id (bcrypt fallback), rehash on login |
-| Roles & permissions | ✅ | Guest, Member, Moderator, Administrator, Superadministrator; privilege-escalation guarded |
+| Roles & permissions | ✅ | Guest, Member, Moderator, Administrator, Superadmin; privilege-escalation guarded |
 | Admin: dashboard, settings, users, panels, navigation, pages, appearance | ✅ | |
 | Layout: **one right-hand panel column by default**; left / both / none optional (+ per-page override) | ✅ | Empty columns collapse automatically; existing sites are migrated without losing panels |
 | Panels: Online Users, Shoutbox, Site Stats, Custom HTML, Navigation, Partners strip (+ optional Account panel) | ✅ | The login/register/account area is in the header; the Account panel is **off by default** – switch it on in Admin → Panels if a custom theme has no account area on top (a theme can declare `"supports": {"accountInHeader": false}` to switch it on automatically) |
@@ -107,7 +107,7 @@ MagicCMS is a small, dependency-free content management system in the spirit of 
 ### Core
 - Responsive, mobile-first layout with **configurable side panels** (none / left / right / both)
 - **Registration & login** with email verification (optional), password reset, "remember me"
-- **Roles & permissions**: Superadministrator, Administrator, Moderator, Member, Guest — plus custom roles
+- **Roles & permissions**: Superadmin, Administrator, Moderator, Member, Guest — plus custom roles
 - **Admin panel** for settings, users, content, layout, panels, themes, plugins
 - **Theme engine** with live theme switching, **user light/dark mode toggle** and an **admin colour-scheme editor** (presets + custom colours)
 - **Menu builder**: flashy gradient nav buttons, unlimited custom items, dropdowns, links to built-in modules, custom pages or external URLs
@@ -166,7 +166,7 @@ Runs on ordinary shared hosting. No shell access needed.
 |---|---|
 | **1. Requirements check** | PHP version, extensions (PDO MySQL, mbstring, fileinfo, dom, GD/WebP, Argon2id), writable folders, `upload_max_filesize`. Blocks on hard failures, warns on optional ones. |
 | **2. Database** | Host, port, DB name, user, password, table prefix (default `mcms_`). The connection is tested live; an already-populated prefix is refused. |
-| **3. Site & Superadministrator** | Site name, URL, timezone, theme, plus the first account (username, email, password entered twice). **This first account becomes the Superadministrator.** |
+| **3. Site & Superadmin** | Site name, URL, timezone, theme, plus the first account (username, email, password entered twice). **This first account becomes the Superadmin.** |
 | **4. Install & self-lock** | Creates all tables, seeds roles/permissions/panels/menus/settings and a demo page (in one transaction), writes `config/config.php`, then locks and removes the installer (see below). |
 
 ### 4.3 How the installer removes itself
@@ -313,15 +313,15 @@ Migrations live in `migrations/NNNN_description.sql` and are idempotent per vers
 
 | Role | Level | What they can do |
 |---|---|---|
-| **Superadministrator** | 100 | The account created in setup. Everything, including **Admin → Modules** (enable/disable plugins). Cannot be demoted, banned, edited or moderated by anyone else. Only the Superadministrator can create Administrators. |
-| **Administrator** | 80 | Everything in the admin area (settings, appearance, navigation, panels, pages, forum, news, hero, matches, users) and all moderation (forum, shoutbox, news comments) — **except anything that touches the Superadministrator**: cannot ban/demote/edit that account, cannot edit, lock or delete that user's forum posts/topics, shouts, comments or news posts, cannot create or change other Administrators, cannot open Admin → Modules. |
-| **Moderator** | 50 | **Moderates the forum only**: lock/sticky/move/delete topics and posts, handle reports. No admin area at all, no shoutbox or news-comment moderation, no banning. Can only moderate users at or below their own rank (not Administrators or the Superadministrator). |
+| **Superadmin** | 100 | The account created in setup. Everything, including **Admin → Modules** (enable/disable plugins). Cannot be demoted, banned, edited or moderated by anyone else. Only the Superadmin can create Administrators. |
+| **Administrator** | 80 | Everything in the admin area (settings, appearance, navigation, panels, pages, forum, news, hero, matches, users) and all moderation (forum, shoutbox, news comments) — **except anything that touches the Superadmin**: cannot ban/demote/edit that account, cannot edit, lock or delete that user's forum posts/topics, shouts, comments or news posts, cannot create or change other Administrators, cannot open Admin → Modules. |
+| **Moderator** | 50 | **Moderates the forum only**: lock/sticky/move/delete topics and posts, handle reports. No admin area at all, no shoutbox or news-comment moderation, no banning. Can only moderate users at or below their own rank (not Administrators or the Superadmin). |
 | **Member** | 10 | Posts in the forum and shoutbox, comments on news, reports posts, edits own profile/avatar. **Cannot change any theme, layout or site setting** — the only appearance control a member has is the **light/dark switch** (guests too). |
 | **Guest** | 0 | Reads public content and the shoutbox. May also use the light/dark switch. |
 
-**Rank rule (enforced server-side everywhere):** you may moderate content or manage accounts of users *at or below your own rank* (and your own). So Moderators cannot act on Administrators, and Administrators can never act on the Superadministrator.
+**Rank rule (enforced server-side everywhere):** you may moderate content or manage accounts of users *at or below your own rank* (and your own). So Moderators cannot act on Administrators, and Administrators can never act on the Superadmin.
 
-Default permission keys: Guest `chat.read` · Member `+ chat.post, forum.post, forum.report, forum.attach, forum.vote, forum.react, news.comment, pm.send, events.signup` · Moderator `+ forum.moderate` · Administrator `+ admin.access, admin.settings, admin.appearance, admin.users, admin.panels, admin.navigation, admin.pages, admin.forum, admin.news, admin.hero, admin.matches, admin.roster, admin.events, chat.moderate, news.moderate` · Superadministrator: all (implicit; also `admin.modules`).
+Default permission keys: Guest `chat.read` · Member `+ chat.post, forum.post, forum.report, forum.attach, forum.vote, forum.react, news.comment, pm.send, events.signup` · Moderator `+ forum.moderate` · Administrator `+ admin.access, admin.settings, admin.appearance, admin.users, admin.panels, admin.navigation, admin.pages, admin.forum, admin.news, admin.hero, admin.matches, admin.roster, admin.events, chat.moderate, news.moderate` · Superadmin: all (implicit; also `admin.modules`).
 
 - Roles carry **permissions**; permissions are checked via `can('forum.moderate')`.
 - Create **custom roles** (e.g. "Team Captain", "Coach") and assign any permission mix.
@@ -728,7 +728,7 @@ plugins/matches/
 └── panels/recent_matches/{panel.json, panel.php}   # auto-discovered panel
 ```
 
-- **Registration:** a row in the `modules` table with `is_core = 0` (the plugin's migration inserts it). The **Superadministrator** can enable/disable plugins in **Admin → Modules**; disabled plugins add no routes, panels or admin tabs.
+- **Registration:** a row in the `modules` table with `is_core = 0` (the plugin's migration inserts it). The **Superadmin** can enable/disable plugins in **Admin → Modules**; disabled plugins add no routes, panels or admin tabs.
 - **Database:** add `migrations/NNNN_name.sql` (+ optional `.php` seed returning `function (Database $db): void`); they run automatically on install and upgrade.
 - **Hooks used:** `nav.targets` (make the plugin selectable in the menu builder and hero buttons) and `admin.tabs` (add an Admin tab: `$tabs['matches'] = ['/admin/matches', 'Matches', 'admin.matches']`).
 - **Permissions:** insert into `permissions` / `role_permissions` in the seed; guard routes with `['perm' => 'admin.matches']`.

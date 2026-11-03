@@ -395,7 +395,7 @@ Do not modify any file outside themes/<slug>/. Do not use external CDNs.
 
 ## 11. Packaging & sharing
 
-Zip the `themes/<slug>/` folder (the folder itself at the zip root). Admin → Themes → *Upload theme* validates the manifest, rejects `.php` files outside `templates/`, and installs it. Only Superadministrators can upload themes that contain PHP templates.
+Zip the `themes/<slug>/` folder (the folder itself at the zip root). Admin → Themes → *Upload theme* validates the manifest, rejects `.php` files outside `templates/`, and installs it. Only Superadmins can upload themes that contain PHP templates.
 
 ## 12. Troubleshooting
 

@@ -1,6 +1,6 @@
 <?php /** @var array $backups @var string $dir @var ?array $pending @var bool $zip @var bool $writable @var bool $protected */
 use MagicCMS\Modules\Maintenance\Controller as C; ?>
-<p class="muted"><?= e(t('Superadministrator only. Backups contain everything in your database – members, hashed passwords, private messages – so keep them private. Settings, content and uploads are never touched by updates.')) ?> <a href="<?= e(url('admin/maintenance/update')) ?>"><strong><?= e(t('Updates')) ?> →</strong></a></p>
+<p class="muted"><?= e(t('Superadmin only. Backups contain everything in your database – members, hashed passwords, private messages – so keep them private. Settings, content and uploads are never touched by updates.')) ?> <a href="<?= e(url('admin/maintenance/update')) ?>"><strong><?= e(t('Updates')) ?> →</strong></a></p>
 <?php if ($pending): ?><div class="alert alert-warning"><?= e(t('An update ({a} → {b}) is waiting to be finished.', ['a' => $pending['from'], 'b' => $pending['to']])) ?> <a href="<?= e(url('admin/maintenance/update')) ?>"><?= e(t('Open')) ?></a></div><?php endif ?>
 <?php if (!$writable): ?><div class="alert alert-danger"><?= e(t('The backup folder is not writable: {d}', ['d' => $dir])) ?></div><?php endif ?>
 <div class="card"><h2 class="card-title"><?= e(t('Create a backup')) ?></h2><div class="card-body">

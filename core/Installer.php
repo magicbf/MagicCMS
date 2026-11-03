@@ -108,7 +108,7 @@ final class Installer
         $now = gmdate('Y-m-d H:i:s');
 
         // Roles
-        $roles = [['guest', 'Guest', 0], ['member', 'Member', 10], ['moderator', 'Moderator', 50], ['admin', 'Administrator', 80], ['superadmin', 'Superadministrator', 100]];
+        $roles = [['guest', 'Guest', 0], ['member', 'Member', 10], ['moderator', 'Moderator', 50], ['admin', 'Administrator', 80], ['superadmin', 'Superadmin', 100]];
         $rid = [];
         foreach ($roles as [$slug, $name, $lvl]) {
             $rid[$slug] = $db->insert('INSERT INTO {roles} (slug, name, level, is_system) VALUES (?,?,?,1)', [$slug, $name, $lvl]);
@@ -137,7 +137,7 @@ final class Installer
             }
         }
 
-        // First user = Superadministrator
+        // First user = Superadmin
         $db->exec(
             'INSERT INTO {users} (username, email, password_hash, role_id, status, timezone, created_at, last_login) VALUES (?,?,?,?,?,?,?,?)',
             [$admin['username'], $admin['email'], password_hash($admin['password'], defined('PASSWORD_ARGON2ID') ? PASSWORD_ARGON2ID : PASSWORD_BCRYPT), $rid['superadmin'], 'active', $site['timezone'], $now, null]
