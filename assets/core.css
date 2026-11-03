@@ -509,3 +509,23 @@ img.flag{display:inline-block;height:1.05em;width:auto;aspect-ratio:4/3;vertical
   .footer-grid .f-about{margin:.2rem 0 0}
   .footer-bottom{gap:.5rem}
 }
+
+/* --- Phones: stable shapes for the header action row, whatever the theme --- */
+@media (max-width:899.98px){
+  .header-actions>.icon-btn{flex:none;width:46px;height:46px;min-width:46px;padding:0;display:inline-grid;place-items:center;font-size:17px;line-height:1}
+  .header-actions>.header-user{flex:none;width:46px;height:46px;min-width:46px;padding:0;gap:0;justify-content:center;align-items:center;border-radius:50%;overflow:hidden}
+  .header-actions>.header-user .hu-text{display:none}
+  .header-actions>.header-user .avatar{width:40px;height:40px;min-width:40px;flex:none;border-radius:50%;object-fit:cover}
+  .header-actions>.btn:not(.hide-mobile){flex:1 1 0;min-width:0;height:46px;min-height:46px;padding:0 10px;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .header-actions>.hdr-menu{padding:0 14px}
+  .header-actions .pm-dot{top:-5px;right:-5px}
+}
+
+/* narrow phones: seven controls fit when logged in – smaller icons, the Menu button keeps a readable minimum */
+@media (max-width:899.98px){.header-actions>.hdr-menu{flex:1 1 0;min-width:92px}}
+@media (max-width:430px){
+  .header-actions{gap:6px}
+  .header-actions>.icon-btn,.header-actions>.header-user{width:38px;height:38px;min-width:38px;font-size:15px}
+  .header-actions>.header-user .avatar{width:34px;height:34px;min-width:34px}
+  .header-actions>.btn:not(.hide-mobile){height:42px;min-height:42px}
+}

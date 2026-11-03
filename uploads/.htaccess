@@ -1,11 +1,25 @@
-# Uploads must never execute code
+# Uploads must never execute code.
+# Every directive is wrapped in an <IfModule> so a stricter host (no mod_headers, 2.2, limited AllowOverride)
+# cannot turn this file into a "500 Internal Server Error" for every uploaded image.
 <IfModule mod_php.c>
   php_flag engine off
 </IfModule>
+<IfModule mod_php7.c>
+  php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+  php_flag engine off
+</IfModule>
 <FilesMatch "\.(php|phtml|phar|php[0-9]|pl|py|cgi|sh)$">
-  Require all denied
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
 </FilesMatch>
-Options -Indexes -ExecCGI
-AddType text/plain .php .phtml
-Header set X-Content-Type-Options "nosniff"
-Header set Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'none'"
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Content-Security-Policy "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'"
+</IfModule>

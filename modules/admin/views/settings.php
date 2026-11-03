@@ -45,7 +45,8 @@
 </div></form>
 
 <div class="card"><h2 class="card-title"><?= e(t('Logo')) ?></h2><div class="card-body">
-  <div class="logo-preview"><img src="<?= e(site_logo()) ?>" alt="" height="48" style="max-height:56px;width:auto;max-width:260px"></div>
+  <div class="logo-preview"><img id="logo-prev" src="<?= e(site_logo()) ?>" alt="" height="48" style="max-height:56px;width:auto;max-width:260px"></div>
+  <?php if (has_custom_logo()): ?><div class="alert alert-warning" id="logo-warn" hidden>⚠ <?= e(t("The uploaded logo was saved but your server does not deliver it (the browser cannot load {url}). Check that the uploads/ folder is reachable from the web and that its .htaccess is accepted by the server; until then the default logo is shown.", ["url" => site_logo()])) ?></div><?php endif ?>
   <form method="post" action="<?= e(url('admin/settings/logo')) ?>" enctype="multipart/form-data" class="mt"><?= csrf_field() ?>
     <div class="form-row"><label class="label" for="logo"><?= e(t('Replace logo')) ?></label>
     <input class="input" id="logo" type="file" name="logo" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" required>

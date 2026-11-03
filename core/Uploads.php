@@ -115,7 +115,9 @@ final class Uploads
                 throw new \RuntimeException(t('This SVG contains scripts or external references and was rejected.'));
             }
             $name .= '.svg';
-            file_put_contents($dir . '/' . $name, $raw);
+            if (@file_put_contents($dir . '/' . $name, $raw) === false) {
+                throw new \RuntimeException(t('Upload folder is not writable.'));
+            }
             return $name;
         }
 

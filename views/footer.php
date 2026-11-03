@@ -52,7 +52,7 @@ $reps = $ticker ? max(1, (int) ceil(10 / count($ticker))) : 1;
   <div class="container footer-grid">
     <?php if ($f['brand']): ?>
     <div class="fcol fbrand">
-      <a class="brand brand-sm<?= $showName ? '' : ' brand-only' ?>" href="<?= e(url('')) ?>"><img class="<?= $custom ? 'brand-logo' : 'brand-mark' ?>" src="<?= e(site_logo()) ?>" alt="<?= $showName ? '' : e(setting('site.name', 'MagicCMS')) ?>" height="40"<?= $custom ? '' : ' width="40"' ?>><?php if ($showName): ?><span class="brand-text"><b class="brand-name"><?= e(setting('site.name', 'MagicCMS')) ?></b><?php if ((string) setting('site.tagline', '') !== ''): ?><small class="brand-sub"><?= e(setting('site.tagline')) ?></small><?php endif ?></span><?php endif ?></a>
+      <a class="brand brand-sm<?= $showName ? '' : ' brand-only' ?>" href="<?= e(url('')) ?>"><img class="<?= $custom ? 'brand-logo' : 'brand-mark' ?>" data-fallback="<?= e(asset('logo-mark.svg')) ?>" src="<?= e(site_logo()) ?>" alt="<?= $showName ? '' : e(setting('site.name', 'MagicCMS')) ?>" height="40"<?= $custom ? '' : ' width="40"' ?>><?php if ($showName): ?><span class="brand-text"><b class="brand-name"><?= e(setting('site.name', 'MagicCMS')) ?></b><?php if ((string) setting('site.tagline', '') !== ''): ?><small class="brand-sub"><?= e(setting('site.tagline')) ?></small><?php endif ?></span><?php endif ?></a>
       <?php if ($about !== ''): ?><p class="muted f-about"><?= e($about) ?></p><?php endif ?>
       <?php $socialHtml() ?>
     </div>

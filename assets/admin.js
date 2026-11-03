@@ -29,6 +29,14 @@
     d.addEventListener('click', function (e) { if (!box.contains(e.target)) list.hidden = true; });
     d.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); inp.focus(); inp.select(); } });
   })();
+  // Warn when the saved logo cannot be loaded by the browser
+  (function () {
+    var img = d.getElementById('logo-prev'), warn = d.getElementById('logo-warn');
+    if (!img || !warn) return;
+    function bad() { warn.hidden = false; }
+    img.addEventListener('error', bad);
+    if (img.complete && img.naturalWidth === 0) bad();
+  })();
   // Show only the target field that matches the chosen link type
   d.querySelectorAll('[data-ref-switch]').forEach(function (sel) {
     var form = sel.closest('fieldset') || sel.closest('form');

@@ -13,6 +13,17 @@
       headers: { 'X-CSRF-Token': csrf, 'X-Requested-With': 'fetch', 'Accept': 'application/json' } }).then(function (r) { return r.json().catch(function () { return { ok: false }; }); });
   }
 
+  /* ---- a logo that fails to load falls back to the default mark instead of leaving a blank/broken image ---- */
+  $$('img[data-fallback]').forEach(function (img) {
+    function fix() {
+      if (img.dataset.fellBack) return;
+      img.dataset.fellBack = '1'; img.classList.remove('brand-logo'); img.classList.add('brand-mark');
+      img.setAttribute('width', '64'); img.src = img.dataset.fallback;
+    }
+    img.addEventListener('error', fix);
+    if (img.complete && img.naturalWidth === 0 && img.getAttribute('src')) fix();
+  });
+
   /* ---- light / dark toggle ---- */
   var mt = $('.mode-toggle');
   if (mt) mt.addEventListener('click', function () {
