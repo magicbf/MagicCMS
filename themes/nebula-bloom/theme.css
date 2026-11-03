@@ -184,4 +184,13 @@ a{color:var(--nb-orchid)}
 .hero .hero-title,.hero-title{font-size:clamp(3rem,7.2vw,6rem)}
 :root[data-theme="light"] :is(.nav-item.is-active>.nav-btn,.nav-btn.is-active),:root[data-theme="light"] .tab.is-active{color:#fff}
 
-@media (max-width:899.98px){.site-nav:not(.nav-vertical) .nav-list{border-radius:28px}}
+/* phones: the opened menu is a tidy glass card with a left-aligned list */
+@media (max-width:899.98px){
+  .site-nav:not(.nav-vertical) .nav-list{border-radius:22px;padding:8px;gap:3px;align-items:stretch}
+  .site-nav:not(.nav-vertical) .nav-list::before{border-radius:22px}
+  .site-nav:not(.nav-vertical) .nav-item{width:100%}
+  .site-nav:not(.nav-vertical) .nav-btn{justify-content:flex-start;gap:12px;min-height:46px;padding:0 18px;border-radius:14px;font-size:15px}
+  .site-nav:not(.nav-vertical) .nav-btn:hover{background:color-mix(in srgb,var(--nb-violet) 18%,transparent)}
+  .site-nav:not(.nav-vertical) .nav-btn[style*="--btn-color"]{background:color-mix(in srgb,var(--btn-color) 22%,transparent);color:var(--c-text);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--btn-color) 55%,transparent)}
+  .site-nav:not(.nav-vertical) .nav-badge{margin-left:auto}
+}
