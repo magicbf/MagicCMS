@@ -157,6 +157,14 @@ final class Controller
         $this->back('/admin/settings');
     }
 
+    /** Show / hide the "Getting started" box on the home page (administrators only ever see it). */
+    public function gettingStarted(): void
+    {
+        Settings::set('home.getting_started', input('show') === '1');
+        flash('success', input('show') === '1' ? t('The Getting started box is shown again.') : t('The Getting started box is hidden.'));
+        $this->back(input('show') === '1' ? '/admin/settings' : '/');
+    }
+
     /** The "use different logos for light / dark mode" switch. */
     public function logoSplit(): void
     {

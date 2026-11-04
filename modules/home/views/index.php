@@ -31,7 +31,7 @@ $posts = $forum ? (int) db()->val('SELECT COUNT(*) FROM {forum_posts} p JOIN {fo
 <section class="home-news"><div class="section-head"><h2 class="section-title"><?= e(t('Latest news')) ?></h2><a class="btn btn-ghost btn-sm" href="<?= e(url('news')) ?>"><?= e(t('All news')) ?> →</a></div>
   <div class="news-grid"><?php foreach ($news as $p): echo render('news/_card', ['p' => $p]); endforeach ?></div></section>
 <?php endif ?>
-<?php if (can('admin.access')): ?>
+<?php if (can('admin.access') && setting('home.getting_started', true)): ?>
 <div class="card"><h2 class="card-title"><?= e(t('Getting started')) ?></h2><div class="card-body">
   <ul class="checklist">
     <li><a href="<?= e(url('admin/appearance')) ?>"><?= e(t('Pick a colour scheme & light/dark default')) ?></a></li>
@@ -41,5 +41,7 @@ $posts = $forum ? (int) db()->val('SELECT COUNT(*) FROM {forum_posts} p JOIN {fo
     <li><a href="<?= e(url('admin/hero')) ?>"><?= e(t('Customise the hero banner')) ?></a></li>
     <li><a href="<?= e(url('admin/news')) ?>"><?= e(t('Write your first news post')) ?></a></li>
     <li><a href="<?= e(url('admin/forum')) ?>"><?= e(t('Set up forum categories')) ?></a></li>
-  </ul></div></div>
+  </ul>
+  <?php if (can('admin.settings')): ?><form method="post" action="<?= e(url('admin/settings/getting-started')) ?>" class="mt"><?= csrf_field() ?><input type="hidden" name="show" value="0"><button class="btn btn-ghost btn-sm"><?= e(t('Hide this box')) ?></button> <small class="muted"><?= e(t('Only administrators see it. You can bring it back in Admin → Settings.')) ?></small></form><?php endif ?>
+  </div></div>
 <?php endif ?>

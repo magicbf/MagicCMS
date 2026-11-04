@@ -69,6 +69,7 @@
   <p><button class="btn btn-primary"><?= e(t('Save settings')) ?></button></p>
 </div></form>
 
+<?php if (!setting('home.getting_started', true)): ?><form method="post" action="<?= e(url('admin/settings/getting-started')) ?>" class="card"><?= csrf_field() ?><div class="card-body"><input type="hidden" name="show" value="1"><?= e(t('The “Getting started” checklist on the home page is hidden.')) ?> <button class="btn btn-sm btn-ghost"><?= e(t('Show it again')) ?></button></div></form><?php endif ?>
 <div class="card"><h2 class="card-title"><?= e(t('Logo')) ?></h2><div class="card-body">
   <div class="logo-preview"><img id="logo-prev" src="<?= e(site_logo()) ?>" alt="" height="48" style="max-height:56px;width:auto;max-width:260px"></div>
   <?php if (has_custom_logo()): ?><div class="alert alert-warning" id="logo-warn" hidden><div>⚠ <strong><?= e(t('The uploaded logo was saved, but your web server does not deliver it.')) ?></strong>
