@@ -23,6 +23,7 @@ return function (Router $r): void {
     $r->get('/admin/roster/new', [$a, 'edit'], $l);
     $r->get('/admin/roster/{id:\d+}', [$a, 'edit'], $l);
     $r->post('/admin/roster/save', [$a, 'save'], $p);
+    $r->post('/admin/roster/role-order', [$a, 'roleOrder'], $p);
     $r->post('/admin/roster/delete/{id:\d+}', [$a, 'delete'], $p);
     $r->post('/admin/roster/toggle/{id:\d+}', [$a, 'toggle'], $p);
     $r->post('/admin/roster/move/{id:\d+}/{dir:up|down}', [$a, 'move'], $p);

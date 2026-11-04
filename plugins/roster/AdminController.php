@@ -14,7 +14,10 @@ final class AdminController
 
     public function index(): string
     {
-        return $this->page(t('Roster'), 'admin_list', ['rows' => db()->all('SELECT * FROM {roster_members} ORDER BY is_active DESC, squad, sort_order, nickname')]);
+        $all = db()->all('SELECT * FROM {roster_members}');
+        $active = Roster::sort(array_values(array_filter($all, static fn($m) => (int) $m['is_active'] === 1)));
+        $former = Roster::sort(array_values(array_filter($all, static fn($m) => (int) $m['is_active'] !== 1)));
+        return $this->page(t('Roster'), 'admin_list', ['rows' => [...$active, ...$former], 'order' => (string) setting('roster.role_order', ''), 'roles' => Roster::roles()]);
     }
 
     public function edit(array $p = []): string
@@ -25,7 +28,7 @@ final class AdminController
         }
         return $this->page($row ? t('Edit member') : t('New member'), 'admin_edit', [
             'row' => $row ? Roster::decode($row) : null,
-            'squads' => array_column(db()->all("SELECT DISTINCT squad FROM {roster_members} WHERE squad <> '' ORDER BY squad"), 'squad'),
+            'roles' => Roster::roles(),
             'linked' => !$row ? mb_substr((string) input('username', ''), 0, 32) : ($row['user_id'] ? (string) db()->val('SELECT username FROM {users} WHERE id = ?', [$row['user_id']]) : ''),
         ]);
     }
@@ -67,16 +70,16 @@ final class AdminController
             redirect($back);
         }
         $f = [
-            $uid ?: null, $nick, mb_substr((string) input('real_name'), 0, 80), mb_substr((string) input('role'), 0, 60), mb_substr((string) input('squad'), 0, 60), $cc,
+            $uid ?: null, $nick, mb_substr((string) input('real_name'), 0, 80), mb_substr(trim((string) input('role')), 0, 60), mb_substr(trim((string) input('position')), 0, 40), $cc,
             mb_substr(trim((string) ($_POST['bio'] ?? '')), 0, 1500), $photo, $joined, empty($_POST['is_active']) ? 0 : 1, (int) input('sort_order'),
             json_encode(Roster::cleanSocials((array) ($_POST['social'] ?? [])), JSON_UNESCAPED_SLASHES),
             json_encode(Roster::cleanStats((array) ($_POST['stat_label'] ?? []), (array) ($_POST['stat_value'] ?? [])), JSON_UNESCAPED_UNICODE),
         ];
-        $cols = 'user_id=?, nickname=?, real_name=?, role=?, squad=?, country=?, bio=?, photo=?, joined_on=?, is_active=?, sort_order=?, socials=?, stats=?';
+        $cols = 'user_id=?, nickname=?, real_name=?, role=?, position=?, country=?, bio=?, photo=?, joined_on=?, is_active=?, sort_order=?, socials=?, stats=?';
         if ($old) {
             db()->exec("UPDATE {roster_members} SET $cols, updated_at=? WHERE id=?", [...$f, now(), $id]);
         } else {
-            $id = db()->insert('INSERT INTO {roster_members} (user_id, nickname, real_name, role, squad, country, bio, photo, joined_on, is_active, sort_order, socials, stats, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', [...$f, now(), now()]);
+            $id = db()->insert('INSERT INTO {roster_members} (user_id, nickname, real_name, role, position, country, bio, photo, joined_on, is_active, sort_order, socials, stats, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', [...$f, now(), now()]);
         }
         audit('roster.save', $nick);
         flash('success', t('Member saved.'));
@@ -103,9 +106,9 @@ final class AdminController
 
     public function move(array $p): never
     {
-        $m = db()->one('SELECT squad FROM {roster_members} WHERE id = ?', [(int) $p['id']]);
-        if ($m) {
-            $ids = array_map('intval', array_column(db()->all('SELECT id FROM {roster_members} WHERE squad = ? ORDER BY sort_order, nickname', [$m['squad']]), 'id'));
+        $m = db()->one('SELECT role FROM {roster_members} WHERE id = ?', [(int) $p['id']]);
+        if ($m) {   // members move up/down inside their own role
+            $ids = array_map('intval', array_column(db()->all('SELECT id FROM {roster_members} WHERE LOWER(role) = LOWER(?) ORDER BY sort_order, nickname', [$m['role']]), 'id'));
             $pos = array_search((int) $p['id'], $ids, true);
             $swap = $p['dir'] === 'up' ? $pos - 1 : $pos + 1;
             if ($pos !== false && isset($ids[$swap])) {
@@ -115,6 +118,22 @@ final class AdminController
                 db()->exec('UPDATE {roster_members} SET sort_order = ? WHERE id = ?', [$n + 1, $id]);
             }
         }
+        redirect('/admin/roster');
+    }
+
+    /** The order in which roles are listed on the roster page and in the panel. */
+    public function roleOrder(): never
+    {
+        $names = [];
+        foreach (explode(',', (string) input('role_order', '')) as $n) {
+            $n = trim(mb_substr($n, 0, 60));
+            if ($n !== '' && !in_array(mb_strtolower($n), array_map('mb_strtolower', $names), true) && count($names) < 40) {
+                $names[] = $n;
+            }
+        }
+        \MagicCMS\Core\Settings::set('roster.role_order', implode(', ', $names));
+        audit('roster.role_order');
+        flash('success', t('Role order saved.'));
         redirect('/admin/roster');
     }
 }

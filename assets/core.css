@@ -759,3 +759,8 @@ html[data-fname] .site-footer .brand .brand-name{font-size:var(--foot-name-size)
   .hdr-admin .hdr-admin-i{display:block;font-size:19px;line-height:1}
 }
 @media (max-width:430px){.header-actions>.hdr-admin{width:38px;min-width:38px!important;height:42px}}
+
+/* Roster: the position pill next to a member's name */
+.pos-pill{display:inline-block;vertical-align:middle;padding:0 8px;border-radius:99px;font:700 10px/1.8 var(--font-body,inherit);letter-spacing:.08em;text-transform:uppercase;color:var(--c-primary-hi,var(--c-primary));background:color-mix(in srgb,var(--c-primary) 14%,transparent);border:1px solid color-mix(in srgb,var(--c-primary) 42%,transparent);white-space:nowrap}
+.pos-pill-lg{font-size:12px;padding:0 12px;margin-left:.4rem;position:relative;top:-.25em}
+.rp-chips .rp-tag{margin-left:2px}

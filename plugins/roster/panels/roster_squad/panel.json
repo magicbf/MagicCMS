@@ -1,8 +1,8 @@
 {
   "key": "roster_squad",
-  "title": "Our Squad",
+  "title": "Our Team",
   "icon": "🛡️",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "positions": [
     "left",
     "right"
@@ -11,11 +11,10 @@
   "settings": {
     "group_by": {
       "type": "select",
-      "label": "Group members by",
+      "label": "Group members",
       "default": "role",
       "options": {
-        "role": "Role (Captain, Support, Coach …)",
-        "squad": "Squad / team",
+        "role": "By role",
         "none": "Do not group – one list"
       }
     },
@@ -24,13 +23,13 @@
       "label": "Look",
       "default": "list",
       "options": {
-        "list": "List – avatar, name and flag per row",
+        "list": "List – avatar, name, position and flag per row",
         "chips": "Chips – most compact, names only"
       }
     },
     "max_per_group": {
       "type": "number",
-      "label": "Max. members per group (0 = all)",
+      "label": "Max. members per role (0 = all)",
       "default": 4
     },
     "count": {
@@ -42,22 +41,11 @@
       "type": "text",
       "label": "Only these roles (comma separated, empty = all)",
       "default": "",
-      "help": "Example: Captain, Support, Coach. Matches the main role of each member."
+      "help": "Example: Captain, Players, Coach."
     },
     "hide_roles": {
       "type": "text",
       "label": "Hide these roles (comma separated)",
-      "default": ""
-    },
-    "role_order": {
-      "type": "text",
-      "label": "Order of the groups (comma separated roles)",
-      "default": "",
-      "help": "Roles you do not list follow in the order of the roster."
-    },
-    "squad": {
-      "type": "text",
-      "label": "Only this squad (optional)",
       "default": ""
     },
     "show_photos": {
@@ -72,14 +60,14 @@
     },
     "show_counts": {
       "type": "checkbox",
-      "label": "Show the number of members next to each group title",
+      "label": "Show the number of members next to each role",
       "default": true
     },
-    "show_tags": {
+    "show_positions": {
       "type": "checkbox",
-      "label": "Show the second part of a role (e.g. “Captain · Entry” → Entry)",
+      "label": "Show each member's position as a pill",
       "default": true
     }
   },
-  "note": "Roles come from each member's “Role” field in Admin → Roster. A role like “Captain · Entry” is grouped under Captain."
+  "note": "The order of the roles is set in Admin → Roster (“Order of the roles”). A member's role and position are edited there too."
 }

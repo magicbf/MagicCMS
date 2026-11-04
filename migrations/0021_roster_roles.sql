@@ -1,0 +1,1 @@
+-- Roster: squads are gone, members have a Role and a Position (data/DDL in 0021_roster_roles.php)

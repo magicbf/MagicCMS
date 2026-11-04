@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace MagicCMS\Core;
 
-define('MCMS_VERSION', '0.1.4');
+define('MCMS_VERSION', '0.1.5');
 
 /** Application entry: autoload → config → session → DB → auth → modules → router. */
 final class Bootstrap
