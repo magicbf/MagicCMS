@@ -11,7 +11,7 @@ $flag = static function (string $cc): string { $c = strtolower($cc); return preg
 ?>
 <div class="rp <?= $chips ? 'rp-chips' : 'rp-list' ?>">
 <?php foreach ($d['groups'] as $g): $hue = $g['name'] !== '' ? Roster::hue($g['name']) : 210; ?>
-  <section class="rp-group" style="--h:<?= (int) $hue ?>">
+  <div class="rp-group" style="--h:<?= (int) $hue ?>">
     <?php if ($g['name'] !== ''): ?><h4 class="rp-title"><span><?= e($g['name']) ?></span><?php if ($counts): ?><b><?= (int) $g['total'] ?></b><?php endif ?></h4><?php endif ?>
     <ul>
     <?php foreach ($g['members'] as $m): $ph = $photos ? upload_url('roster', $m['photo']) : null; $tip = $m['nickname'] . ($m['role'] !== '' ? ' – ' . $m['role'] : ''); ?>
@@ -23,7 +23,7 @@ $flag = static function (string $cc): string { $c = strtolower($cc); return preg
       </a></li>
     <?php endforeach ?>
     </ul>
-  </section>
+  </div>
 <?php endforeach ?>
 </div>
 <a class="btn btn-sm btn-ghost btn-block" href="<?= e(url('roster')) ?>"><?= $d['hidden'] > 0 ? e(t('Full roster (+{n} more)', ['n' => $d['hidden']])) : e(t('Full roster')) ?> →</a>
