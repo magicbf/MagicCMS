@@ -355,6 +355,7 @@ final class Controller
             $vals[$name] = match ($def['type'] ?? 'text') {
                 'number' => (int) $raw,
                 'checkbox' => !empty($_POST['s'][$name]),
+                'select' => array_key_exists($raw, (array) ($def['options'] ?? [])) ? $raw : (string) ($def['default'] ?? ''),
                 'textarea' => $row['panel_key'] === 'custom_html' ? Sanitizer::html($raw) : mb_substr($raw, 0, 5000),
                 default => mb_substr(trim($raw), 0, 255),
             };

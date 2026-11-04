@@ -1,13 +1,29 @@
 <?php
 /** @var array $settings */
+use MagicCMS\Core\Emoji;
 use MagicCMS\Plugins\Roster\Roster;
 if (!db()->val("SELECT 1 FROM {modules} WHERE module_key = 'roster' AND enabled = 1")) return;
-$sq = trim((string) $settings['squad']);
-$rows = db()->all('SELECT * FROM {roster_members} WHERE is_active = 1' . ($sq !== '' ? ' AND squad = ?' : '') . ' ORDER BY sort_order, nickname LIMIT ' . max(1, min(24, (int) $settings['count'])), $sq !== '' ? [$sq] : []);
-if (!$rows) return; ?>
-<div class="rm-mini">
-<?php foreach ($rows as $m): $ph = upload_url('roster', $m['photo']); ?>
-  <a class="rm-mini-item" href="<?= e(url('roster/' . (int) $m['id'])) ?>" title="<?= e($m['nickname'] . ($m['role'] !== '' ? ' – ' . $m['role'] : '')) ?>"><?php if ($ph): ?><img src="<?= e($ph) ?>" alt="" width="64" height="80" loading="lazy"><?php else: ?><span class="rm-ph sm"><?= e(Roster::initials($m['nickname'])) ?></span><?php endif ?><span><?= e($m['nickname']) ?></span></a>
+$d = Roster::panelData($settings);
+if (!$d['groups']) return;
+$chips = ($settings['view'] ?? 'list') === 'chips';
+$photos = !empty($settings['show_photos']); $flags = !empty($settings['show_flags']); $counts = !empty($settings['show_counts']); $tags = !empty($settings['show_tags']);
+$flag = static function (string $cc): string { $c = strtolower($cc); return preg_match('/^[a-z]{2}$/', $c) && isset(Emoji::flags()[$c]) ? Emoji::flagImg($c) : ''; };
+?>
+<div class="rp <?= $chips ? 'rp-chips' : 'rp-list' ?>">
+<?php foreach ($d['groups'] as $g): $hue = $g['name'] !== '' ? Roster::hue($g['name']) : 210; ?>
+  <section class="rp-group" style="--h:<?= (int) $hue ?>">
+    <?php if ($g['name'] !== ''): ?><h4 class="rp-title"><span><?= e($g['name']) ?></span><?php if ($counts): ?><b><?= (int) $g['total'] ?></b><?php endif ?></h4><?php endif ?>
+    <ul>
+    <?php foreach ($g['members'] as $m): $ph = $photos ? upload_url('roster', $m['photo']) : null; $tip = $m['nickname'] . ($m['role'] !== '' ? ' – ' . $m['role'] : ''); ?>
+      <li><a class="rp-m" href="<?= e(url('roster/' . (int) $m['id'])) ?>" title="<?= e($tip) ?>">
+        <?php if ($photos && !$chips): ?><?php if ($ph): ?><img class="rp-av" src="<?= e($ph) ?>" alt="" width="30" height="30" loading="lazy"><?php else: ?><span class="rp-av rp-ini"><?= e(Roster::initials($m['nickname'])) ?></span><?php endif ?><?php endif ?>
+        <span class="rp-name"><?= e($m['nickname']) ?></span>
+        <?php if ($tags && $m['_tag'] !== '' && !$chips): ?><small class="rp-tag"><?= e($m['_tag']) ?></small><?php endif ?>
+        <?php if ($flags && ($f = $flag((string) $m['country'])) !== ''): ?><span class="rp-flag"><?= $f ?></span><?php endif ?>
+      </a></li>
+    <?php endforeach ?>
+    </ul>
+  </section>
 <?php endforeach ?>
 </div>
-<a class="btn btn-sm btn-ghost btn-block" href="<?= e(url('roster')) ?>"><?= e(t('Full roster')) ?> →</a>
+<a class="btn btn-sm btn-ghost btn-block" href="<?= e(url('roster')) ?>"><?= $d['hidden'] > 0 ? e(t('Full roster (+{n} more)', ['n' => $d['hidden']])) : e(t('Full roster')) ?> →</a>

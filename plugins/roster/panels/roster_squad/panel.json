@@ -1,2 +1,85 @@
-{ "key": "roster_squad", "title": "Our Squad", "icon": "🛡️", "version": "1.0.0", "positions": ["left", "right"], "multiple": true,
-  "settings": { "count": { "type": "number", "label": "Members to show", "default": 8 }, "squad": { "type": "text", "label": "Only this squad (optional)", "default": "" } } }
+{
+  "key": "roster_squad",
+  "title": "Our Squad",
+  "icon": "🛡️",
+  "version": "1.1.0",
+  "positions": [
+    "left",
+    "right"
+  ],
+  "multiple": true,
+  "settings": {
+    "group_by": {
+      "type": "select",
+      "label": "Group members by",
+      "default": "role",
+      "options": {
+        "role": "Role (Captain, Support, Coach …)",
+        "squad": "Squad / team",
+        "none": "Do not group – one list"
+      }
+    },
+    "view": {
+      "type": "select",
+      "label": "Look",
+      "default": "list",
+      "options": {
+        "list": "List – avatar, name and flag per row",
+        "chips": "Chips – most compact, names only"
+      }
+    },
+    "max_per_group": {
+      "type": "number",
+      "label": "Max. members per group (0 = all)",
+      "default": 4
+    },
+    "count": {
+      "type": "number",
+      "label": "Max. members in total (0 = all)",
+      "default": 12
+    },
+    "only_roles": {
+      "type": "text",
+      "label": "Only these roles (comma separated, empty = all)",
+      "default": "",
+      "help": "Example: Captain, Support, Coach. Matches the main role of each member."
+    },
+    "hide_roles": {
+      "type": "text",
+      "label": "Hide these roles (comma separated)",
+      "default": ""
+    },
+    "role_order": {
+      "type": "text",
+      "label": "Order of the groups (comma separated roles)",
+      "default": "",
+      "help": "Roles you do not list follow in the order of the roster."
+    },
+    "squad": {
+      "type": "text",
+      "label": "Only this squad (optional)",
+      "default": ""
+    },
+    "show_photos": {
+      "type": "checkbox",
+      "label": "Show photos / initials",
+      "default": true
+    },
+    "show_flags": {
+      "type": "checkbox",
+      "label": "Show country flags",
+      "default": true
+    },
+    "show_counts": {
+      "type": "checkbox",
+      "label": "Show the number of members next to each group title",
+      "default": true
+    },
+    "show_tags": {
+      "type": "checkbox",
+      "label": "Show the second part of a role (e.g. “Captain · Entry” → Entry)",
+      "default": true
+    }
+  },
+  "note": "Roles come from each member's “Role” field in Admin → Roster. A role like “Captain · Entry” is grouped under Captain."
+}

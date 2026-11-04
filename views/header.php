@@ -14,7 +14,7 @@ $actionsHtml = static function () use ($layout, $u): string { ob_start(); ?>
       <?php if (setting('appearance.allow_user_mode', true) && MagicCMS\Core\Appearance::lockedMode() === null): ?><button class="icon-btn mode-toggle" aria-label="<?= e(t('Switch light/dark mode')) ?>" title="<?= e(t('Switch light/dark mode')) ?>"><span class="mode-icon" aria-hidden="true"></span></button><?php endif ?>
       <?php if ($u): ?>
         <a class="header-user" href="<?= e(url('profile')) ?>"><img class="avatar avatar-md" src="<?= e(avatar_url($u, 64)) ?>" alt="" width="44" height="44"><span class="hu-text"><b><?= e($u['username']) ?></b><small><?= e($u['role_name']) ?></small></span></a>
-        <?php if (can('admin.access')): ?><a class="btn btn-sm btn-ghost hide-mobile" href="<?= e(url('admin')) ?>"><?= e(t('Admin')) ?></a><?php endif ?>
+        <?php if (can('admin.access')): ?><a class="btn btn-sm btn-ghost hdr-admin" href="<?= e(url('admin')) ?>" aria-label="<?= e(t('Admin')) ?>" title="<?= e(t('Admin')) ?>"><span class="hdr-admin-i" aria-hidden="true">⚙</span><span class="hdr-admin-t"><?= e(t('Admin')) ?></span></a><?php endif ?>
       <?php else: ?>
         <a class="btn btn-ghost" href="<?= e(url('login')) ?>"><?= e(t('Login')) ?></a>
         <?php if (setting('auth.registration', 'open') !== 'closed'): ?><a class="btn btn-primary hide-mobile" href="<?= e(url('register')) ?>"><?= e(t('Register')) ?></a><?php endif ?>

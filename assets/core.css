@@ -727,3 +727,35 @@ html[data-fname] .site-footer .brand .brand-name{font-size:var(--foot-name-size)
 /* the "Menu" button of the phone header: never on desktop, whatever the theme does to .btn */
 .header-actions>.hdr-menu{display:none!important}
 @media (max-width:899.98px){.header-actions>.hdr-menu{display:inline-flex!important}}
+
+/* =====================================================================
+   "Our Squad" panel: compact roster grouped by role (list or chips)
+   ===================================================================== */
+.rp{display:grid;gap:.7rem;margin-bottom:.7rem}
+.rp-group{--c:hsl(var(--h) 70% 62%);position:relative;padding:7px 10px 6px 14px;border-radius:14px;overflow:hidden;
+  background:linear-gradient(90deg,hsl(var(--h) 70% 55% / .12),transparent 62%),var(--field-bg,rgba(255,255,255,.04));border:1px solid color-mix(in srgb,var(--c) 22%,var(--glass-border,rgba(255,255,255,.1)))}
+.rp-group::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c);box-shadow:0 0 12px var(--c)}
+.rp-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 4px;font:800 11px/1.2 var(--font-display,inherit);letter-spacing:.14em;text-transform:uppercase;color:var(--c)}
+.rp-title b{min-width:20px;padding:0 6px;border-radius:99px;font-size:10.5px;line-height:18px;text-align:center;color:var(--c-text,#fff);background:color-mix(in srgb,var(--c) 22%,transparent)}
+.rp ul{list-style:none;margin:0;padding:0}
+.rp-m{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--c-text);min-width:0}
+.rp-list .rp-m{padding:2px 4px;border-radius:10px;transition:background var(--t-fast,.15s),transform var(--t-fast,.15s)}
+.rp-list .rp-m:hover{background:color-mix(in srgb,var(--c) 14%,transparent);transform:translateX(2px);color:var(--c-text)}
+.rp-av{flex:none;width:26px;height:26px;border-radius:50%;object-fit:cover;border:1.5px solid color-mix(in srgb,var(--c) 70%,transparent);box-shadow:0 0 10px -3px var(--c)}
+.rp-ini{display:grid;place-items:center;font:800 11px/1 var(--font-display,inherit);color:#fff;background:linear-gradient(145deg,hsl(var(--h) 65% 50%),hsl(var(--h) 65% 32%))}
+.rp-name{flex:1;min-width:0;font-weight:700;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rp-tag{flex:none;padding:0 7px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);border:1px solid color-mix(in srgb,var(--c) 38%,transparent)}
+.rp-flag{flex:none;line-height:1}
+.rp-chips ul{display:flex;flex-wrap:wrap;gap:5px}
+.rp-chips .rp-m{padding:3px 10px;border-radius:99px;font-size:12.5px;background:color-mix(in srgb,var(--c) 14%,transparent);border:1px solid color-mix(in srgb,var(--c) 34%,transparent);transition:background var(--t-fast,.15s)}
+.rp-chips .rp-m:hover{background:color-mix(in srgb,var(--c) 26%,transparent);color:var(--c-text)}
+.rp-chips .rp-name{flex:none;font-size:12.5px}
+
+/* Admin shortcut in the header: text on desktop, a compact gear button on phones/tablets (it used to be hidden there) */
+.hdr-admin .hdr-admin-i{display:none}
+@media (max-width:899.98px){
+  .header-actions>.hdr-admin{flex:none!important;width:46px;min-width:46px!important;height:46px;padding:0!important;display:inline-grid!important;place-items:center;border-radius:12px}
+  .hdr-admin .hdr-admin-t{display:none}
+  .hdr-admin .hdr-admin-i{display:block;font-size:19px;line-height:1}
+}
+@media (max-width:430px){.header-actions>.hdr-admin{width:38px;min-width:38px!important;height:42px}}
