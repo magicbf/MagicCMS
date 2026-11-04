@@ -75,6 +75,46 @@ final class Roster
         return array_values(array_filter(array_map(static fn($v) => mb_strtolower(trim($v)), explode(',', (string) setting('roster.role_order', ''))), 'strlen'));
     }
 
+    /** RGB of the automatic role colour (hsl(h,70%,62%)) – used to pre-fill the colour picker. @return int[] */
+    public static function hueRgb(int $h): array
+    {
+        $s = .70; $l = .62; $c = (1 - abs(2 * $l - 1)) * $s; $x = $c * (1 - abs(fmod($h / 60, 2) - 1)); $m = $l - $c / 2;
+        [$r, $g, $b] = match (intdiv($h, 60) % 6) { 0 => [$c, $x, 0], 1 => [$x, $c, 0], 2 => [0, $c, $x], 3 => [0, $x, $c], 4 => [$x, 0, $c], default => [$c, 0, $x] };
+        return [(int) round(($r + $m) * 255), (int) round(($g + $m) * 255), (int) round(($b + $m) * 255)];
+    }
+
+    /** Custom role colours chosen in Admin → Roster → Panel & roles: lower-case role => #rrggbb. @return array<string,string> */
+    public static function roleColors(): array
+    {
+        $a = setting('roster.role_colors', []);
+        $out = [];
+        foreach (is_array($a) ? $a : [] as $k => $v) {
+            if (is_string($v) && preg_match('/^#[0-9a-f]{6}$/i', $v)) {
+                $out[mb_strtolower((string) $k)] = strtolower($v);
+            }
+        }
+        return $out;
+    }
+
+    /** Custom colour of a role, '' when none is set. */
+    public static function roleColor(string $role): string
+    {
+        return self::roleColors()[mb_strtolower(trim($role))] ?? '';
+    }
+
+    /** Panel settings (the roster panel's stored options) – the same record the panel renders from. @return array{row:?array,values:array,schema:array} */
+    public static function panelConfig(): array
+    {
+        $row = db()->one("SELECT * FROM {panels} WHERE panel_key = 'roster_squad' ORDER BY id LIMIT 1");
+        $schema = \MagicCMS\Core\Panels::registry()['roster_squad']['meta']['settings'] ?? [];
+        $stored = $row ? (json_decode((string) $row['settings'], true) ?: []) : [];
+        $vals = [];
+        foreach ($schema as $k => $def) {
+            $vals[$k] = $stored[$k] ?? ($def['default'] ?? '');
+        }
+        return ['row' => $row, 'values' => $vals, 'schema' => $schema];
+    }
+
     private static function list(string $csv): array
     {
         return array_values(array_filter(array_map(static fn($v) => mb_strtolower(trim($v)), explode(',', $csv)), 'strlen'));
@@ -101,7 +141,7 @@ final class Roster
      * @param array<int,array> $rows
      * @return array<int,array>
      */
-    public static function sort(array $rows): array
+    public static function sort(array $rows, bool $byName = false): array
     {
         $order = self::roleOrder();
         $first = [];
@@ -115,17 +155,17 @@ final class Roster
             return $i !== false ? [0, (int) $i, 0] : [($k === '' ? 2 : 1), 0, $first[$k] ?? 0];
         };
         usort($rows, static function ($a, $b) use ($rank) {
-            return [...$rank($a), mb_strtolower((string) $a['role']), (int) $a['sort_order'], mb_strtolower((string) $a['nickname'])]
-                <=> [...$rank($b), mb_strtolower((string) $b['role']), (int) $b['sort_order'], mb_strtolower((string) $b['nickname'])];
+            return [...$rank($a), mb_strtolower((string) $a['role']), ($byName ? 0 : (int) $a['sort_order']), mb_strtolower((string) $a['nickname'])]
+                <=> [...$rank($b), mb_strtolower((string) $b['role']), ($byName ? 0 : (int) $b['sort_order']), mb_strtolower((string) $b['nickname'])];
         });
         return $rows;
     }
 
     /** @param array<int,array> $rows decoded or raw members @return array<string,array> role label => members (in role order) */
-    public static function groupByRole(array $rows): array
+    public static function groupByRole(array $rows, bool $byName = false): array
     {
         $out = [];
-        foreach (self::sort($rows) as $m) {
+        foreach (self::sort($rows, $byName) as $m) {
             $out[trim((string) $m['role']) !== '' ? trim((string) $m['role']) : t('Team')][] = $m;
         }
         return $out;
@@ -152,7 +192,8 @@ final class Roster
             }
             $keep[] = $m;
         }
-        $groups = $by === 'none' ? ['' => self::sort($keep)] : self::groupByRole($keep);
+        $byName = ($s['member_sort'] ?? 'order') === 'name';
+        $groups = $by === 'none' ? ['' => self::sort($keep, $byName)] : self::groupByRole($keep, $byName);
         $out = [];
         $shown = 0;
         $hidden = 0;

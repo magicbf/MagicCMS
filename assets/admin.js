@@ -99,3 +99,23 @@
     });
   }
 })();
+// Checkboxes marked data-autosubmit save their form straight away
+document.addEventListener('change', function (e) {
+  var t = e.target; if (t && t.matches && t.matches('input[data-autosubmit]') && t.form) t.form.submit();
+});
+// Roster settings: reorder roles with ▲▼, colour dot follows the picker
+(function () {
+  var list = document.getElementById('rs-roles'); if (!list) return;
+  list.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-up],[data-down]'); if (!b) return;
+    var li = b.closest('.rs-role');
+    if (b.hasAttribute('data-up') && li.previousElementSibling) list.insertBefore(li, li.previousElementSibling);
+    if (b.hasAttribute('data-down') && li.nextElementSibling) list.insertBefore(li.nextElementSibling, li);
+  });
+  list.addEventListener('input', function (e) {
+    var li = e.target.closest('.rs-role'); if (!li) return;
+    var on = li.querySelector('[data-color-on]'), c = li.querySelector('[data-color]');
+    if (e.target === c) on.checked = true;
+    if (on.checked) li.querySelector('.rs-dot').style.setProperty('--c', c.value);
+  });
+})();

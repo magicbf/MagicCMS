@@ -648,8 +648,6 @@ html:not([data-motion="off"]) .chat-live i{animation:chat-blink 1.8s ease-in-out
 .chat .chat-msg.is-me .chat-head{flex-direction:row-reverse}.chat .chat-msg.is-me .chat-head time{margin:0 auto 0 0}
 /* mentions of me */
 .chat .chat-msg.is-mention .chat-bub{border-color:color-mix(in srgb,var(--c-warning,#f4b740) 65%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--c-warning,#f4b740) 14%,transparent)}
-.chat .chat-del{position:absolute;right:-4px;top:-6px;width:20px;height:20px;padding:0;border-radius:50%;font-size:10px;line-height:1;display:none;place-items:center;color:#fff;background:var(--c-danger);border:0;cursor:pointer}
-.chat .chat-msg:hover .chat-del,.chat .chat-del:focus-visible{display:grid}
 html:not([data-motion="off"]) .chat .chat-msg.is-new{animation:chat-in .35s var(--ease,ease) both}
 @keyframes chat-in{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
 .chat-new{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);padding:5px 14px;border-radius:99px;border:0;cursor:pointer;font:700 11.5px var(--font-body,inherit);color:var(--c-text-on-primary,#fff);background:var(--g-primary,var(--c-primary));box-shadow:0 8px 20px -6px var(--c-primary)}
@@ -733,7 +731,7 @@ html[data-fname] .site-footer .brand .brand-name{font-size:var(--foot-name-size)
    ===================================================================== */
 .rp{display:grid;gap:.7rem;margin-bottom:.7rem}
 .rp-group{--c:hsl(var(--h) 70% 62%);position:relative;padding:7px 10px 6px 14px;border-radius:14px;overflow:hidden;
-  background:linear-gradient(90deg,hsl(var(--h) 70% 55% / .12),transparent 62%),var(--field-bg,rgba(255,255,255,.04));border:1px solid color-mix(in srgb,var(--c) 22%,var(--glass-border,rgba(255,255,255,.1)))}
+  background:linear-gradient(90deg,color-mix(in srgb,var(--c) 14%,transparent),transparent 62%),var(--field-bg,rgba(255,255,255,.04));border:1px solid color-mix(in srgb,var(--c) 22%,var(--glass-border,rgba(255,255,255,.1)))}
 .rp-group::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c);box-shadow:0 0 12px var(--c)}
 .rp-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 4px;font:800 11px/1.2 var(--font-display,inherit);letter-spacing:.14em;text-transform:uppercase;color:var(--c)}
 .rp-title b{min-width:20px;padding:0 6px;border-radius:99px;font-size:10.5px;line-height:18px;text-align:center;color:var(--c-text,#fff);background:color-mix(in srgb,var(--c) 22%,transparent)}
@@ -742,7 +740,7 @@ html[data-fname] .site-footer .brand .brand-name{font-size:var(--foot-name-size)
 .rp-list .rp-m{padding:2px 4px;border-radius:10px;transition:background var(--t-fast,.15s),transform var(--t-fast,.15s)}
 .rp-list .rp-m:hover{background:color-mix(in srgb,var(--c) 14%,transparent);transform:translateX(2px);color:var(--c-text)}
 .rp-av{flex:none;width:26px;height:26px;border-radius:50%;object-fit:cover;border:1.5px solid color-mix(in srgb,var(--c) 70%,transparent);box-shadow:0 0 10px -3px var(--c)}
-.rp-ini{display:grid;place-items:center;font:800 11px/1 var(--font-display,inherit);color:#fff;background:linear-gradient(145deg,hsl(var(--h) 65% 50%),hsl(var(--h) 65% 32%))}
+.rp-ini{display:grid;place-items:center;font:800 11px/1 var(--font-display,inherit);color:#fff;background:linear-gradient(145deg,var(--c),color-mix(in srgb,var(--c) 55%,#000))}
 .rp-name{flex:1;min-width:0;font-weight:700;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rp-tag{flex:none;padding:0 7px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);border:1px solid color-mix(in srgb,var(--c) 38%,transparent)}
 .rp-flag{flex:none;line-height:1}
@@ -764,3 +762,52 @@ html[data-fname] .site-footer .brand .brand-name{font-size:var(--foot-name-size)
 .pos-pill{display:inline-block;vertical-align:middle;padding:0 8px;border-radius:99px;font:700 10px/1.8 var(--font-body,inherit);letter-spacing:.08em;text-transform:uppercase;color:var(--c-primary-hi,var(--c-primary));background:color-mix(in srgb,var(--c-primary) 14%,transparent);border:1px solid color-mix(in srgb,var(--c-primary) 42%,transparent);white-space:nowrap}
 .pos-pill-lg{font-size:12px;padding:0 12px;margin-left:.4rem;position:relative;top:-.25em}
 .rp-chips .rp-tag{margin-left:2px}
+
+/* ---- separate logo for light / dark mode (0.1.6) ---- */
+html[data-theme="dark"] img.logo-l,html:not([data-theme="dark"]) img.logo-d{display:none!important}
+
+/* shoutbox: staff-only "Edit / Remove" text links under the message (always visible, no hover trick) */
+.chat .chat-tools{margin-top:3px;font-size:10.5px;color:var(--c-text-faint);line-height:1.3}
+.chat .chat-act{background:none;border:0;padding:0;margin:0;font:inherit;color:var(--c-text-dim,var(--c-text-faint));cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.chat .chat-act:hover,.chat .chat-act:focus-visible{color:var(--c-primary)}
+.chat .chat-act:last-of-type{}
+.chat .chat-edit{width:100%;margin-top:2px;padding:5px 8px;font:inherit;font-size:13px;color:var(--c-text);background:var(--c-surface-2,rgba(255,255,255,.06));border:1px solid var(--c-border);border-radius:8px}
+.chat .chat-msg.is-me .chat-tools{text-align:right}
+
+/* ---- match detail page: the whole card takes the colour of the result (0.1.6) ---- */
+.match-detail{--w:var(--c-success,#35d489);--l:var(--c-danger,#ff5c6c);--d:var(--c-warning,#f4b740);--mc:var(--c-info,#6cb8ff);position:relative;overflow:hidden;
+  background:radial-gradient(120% 70% at 50% 0%,color-mix(in srgb,var(--mc) 20%,transparent),transparent 62%),var(--glass-bg,var(--c-surface))!important;
+  border-color:color-mix(in srgb,var(--mc) 45%,var(--glass-border,rgba(255,255,255,.12)))!important;box-shadow:0 22px 50px -28px var(--mc),var(--shadow,0 10px 30px -18px rgba(0,0,0,.5))}
+.match-detail.match-win{--mc:var(--w)}.match-detail.match-loss{--mc:var(--l)}.match-detail.match-draw{--mc:var(--d)}
+.match-detail::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,transparent,var(--mc),transparent);box-shadow:0 0 18px var(--mc)}
+.match-detail .md-title{background:linear-gradient(100deg,color-mix(in srgb,var(--mc) 38%,transparent),color-mix(in srgb,var(--mc) 8%,transparent) 70%,transparent)!important;border-bottom:1px solid color-mix(in srgb,var(--mc) 40%,transparent)!important;color:var(--c-text)!important;text-shadow:none;box-shadow:none!important}
+.match-detail .md-title::before,.match-detail .md-title::after{background:var(--mc)!important;opacity:.5}
+.match-detail .md-versus{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:clamp(.6rem,4vw,2.4rem);padding:1.1rem 0 1.5rem;max-width:none}
+.match-detail .md-team{max-width:none;align-items:center;transition:opacity .3s,transform .3s}
+.match-detail .md-team.is-loser{opacity:.62}
+.match-detail .md-team.is-winner .md-logo{box-shadow:0 0 0 3px color-mix(in srgb,var(--mc) 40%,transparent),0 0 30px -4px var(--mc)}
+.match-detail .md-logo{position:relative;overflow:hidden}
+.match-detail .md-logo img{width:78%;height:78%;object-fit:contain}
+.match-detail .md-score{flex-direction:column;gap:.35rem;font-size:inherit;min-width:0}
+.md-nums{display:flex;align-items:center;justify-content:center;gap:.18em;font:800 clamp(2.6rem,9vw,4.6rem)/1 var(--font-display,inherit);letter-spacing:-.02em}
+.md-nums i{font-style:normal;opacity:.35;font-size:.7em;margin:0 .05em}
+.md-nums b{font-weight:800;transition:color .3s}
+.md-nums b.hi{color:var(--mc);text-shadow:0 0 26px color-mix(in srgb,var(--mc) 60%,transparent)}
+.md-nums b.lo{opacity:.5}
+.md-nums.md-vs b{opacity:.55;font-size:.7em}
+.md-result{padding:4px 16px;border-radius:99px;font:800 11px/1.5 var(--font-display,inherit);letter-spacing:.18em;text-transform:uppercase;color:#06100a;background:var(--mc);box-shadow:0 6px 18px -6px var(--mc)}
+.match-detail.match-upcoming .md-result{color:var(--mc);background:color-mix(in srgb,var(--mc) 15%,transparent);border:1px solid color-mix(in srgb,var(--mc) 50%,transparent);box-shadow:none}
+.md-margin{font-size:11px;color:var(--c-text-faint)}
+.match-detail .md-facts>div{position:relative;overflow:hidden;border-color:color-mix(in srgb,var(--mc) 22%,var(--glass-border,rgba(255,255,255,.1)))}
+.match-detail .md-facts>div::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--mc)}
+.md-h2h .w{color:var(--w)}.md-h2h .d{color:var(--d)}.md-h2h .l{color:var(--l)}.md-h2h span{font-weight:800}.md-h2h small{display:block;font-weight:500;font-size:10.5px;color:var(--c-text-faint)}
+.md-report{margin-top:1rem;padding-top:1rem;border-top:1px solid color-mix(in srgb,var(--mc) 25%,var(--glass-border,rgba(255,255,255,.1)))}
+.md-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:1rem}
+.md-nav-a{display:inline-flex;gap:6px;align-items:baseline;font-size:13px;text-decoration:none}.md-nav-a span{color:var(--c-text-faint);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+@media (max-width:560px){.match-detail .md-versus{gap:.4rem}.match-detail .md-logo{width:58px;height:58px;font-size:15px;border-radius:17px}.match-detail .md-team strong{font-size:13px}.md-nav{justify-content:center}}
+
+/* roster: custom role colours + panel spacing (0.1.6) */
+.rp-tight{gap:.45rem}.rp-tight .rp-group{padding:4px 8px 3px 12px;border-radius:12px}.rp-tight .rp-m{padding-block:0}.rp-tight .rp-av{width:22px;height:22px}.rp-tight .rp-title{margin-bottom:2px}
+.rm-group.has-color .section-title{color:var(--c);border-bottom:2px solid color-mix(in srgb,var(--c) 55%,transparent);padding-bottom:.35rem;text-shadow:0 0 18px color-mix(in srgb,var(--c) 40%,transparent)}
+.rm-group.has-color .pos-pill{color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);border-color:color-mix(in srgb,var(--c) 42%,transparent)}
+.rm-group.has-color .rm-card{border-color:color-mix(in srgb,var(--c) 28%,var(--glass-border,rgba(255,255,255,.1)))}

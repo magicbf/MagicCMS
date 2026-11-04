@@ -50,7 +50,7 @@
   </div>
 
   <h3 class="section-title"><?= e(t('Logo and site name')) ?></h3>
-  <div class="hdr-preview" id="hdr-preview" aria-hidden="true"><div class="hp-brand"><img src="<?= e(site_logo()) ?>" alt=""><span class="hp-text"><b><?= e(setting('site.name', 'MagicCMS')) ?></b><small><?= e(setting('site.tagline', '')) ?></small></span></div></div>
+  <div class="hdr-preview" id="hdr-preview" aria-hidden="true"><div class="hp-brand"><?= logo_img('class="{cls}" alt=""') ?><span class="hp-text"><b><?= e(setting('site.name', 'MagicCMS')) ?></b><small><?= e(setting('site.tagline', '')) ?></small></span></div></div>
   <div class="form-grid">
     <div class="form-row"><label class="label"><?= e(t('Logo height')) ?> (<output id="o-logo"><?= MagicCMS\Core\Layout::logoSize() ?: t('auto') ?></output>)</label><input type="range" name="layout_logo_size" min="0" max="200" step="2" value="<?= MagicCMS\Core\Layout::logoSize() ?>" data-prev="logo" data-out="o-logo" data-auto><small class="help"><?= e(t('0 = automatic (the theme decides). Applies to the header logo.')) ?></small></div>
     <div class="form-row"><label class="label"><?= e(t('Site name size')) ?> (<output id="o-name"><?= MagicCMS\Core\Layout::nameSize() ?: t('auto') ?></output>)</label><input type="range" name="layout_name_size" min="0" max="80" step="1" value="<?= MagicCMS\Core\Layout::nameSize() ?>" data-prev="name" data-out="o-name" data-auto></div>
@@ -76,13 +76,22 @@
     <p class="small"><?= e(t('This is almost never a file-permission problem. The usual cause is the uploads/.htaccess file (some hosts reject it). The button below replaces it with a safe version and fixes the folder permissions.')) ?></p>
     <form method="post" action="<?= e(url('admin/settings/uploads-repair')) ?>"><?= csrf_field() ?><button class="btn btn-sm btn-primary">🛠 <?= e(t('Repair the uploads folder')) ?></button></form>
     <p class="small muted"><?= e(t('Still broken afterwards? On nginx the .htaccess file is ignored – the server configuration must serve /uploads/ (see nginx.conf.sample). On shared hosting, ask support why {url} is not served.', ['url' => site_logo()])) ?></p></div></div><?php endif ?>
-  <form method="post" action="<?= e(url('admin/settings/logo')) ?>" enctype="multipart/form-data" class="mt"><?= csrf_field() ?>
-    <div class="form-row"><label class="label" for="logo"><?= e(t('Replace logo')) ?></label>
-    <input class="input" id="logo" type="file" name="logo" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" required>
-    <small class="help"><?= e(t('PNG, JPG, WebP, GIF or a clean SVG, up to 2 MB. Raster images are resized to fit 640×200. A transparent PNG/SVG about 40 px tall works best. It also becomes the browser tab icon.')) ?></small></div>
-    <button class="btn btn-primary"><?= e(t('Upload logo')) ?></button>
-  </form>
-  <?php if (has_custom_logo()): ?><form method="post" action="<?= e(url('admin/settings/logo/reset')) ?>" class="mt"><?= csrf_field() ?><button class="btn btn-ghost btn-sm" data-confirm="<?= e(t('Restore the default logo?')) ?>"><?= e(t('Restore default logo')) ?></button></form><?php endif ?>
+  <form method="post" action="<?= e(url('admin/settings/logo/split')) ?>" class="mt"><?= csrf_field() ?>
+    <label class="checkbox"><input type="checkbox" name="logo_split" value="1" <?= logo_split() ? 'checked' : '' ?> data-autosubmit> <?= e(t('Use a different logo for light / dark mode')) ?></label>
+    <small class="help"><?= e(t('Handy when your logo is dark (invisible on a dark background) or white (invisible on a light one).')) ?></small>
+    <noscript><button class="btn btn-sm btn-ghost"><?= e(t('Save')) ?></button></noscript></form>
+  <?php foreach (logo_split() ? ['light' => t('Logo – light mode'), 'dark' => t('Logo – dark mode')] : ['light' => t('Replace logo')] as $var => $lab): $cur = $var === 'dark' ? branding_url('site.logo_dark') : branding_url('site.logo'); ?>
+  <div class="logo-variant mt">
+    <form method="post" action="<?= e(url('admin/settings/logo')) ?>" enctype="multipart/form-data"><?= csrf_field() ?><input type="hidden" name="variant" value="<?= e($var) ?>">
+      <div class="form-row"><label class="label" for="logo-<?= e($var) ?>"><?= e($lab) ?></label>
+      <?php if (logo_split()): ?><div class="logo-preview lp-<?= e($var) ?>"><?php if ($cur !== ''): ?><img src="<?= e($cur) ?>" alt="" height="48" style="max-height:56px;width:auto;max-width:260px"><?php else: ?><span class="muted small"><?= e(t('Not set – the other logo is used.')) ?></span><?php endif ?></div><?php endif ?>
+      <input class="input" id="logo-<?= e($var) ?>" type="file" name="logo" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" required>
+      <small class="help"><?= e(t('PNG, JPG, WebP, GIF or a clean SVG, up to 2 MB. Raster images are resized to fit 640×200. A transparent PNG/SVG about 40 px tall works best. It also becomes the browser tab icon.')) ?></small></div>
+      <button class="btn btn-primary"><?= e(t('Upload logo')) ?></button>
+    </form>
+    <?php if ($cur !== '' && ($var === 'dark' || !logo_split() || true)): ?><form method="post" action="<?= e(url('admin/settings/logo/reset')) ?>" class="mt"><?= csrf_field() ?><input type="hidden" name="variant" value="<?= e($var) ?>"><button class="btn btn-ghost btn-sm" data-confirm="<?= e(t('Remove this logo?')) ?>"><?= e($var === 'dark' ? t('Remove dark-mode logo') : t('Restore default logo')) ?></button></form><?php endif ?>
+  </div>
+  <?php endforeach ?>
   <form method="post" action="<?= e(url('admin/settings/uploads-repair')) ?>" class="mt"><?= csrf_field() ?><small class="help"><?= e(t('Uploaded images (logo, avatars, covers) not showing?')) ?></small> <button class="btn btn-ghost btn-sm">🛠 <?= e(t('Repair the uploads folder')) ?></button></form>
 </div></div>
 

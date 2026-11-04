@@ -2,7 +2,7 @@
   "key": "roster_squad",
   "title": "Our Team",
   "icon": "🛡️",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "positions": [
     "left",
     "right"
@@ -27,6 +27,24 @@
         "chips": "Chips – most compact, names only"
       }
     },
+    "density": {
+      "type": "select",
+      "label": "Spacing",
+      "default": "cozy",
+      "options": {
+        "cozy": "Comfortable",
+        "compact": "Compact – tighter rows"
+      }
+    },
+    "accent": {
+      "type": "select",
+      "label": "Role colours",
+      "default": "roles",
+      "options": {
+        "roles": "Each role has its own colour (set under Roster → Panel & roles)",
+        "theme": "One colour for all roles – the theme's accent"
+      }
+    },
     "max_per_group": {
       "type": "number",
       "label": "Max. members per role (0 = all)",
@@ -36,6 +54,15 @@
       "type": "number",
       "label": "Max. members in total (0 = all)",
       "default": 12
+    },
+    "member_sort": {
+      "type": "select",
+      "label": "Order of the members inside a role",
+      "default": "order",
+      "options": {
+        "order": "As arranged in Roster (▲▼)",
+        "name": "Alphabetical"
+      }
     },
     "only_roles": {
       "type": "text",
@@ -69,5 +96,5 @@
       "default": true
     }
   },
-  "note": "The order of the roles is set in Admin → Roster (“Order of the roles”). A member's role and position are edited there too."
+  "note": "Edited under Admin → Roster → Panel & roles."
 }

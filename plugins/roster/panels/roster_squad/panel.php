@@ -9,9 +9,10 @@ $chips = ($settings['view'] ?? 'list') === 'chips';
 $photos = !empty($settings['show_photos']); $flags = !empty($settings['show_flags']); $counts = !empty($settings['show_counts']); $tags = !empty($settings['show_positions']);
 $flag = static function (string $cc): string { $c = strtolower($cc); return preg_match('/^[a-z]{2}$/', $c) && isset(Emoji::flags()[$c]) ? Emoji::flagImg($c) : ''; };
 ?>
-<div class="rp <?= $chips ? 'rp-chips' : 'rp-list' ?>">
-<?php foreach ($d['groups'] as $g): $hue = $g['name'] !== '' ? Roster::hue($g['name']) : 210; ?>
-  <div class="rp-group" style="--h:<?= (int) $hue ?>">
+<div class="rp <?= $chips ? 'rp-chips' : 'rp-list' ?><?= ($settings['density'] ?? 'cozy') === 'compact' ? ' rp-tight' : '' ?>">
+<?php $colors = Roster::roleColors();
+foreach ($d['groups'] as $g): $hue = $g['name'] !== '' ? Roster::hue($g['name']) : 210; $cc = ($settings['accent'] ?? 'roles') === 'theme' ? 'var(--c-primary)' : ($colors[mb_strtolower($g['name'])] ?? ''); ?>
+  <div class="rp-group" style="--h:<?= (int) $hue ?><?= $cc !== '' ? ';--c:' . e($cc) : '' ?>">
     <?php if ($g['name'] !== ''): ?><h4 class="rp-title"><span><?= e($g['name']) ?></span><?php if ($counts): ?><b><?= (int) $g['total'] ?></b><?php endif ?></h4><?php endif ?>
     <ul>
     <?php foreach ($g['members'] as $m): $ph = $photos ? upload_url('roster', $m['photo']) : null; $tip = $m['nickname'] . ($m['role'] !== '' ? ' – ' . $m['role'] : '') . ($m['position'] !== '' ? ' · ' . $m['position'] : ''); ?>

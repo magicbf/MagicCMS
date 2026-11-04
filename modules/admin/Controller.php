@@ -139,16 +139,31 @@ final class Controller
 
     public function logoUpload(): void
     {
+        $dark = input('variant') === 'dark';
+        $key = $dark ? 'site.logo_dark' : 'site.logo';
         try {
             $name = Uploads::logo($_FILES['logo'] ?? []);
         } catch (\RuntimeException $e) {
             flash('danger', $e->getMessage());
             $this->back('/admin/settings');
         }
-        Uploads::deleteLogo((string) setting('site.logo', ''));
-        Settings::set('site.logo', $name);
+        Uploads::deleteLogo((string) setting($key, ''));
+        Settings::set($key, $name);
+        if ($dark) {
+            Settings::set('site.logo_split', true);   // uploading a dark logo implies the feature is wanted
+        }
         audit('logo.upload', $name);
-        flash('success', t('Logo updated.'));
+        flash('success', $dark ? t('Dark-mode logo updated.') : t('Logo updated.'));
+        $this->back('/admin/settings');
+    }
+
+    /** The "use different logos for light / dark mode" switch. */
+    public function logoSplit(): void
+    {
+        $on = (bool) input('logo_split');
+        Settings::set('site.logo_split', $on);
+        audit('logo.split', $on ? 'on' : 'off');
+        flash('success', $on ? t('Separate light / dark logos are on.') : t('One logo for both modes.'));
         $this->back('/admin/settings');
     }
 
@@ -166,6 +181,13 @@ final class Controller
 
     public function logoReset(): void
     {
+        if (input('variant') === 'dark') {
+            Uploads::deleteLogo((string) setting('site.logo_dark', ''));
+            Settings::set('site.logo_dark', '');
+            audit('logo.reset', 'dark');
+            flash('success', t('Dark-mode logo removed.'));
+            $this->back('/admin/settings');
+        }
         Uploads::deleteLogo((string) setting('site.logo', ''));
         Settings::set('site.logo', '');
         audit('logo.reset');
@@ -337,6 +359,9 @@ final class Controller
         $row = db()->one('SELECT * FROM {panels} WHERE id = ?', [(int) $p['id']]);
         if (!$row || !isset(Panels::registry()[$row['panel_key']])) {
             $this->back('/admin/panels');
+        }
+        if ($row['panel_key'] === 'roster_squad' && can('admin.roster')) {
+            redirect('/admin/roster/settings');   // the roster panel is configured together with the roster
         }
         $reg = Panels::registry()[$row['panel_key']];
         return $this->page(t('Panel settings'), 'panels', 'panel_edit', [

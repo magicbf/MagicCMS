@@ -145,10 +145,32 @@
       txt.appendChild(frag);
       bub.appendChild(head); bub.appendChild(txt);
       row.appendChild(img); row.appendChild(bub);
-      if (m.can_delete) {
-        var x = d.createElement('button'); x.className = 'chat-del'; x.type = 'button'; x.textContent = '✕'; x.setAttribute('aria-label', 'Delete');
-        x.addEventListener('click', function () { post(box.dataset.delete + m.id).then(function () { row.remove(); }); });
-        row.appendChild(x);
+      if (m.can_delete) {   // always-visible "Edit / Remove" text links (staff only) – no hover-only button
+        var tools = d.createElement('div'); tools.className = 'chat-tools';
+        function act(label, fn) { var b = d.createElement('button'); b.type = 'button'; b.className = 'chat-act'; b.textContent = label; b.addEventListener('click', fn); return b; }
+        function showTools() { tools.textContent = ''; tools.appendChild(act('Edit', startEdit)); tools.appendChild(d.createTextNode(' / ')); tools.appendChild(act('Remove', askRemove)); }
+        function askRemove() {
+          tools.textContent = ''; tools.appendChild(d.createTextNode('Remove this message? '));
+          tools.appendChild(act('Yes, remove', function () { post(box.dataset.delete + m.id).then(function (j) { if (j.ok) row.remove(); else showTools(); }); }));
+          tools.appendChild(d.createTextNode(' / ')); tools.appendChild(act('Cancel', showTools));
+        }
+        function startEdit() {
+          var inp = d.createElement('input'); inp.type = 'text'; inp.className = 'chat-edit'; inp.maxLength = 300; inp.value = m.message;
+          txt.hidden = true; bub.insertBefore(inp, tools); tools.textContent = '';
+          function stop() { inp.remove(); txt.hidden = false; showTools(); }
+          tools.appendChild(act('Save', function () {
+            var v = inp.value.trim(); if (!v) return;
+            post(box.dataset.edit + m.id, { message: v }).then(function (j) {
+              if (!j.ok) { tools.dataset.err = j.error || 'Could not save'; inp.title = tools.dataset.err; return; }
+              m.message = j.message; txt.textContent = ''; var fr = window.MCMSEmoji ? window.MCMSEmoji.toNodes(m.message) : d.createDocumentFragment();
+              if (!window.MCMSEmoji) fr.appendChild(d.createTextNode(m.message)); decorate(fr, m.me); txt.appendChild(fr); stop();
+            });
+          }));
+          tools.appendChild(d.createTextNode(' / ')); tools.appendChild(act('Cancel', stop));
+          inp.addEventListener('keydown', function (e) { if (e.key === 'Escape') stop(); if (e.key === 'Enter') { e.preventDefault(); tools.querySelector('.chat-act').click(); } });
+          inp.focus();
+        }
+        showTools(); bub.appendChild(tools);
       }
       if (!first) row.className += ' is-new';
       log.appendChild(row); lastUser = m.uid; lastTs = m.ts;

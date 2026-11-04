@@ -17,7 +17,7 @@
   </fieldset>
   <label class="checkbox"><input type="checkbox" name="enabled" value="1" <?= $r['enabled'] ? 'checked' : '' ?>> <?= e(t('On')) ?></label>
   <button class="btn btn-sm btn-primary"><?= e(t('Save')) ?></button>
-  <?php if ($known && !empty($registry[$r['panel_key']]['meta']['settings'])): ?><a class="btn btn-sm btn-ghost" href="<?= e(url('admin/panels/' . (int) $r['id'])) ?>"><?= e(t('Settings')) ?></a><?php endif ?>
+  <?php if ($known && !empty($registry[$r['panel_key']]['meta']['settings'])): ?><a class="btn btn-sm btn-ghost" href="<?= e($r['panel_key'] === 'roster_squad' ? url('admin/roster/settings') : url('admin/panels/' . (int) $r['id'])) ?>"><?= e(t('Settings')) ?><?= $r['panel_key'] === 'roster_squad' ? ' ↗' : '' ?></a><?php endif ?>
   <button class="btn btn-sm btn-danger" formaction="<?= e(url('admin/panels/delete/' . (int) $r['id'])) ?>" data-confirm="<?= e(t('Remove this panel?')) ?>">✕</button>
 </form>
 <?php endforeach; if (!$n): ?><p class="muted"><?= e(t('No panels in this column.')) ?></p><?php endif ?>

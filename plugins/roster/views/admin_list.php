@@ -1,10 +1,5 @@
-<?php /** @var array $rows @var string $order @var array $roles */ ?>
-<p><a class="btn btn-primary" href="<?= e(url('admin/roster/new')) ?>">+ <?= e(t('New member')) ?></a> <a class="btn btn-ghost" href="<?= e(url('roster')) ?>"><?= e(t('Public page')) ?> →</a></p>
-<form class="card" method="post" action="<?= e(url('admin/roster/role-order')) ?>"><?= csrf_field() ?><div class="card-body">
-  <label class="label" for="ro"><?= e(t('Order of the roles')) ?></label>
-  <div class="inline-form"><input class="input" id="ro" name="role_order" value="<?= e($order) ?>" maxlength="1200" placeholder="<?= e($roles ? implode(', ', $roles) : 'Captain, Players, Coach') ?>"><button class="btn btn-primary btn-sm"><?= e(t('Save order')) ?></button></div>
-  <small class="help"><?= e(t('Roles are listed on the roster page and in the roster panel in this order (comma separated). Roles you do not list follow after them. Roles in use:')) ?> <?= $roles ? e(implode(', ', $roles)) : '—' ?></small>
-</div></form>
+<?php /** @var array $rows */ ?>
+<p><a class="btn btn-primary" href="<?= e(url('admin/roster/new')) ?>">+ <?= e(t('New member')) ?></a> <a class="btn btn-ghost" href="<?= e(url('admin/roster/settings')) ?>">⚙ <?= e(t('Panel & roles')) ?></a> <a class="btn btn-ghost" href="<?= e(url('roster')) ?>"><?= e(t('Public page')) ?> →</a></p>
 <div class="card"><div class="card-body table-wrap"><table class="table"><thead><tr><th></th><th><?= e(t('Nickname')) ?></th><th><?= e(t('Role')) ?></th><th><?= e(t('Position')) ?></th><th><?= e(t('Status')) ?></th><th></th></tr></thead><tbody>
 <?php foreach ($rows as $m): $ph = upload_url('roster', $m['photo']); ?><tr class="<?= $m['is_active'] ? '' : 'is-off' ?>">
 <td><?php if ($ph): ?><img class="slide-thumb" style="width:40px;height:50px" src="<?= e($ph) ?>" alt="" loading="lazy"><?php else: ?><span class="rm-ph sm"><?= e(MagicCMS\Plugins\Roster\Roster::initials($m['nickname'])) ?></span><?php endif ?></td>

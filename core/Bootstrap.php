@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace MagicCMS\Core;
 
-define('MCMS_VERSION', '0.1.5');
+define('MCMS_VERSION', '0.1.6');
 
 /** Application entry: autoload → config → session → DB → auth → modules → router. */
 final class Bootstrap
@@ -109,13 +109,25 @@ final class Bootstrap
         }
 
         // PHP discards the whole body when it exceeds post_max_size → give a clear message instead of a CSRF error.
-        if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && !$_POST && !$_FILES && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0) {
+        // (an empty multipart body – e.g. fetch() with an empty FormData for "delete" buttons – is NOT too large)
+        if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && !$_POST && !$_FILES && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0 && self::exceedsPostLimit((int) $_SERVER['CONTENT_LENGTH'])) {
             http_response_code(413);
             echo View::page(t('Upload too large'), render('message', ['title' => t('Upload too large'), 'text' => t('The data you sent exceeds the server limit ({limit}). Please upload a smaller file.', ['limit' => ini_get('post_max_size')])]), ['layout' => 'none']);
             return;
         }
 
         $router->dispatch($_SERVER['REQUEST_METHOD'] ?? 'GET', $path);
+    }
+
+    private static function exceedsPostLimit(int $len): bool
+    {
+        $v = trim((string) ini_get('post_max_size'));
+        if ($v === '' || $v === '0') {
+            return false;   // no limit configured
+        }
+        $n = (int) $v;
+        $n *= match (strtolower(substr($v, -1))) { 'g' => 1073741824, 'm' => 1048576, 'k' => 1024, default => 1 };
+        return $len > $n;
     }
 
     private static function headers(): void

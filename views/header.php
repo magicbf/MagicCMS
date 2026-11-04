@@ -3,7 +3,7 @@ $style = MagicCMS\Core\Layout::header();
 $navItems = MagicCMS\Core\Nav::tree('main');
 $brandHtml = static function (string $extra = '') use ($custom, $showName): string { ob_start(); ?>
 <a class="brand brand-xl<?= $showName ? '' : ' brand-only' ?><?= $extra ? ' ' . e($extra) : '' ?>" href="<?= e(url('')) ?>">
-      <img class="<?= $custom ? 'brand-logo' : 'brand-mark' ?>" data-fallback="<?= e(asset('logo-mark.svg')) ?>" src="<?= e(site_logo()) ?>" alt="<?= !$showName ? e(setting('site.name', 'MagicCMS')) : '' ?>" height="64"<?= $custom ? '' : ' width="64"' ?>>
+      <?= logo_img('class="' . ($custom ? 'brand-logo' : 'brand-mark') . '{cls}" alt="' . (!$showName ? e(setting('site.name', 'MagicCMS')) : '') . '" height="64"' . ($custom ? '' : ' width="64"'), asset('logo-mark.svg')) ?>
       <?php if ($showName): ?><span class="brand-text"><b class="brand-name"><?= e(setting('site.name', 'MagicCMS')) ?></b><?php if ((string) setting('site.tagline', '') !== '' && setting('site.show_tagline', true)): ?><small class="brand-sub"><?= e(setting('site.tagline')) ?></small><?php endif ?></span><?php endif ?>
     </a>
 <?php return (string) ob_get_clean(); };
@@ -33,7 +33,7 @@ $classic = static function (string $wrap = '') use ($brandHtml, $actionsHtml, $n
 <div class="nav-sentinel" aria-hidden="true"></div>
 <div class="site-navbar">
   <div class="container navbar-inner">
-    <a class="nav-mini-brand" href="<?= e(url('')) ?>" aria-label="<?= e(setting('site.name', 'MagicCMS')) ?>"><img src="<?= e(site_logo()) ?>" alt="" height="30"></a>
+    <a class="nav-mini-brand" href="<?= e(url('')) ?>" aria-label="<?= e(setting('site.name', 'MagicCMS')) ?>"><?= logo_img('class="{cls}" alt="" height="30"') ?></a>
     <?= render('nav', ['items' => $navItems, 'class' => 'site-nav']) ?>
   </div>
 </div>

@@ -206,18 +206,49 @@ function is_hex(string $c): bool
 }
 
 /** URL of the site logo: admin-uploaded file or the bundled mark. */
-function site_logo(): string
+/** Is a separate dark-mode logo switched on? */
+function logo_split(): bool
 {
-    $f = (string) setting('site.logo', '');
+    return (bool) setting('site.logo_split', false);
+}
+
+/** URL of a branding file by setting key, or '' when none/missing. */
+function branding_url(string $key): string
+{
+    $f = (string) setting($key, '');
     if ($f !== '' && preg_match('/^logo_[a-f0-9]{12}\.(png|svg)$/', $f) && is_file(MCMS_ROOT . '/uploads/branding/' . $f)) {
         return url('uploads/branding/' . $f);
     }
-    return asset('logo-mark.svg');
+    return '';
+}
+
+/** The site logo. $mode 'dark' returns the dark-mode version when that feature is on (falls back to the light one). */
+function site_logo(string $mode = 'light'): string
+{
+    if ($mode === 'dark' && logo_split() && ($d = branding_url('site.logo_dark')) !== '') {
+        return $d;
+    }
+    $l = branding_url('site.logo');
+    if ($l === '' && $mode === 'light' && logo_split() && ($d = branding_url('site.logo_dark')) !== '') {
+        return $d;   // only a dark logo uploaded: better than the default mark
+    }
+    return $l !== '' ? $l : asset('logo-mark.svg');
 }
 
 function has_custom_logo(): bool
 {
     return site_logo() !== asset('logo-mark.svg');
+}
+
+/** <img> for the site logo – two images (one hidden by CSS per colour mode) when a dark logo is set. */
+function logo_img(string $attrs, string $fallback = ''): string
+{
+    $mk = static fn(string $src, string $cls) => '<img ' . str_replace('{cls}', $cls, $attrs) . ' src="' . e($src) . '"' . ($fallback !== '' ? ' data-fallback="' . e($fallback) . '"' : '') . '>';
+    $l = site_logo('light'); $d = site_logo('dark');
+    if ($l === $d) {
+        return $mk($l, '');
+    }
+    return $mk($l, ' logo-l') . $mk($d, ' logo-d');
 }
 
 /** Absolute URL (for RSS, OpenGraph, canonical links). */

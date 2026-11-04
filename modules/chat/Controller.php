@@ -60,6 +60,25 @@ final class Controller
         json_out(['ok' => true]);
     }
 
+    /** Staff edit a message (same rank rules as removing it). */
+    public function edit(array $p): void
+    {
+        $msg = trim(preg_replace('/\s+/u', ' ', (string) input('message', '')) ?? '');
+        if ($msg === '' || mb_strlen($msg) > 300) {
+            json_out(['ok' => false, 'error' => t('Message must be 1–300 characters.')], 422);
+        }
+        $m = db()->one('SELECT user_id FROM {chat_messages} WHERE id = ?', [(int) $p['id']]);
+        if (!$m) {
+            json_out(['ok' => false, 'error' => 'gone'], 404);
+        }
+        if (!\MagicCMS\Core\Auth::mayAffect((int) $m['user_id'])) {
+            json_out(['ok' => false, 'error' => 'rank'], 403);
+        }
+        db()->exec('UPDATE {chat_messages} SET message = ? WHERE id = ?', [$msg, (int) $p['id']]);
+        audit('chat.edit', 'message #' . (int) $p['id']);
+        json_out(['ok' => true, 'message' => $msg]);
+    }
+
     public function delete(array $p): void
     {
         $m = db()->one('SELECT user_id FROM {chat_messages} WHERE id = ?', [(int) $p['id']]);

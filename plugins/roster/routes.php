@@ -20,6 +20,8 @@ return function (Router $r): void {
     $p = ['perm' => 'admin.roster'];
     $l = $p + ['layout' => 'none'];
     $r->get('/admin/roster', [$a, 'index'], $l);
+    $r->get('/admin/roster/settings', [$a, 'settings'], $l);
+    $r->post('/admin/roster/settings', [$a, 'settingsSave'], $p);
     $r->get('/admin/roster/new', [$a, 'edit'], $l);
     $r->get('/admin/roster/{id:\d+}', [$a, 'edit'], $l);
     $r->post('/admin/roster/save', [$a, 'save'], $p);

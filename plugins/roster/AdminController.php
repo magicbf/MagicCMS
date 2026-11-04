@@ -17,7 +17,7 @@ final class AdminController
         $all = db()->all('SELECT * FROM {roster_members}');
         $active = Roster::sort(array_values(array_filter($all, static fn($m) => (int) $m['is_active'] === 1)));
         $former = Roster::sort(array_values(array_filter($all, static fn($m) => (int) $m['is_active'] !== 1)));
-        return $this->page(t('Roster'), 'admin_list', ['rows' => [...$active, ...$former], 'order' => (string) setting('roster.role_order', ''), 'roles' => Roster::roles()]);
+        return $this->page(t('Roster'), 'admin_list', ['rows' => [...$active, ...$former], 'tab' => 'members']);
     }
 
     public function edit(array $p = []): string
@@ -135,5 +135,83 @@ final class AdminController
         audit('roster.role_order');
         flash('success', t('Role order saved.'));
         redirect('/admin/roster');
+    }
+
+    /** Everything about how the roster is shown, in one place: the panel, the role order and the role colours. */
+    public function settings(): string
+    {
+        $cfg = Roster::panelConfig();
+        $order = Roster::roleOrder();
+        $used = Roster::roles();
+        $names = [];
+        foreach ($used as $r) { $names[mb_strtolower($r)] = $r; }
+        $list = [];
+        foreach (array_merge($order, array_keys($names)) as $k) {   // listed roles first (in that order), then roles in use
+            $k = mb_strtolower($k);
+            if (!isset($list[$k])) {
+                $list[$k] = $names[$k] ?? ucfirst($k);
+            }
+        }
+        // keep the display spelling of listed roles from the stored order
+        foreach (array_filter(array_map('trim', explode(',', (string) setting('roster.role_order', '')))) as $n) {
+            $list[mb_strtolower($n)] = $names[mb_strtolower($n)] ?? $n;
+        }
+        $counts = [];
+        foreach (db()->all('SELECT LOWER(role) r, COUNT(*) n FROM {roster_members} GROUP BY LOWER(role)') as $c) { $counts[$c['r']] = (int) $c['n']; }
+        return $this->page(t('Roster – panel & roles'), 'admin_settings', [
+            'cfg' => $cfg, 'roles' => $list, 'counts' => $counts, 'colors' => Roster::roleColors(),
+            'vis' => $cfg['row'] ? (json_decode((string) $cfg['row']['visibility'], true) ?: []) : [],
+        ]);
+    }
+
+    public function settingsSave(): never
+    {
+        // 1. role order + colours
+        $names = [];
+        $colors = [];
+        $byIdx = [];
+        foreach ((array) ($_POST['roles'] ?? []) as $i => $n) {
+            $n = trim(mb_substr(is_string($n) ? $n : '', 0, 60));
+            if ($n !== '' && !str_contains($n, ',') && !isset($names[mb_strtolower($n)]) && count($names) < 40) {
+                $names[mb_strtolower($n)] = $n;
+                $byIdx[(string) $i] = mb_strtolower($n);
+            }
+        }
+        $add = trim(mb_substr(str_replace(',', ' ', (string) input('new_role', '')), 0, 60));
+        if ($add !== '' && !isset($names[mb_strtolower($add)]) && count($names) < 40) {
+            $names[mb_strtolower($add)] = $add;
+        }
+        foreach ((array) ($_POST['role_color'] ?? []) as $i => $v) {
+            if (is_string($v) && preg_match('/^#[0-9a-f]{6}$/i', $v) && !empty($_POST['role_color_on'][$i]) && isset($byIdx[(string) $i])) {
+                $colors[$byIdx[(string) $i]] = strtolower($v);
+            }
+        }
+        \MagicCMS\Core\Settings::set('roster.role_order', implode(', ', $names));
+        \MagicCMS\Core\Settings::set('roster.role_colors', $colors);
+        // 2. the panel: options, title, place and who sees it
+        $cfg = Roster::panelConfig();
+        if ($cfg['row']) {
+            $vals = [];
+            foreach ($cfg['schema'] as $name => $def) {
+                $raw = $_POST['s'][$name] ?? ($def['default'] ?? '');
+                $raw = is_string($raw) ? $raw : '';
+                $vals[$name] = match ($def['type'] ?? 'text') {
+                    'number' => max(0, min(200, (int) $raw)),
+                    'checkbox' => !empty($_POST['s'][$name]),
+                    'select' => array_key_exists($raw, (array) ($def['options'] ?? [])) ? $raw : (string) ($def['default'] ?? ''),
+                    default => mb_substr(trim($raw), 0, 255),
+                };
+            }
+            $who = (string) input('who', 'all');
+            $vis = json_encode(['who' => in_array($who, ['all', 'guests', 'members', 'staff'], true) ? $who : 'all', 'desktop' => !empty($_POST['desktop']), 'tablet' => !empty($_POST['tablet']), 'mobile' => !empty($_POST['mobile'])]);
+            $pos = (string) input('position', 'right');
+            db()->exec('UPDATE {panels} SET settings = ?, title = ?, position = ?, enabled = ?, visibility = ? WHERE id = ?', [
+                json_encode($vals, JSON_UNESCAPED_UNICODE), mb_substr((string) input('title'), 0, 120) ?: 'Our Team',
+                in_array($pos, ['left', 'right', 'above_footer', 'footer'], true) ? $pos : 'right', empty($_POST['enabled']) ? 0 : 1, $vis, $cfg['row']['id'],
+            ]);
+        }
+        audit('roster.settings');
+        flash('success', t('Roster settings saved.'));
+        redirect('/admin/roster/settings');
     }
 }

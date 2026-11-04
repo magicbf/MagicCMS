@@ -43,7 +43,7 @@ foreach ($groups as $g => $keys) { foreach ($keys as $k) { if (isset($tabs[$k]) 
 foreach ($tabs as $k => $tdef) { if (!isset($placed[$k]) && can($tdef[2])) { $nav['Extensions'][] = $k; } }
 $u = user(); $site = setting('site.name', 'MagicCMS'); ?>
 <aside class="adm-side" id="adm-side" aria-label="<?= e(t('Admin')) ?>">
-  <a class="adm-brand" href="<?= e(url('admin')) ?>"><img src="<?= e(site_logo()) ?>" alt="" height="38"><span><b><?= e($site) ?></b><small><?= e(t('Control panel')) ?></small></span></a>
+  <a class="adm-brand" href="<?= e(url('admin')) ?>"><?= logo_img('class="{cls}" alt="" height="38"') ?><span><b><?= e($site) ?></b><small><?= e(t('Control panel')) ?></small></span></a>
   <nav class="adm-nav">
   <?php foreach ($nav as $g => $keys): ?>
     <div class="adm-group"><span class="adm-group-t"><?= e(t($g)) ?></span>

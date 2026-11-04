@@ -357,3 +357,13 @@ body.ed-lock{overflow:hidden}
 .adm .hp-brand img{height:56px;width:auto;max-width:260px;object-fit:contain;border-radius:10px}
 .adm .hp-text{display:flex;flex-direction:column;gap:3px;min-width:0}.adm .hp-text b{font-size:24px;line-height:1.05;letter-spacing:.02em}.adm .hp-text small{opacity:.7}
 .adm .hdr-preview.is-below .hp-brand{flex-direction:column;text-align:center}.adm .hdr-preview.is-below .hp-text{align-items:center}
+
+/* separate logo for light / dark mode */
+html[data-theme="dark"] img.logo-l,html:not([data-theme="dark"]) img.logo-d{display:none!important}
+.logo-preview.lp-dark{background:#14141c;border-radius:10px;padding:10px;display:inline-block;margin-bottom:8px}
+.logo-preview.lp-light{background:#f4f4f7;border-radius:10px;padding:10px;display:inline-block;margin-bottom:8px}
+.rs-roles{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px}
+.rs-role{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 12px;border-radius:12px;background:var(--field-bg,rgba(255,255,255,.04));border:1px solid var(--c-border)}
+.rs-move{display:inline-flex;gap:4px}.rs-name{flex:1 1 180px;display:flex;align-items:center;gap:8px;min-width:0}
+.rs-dot{width:14px;height:14px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c);flex:none}
+.rs-role input[type=color]{width:42px;height:32px;padding:2px;border-radius:8px;border:1px solid var(--c-border);background:none;cursor:pointer}
