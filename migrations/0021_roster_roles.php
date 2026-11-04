@@ -35,7 +35,7 @@ return function (MagicCMS\Core\Database $db): void {
         if (($s['group_by'] ?? '') === 'squad') {
             $s['group_by'] = 'role';
         }
-        if (!empty($s['role_order']) && !$db->val("SELECT `value` FROM {settings} WHERE `key` = 'roster.role_order'")) {
+        if (!empty($s['role_order']) && trim((string) json_decode((string) $db->val("SELECT `value` FROM {settings} WHERE `key` = 'roster.role_order'"), true)) === '') {
             $db->exec("INSERT INTO {settings} (`key`, `value`) VALUES ('roster.role_order', ?) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)", [json_encode((string) $s['role_order'])]);
         }
         unset($s['squad'], $s['role_order'], $s['show_tags']);
