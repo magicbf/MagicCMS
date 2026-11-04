@@ -13,6 +13,13 @@ $groups = array_pad($f['groups'], Footer::MAX_GROUPS, ['title' => '', 'links' =>
     <div class="form-row"><label class="label"><?= e(t('Top decoration')) ?></label><select class="select" name="deco"><?php foreach (Footer::DECOS as $k => $l): ?><option value="<?= e($k) ?>" <?= $f['deco'] === $k ? 'selected' : '' ?>><?= e(t($l)) ?></option><?php endforeach ?></select></div>
     <div class="form-row"><label class="label"><?= e(t('Copyright line ({year} = current year)')) ?></label><input class="input" name="copyright" maxlength="200" value="<?= e($copy) ?>" placeholder="© {year} <?= e(setting('site.name')) ?>"></div>
   </div>
+  <h3 class="section-title"><?= e(t('Footer logo and name')) ?></h3>
+  <p class="muted small"><?= e(t('These sizes apply only to the footer. The header has its own settings in Admin → Settings.')) ?></p>
+  <div class="form-grid">
+    <div class="form-row"><label class="label"><?= e(t('Footer logo height')) ?> (<output id="o-flogo"><?= (int) $f['logo_size'] ?: t('auto') ?></output>)</label><input type="range" name="logo_size" min="0" max="160" step="2" value="<?= (int) $f['logo_size'] ?>" data-out="o-flogo"><small class="help"><?= e(t('0 = automatic (the theme decides).')) ?></small></div>
+    <div class="form-row"><label class="label"><?= e(t('Footer site name size')) ?> (<output id="o-fname"><?= (int) $f['name_size'] ?: t('auto') ?></output>)</label><input type="range" name="name_size" min="0" max="60" step="1" value="<?= (int) $f['name_size'] ?>" data-out="o-fname"></div>
+  </div>
+  <div class="check-grid"><?= $chk('name_show', 'Show the site name next to the footer logo') ?></div>
   <div class="check-grid"><?= $chk('wordmark', 'Giant outlined site name behind the footer') ?><?= $chk('stats', 'Live strip: members online, member count, next match') ?><?= $chk('totop', 'Back-to-top button') ?><?= $chk('powered', '“Powered by MagicCMS” credit') ?></div>
 </div></div>
 

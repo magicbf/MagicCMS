@@ -717,3 +717,13 @@ html[data-ncolor] :is(.site-header,.site-rail,.hd-topbar) .brand-name{-webkit-te
 
 /* a custom site-name colour always wins over a look's own text colour */
 html[data-ncolor][data-hlook] :is(.site-header:not(.hd-float):not(.hd-tb-brand),.site-header,.hd-topbar,.hd-island,.site-rail) .brand .brand-name{background:none!important;-webkit-text-fill-color:var(--name-color)!important;color:var(--name-color)!important;text-shadow:none!important}
+
+/* =====================================================================
+   0.1.3 – footer brand has its own size controls; the Menu button exists on phones only
+   ===================================================================== */
+html[data-flogo] .site-footer .brand :is(.brand-logo,.brand-mark){height:var(--foot-logo-h)!important;width:auto!important;max-width:100%;object-fit:contain}
+html[data-flogo] .site-footer .brand .brand-mark{width:var(--foot-logo-h)!important}
+html[data-fname] .site-footer .brand .brand-name{font-size:var(--foot-name-size)!important;line-height:1.1!important}
+/* the "Menu" button of the phone header: never on desktop, whatever the theme does to .btn */
+.header-actions>.hdr-menu{display:none!important}
+@media (max-width:899.98px){.header-actions>.hdr-menu{display:inline-flex!important}}

@@ -34,6 +34,7 @@ final class Footer
             'style' => 'columns', 'brand' => true, 'about' => '', 'explore' => true, 'community' => true, 'news' => true,
             'groups' => [], 'socials' => [], 'ticker' => 'none', 'ticker_speed' => 5, 'ticker_dir' => 'right',
             'deco' => 'default', 'wordmark' => false, 'stats' => false, 'totop' => true, 'powered' => true,
+            'logo_size' => 0, 'name_size' => 0, 'name_show' => true,
         ];
     }
 
@@ -41,6 +42,17 @@ final class Footer
     {
         $stored = (array) setting('footer.config', []);
         return array_replace(self::defaults(), array_intersect_key($stored, self::defaults()));
+    }
+
+    /** Footer logo height in px (0 = automatic). Independent of the header setting. */
+    public static function logoSize(): int
+    {
+        return (int) self::config()['logo_size'];
+    }
+
+    public static function nameSize(): int
+    {
+        return (int) self::config()['name_size'];
     }
 
     private static function url(string $u, bool $mailOk = false): ?string
@@ -61,9 +73,11 @@ final class Footer
     {
         $c = self::defaults();
         $c['style'] = isset(self::STYLES[$in['style'] ?? '']) ? (string) $in['style'] : 'columns';
-        foreach (['brand', 'explore', 'community', 'news', 'wordmark', 'stats', 'totop', 'powered'] as $k) {
+        foreach (['brand', 'explore', 'community', 'news', 'wordmark', 'stats', 'totop', 'powered', 'name_show'] as $k) {
             $c[$k] = !empty($in[$k]);
         }
+        $c['logo_size'] = ($v = (int) ($in['logo_size'] ?? 0)) > 0 ? max(24, min(160, $v)) : 0;
+        $c['name_size'] = ($v = (int) ($in['name_size'] ?? 0)) > 0 ? max(12, min(60, $v)) : 0;
         $c['about'] = mb_substr(trim((string) ($in['about'] ?? '')), 0, 400);
         $c['ticker'] = isset(self::TICKERS[$in['ticker'] ?? '']) ? (string) $in['ticker'] : 'none';
         $c['ticker_speed'] = max(1, min(10, (int) ($in['ticker_speed'] ?? 5)));

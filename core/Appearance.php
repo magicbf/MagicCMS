@@ -128,6 +128,8 @@ final class Appearance
         if ($v = Layout::nameColor()) { $css .= '--name-color:' . $v . ';'; }
         if ($v = Layout::sidebarW()) { $css .= '--sidebar-w:' . $v . 'px;'; }
         if ($v = Layout::containerW()) { $css .= '--container-w:' . $v . 'px;'; }
+        if ($v = Footer::logoSize()) { $css .= '--foot-logo-h:' . $v . 'px;'; }
+        if ($v = Footer::nameSize()) { $css .= '--foot-name-size:' . $v . 'px;'; }
         return $css . '}';
     }
 

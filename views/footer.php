@@ -16,7 +16,7 @@ $latest = [];
 if ($f['news'] && Footer::moduleOn('news')) {
     foreach (MagicCMS\Modules\News\News::latest(3) as $p) { $latest[] = ['label' => $p['title'], 'url' => url('news/' . $p['slug']), 'sub' => time_ago($p['publish_at'])]; }
 }
-$custom = has_custom_logo(); $showName = show_site_name();
+$custom = has_custom_logo(); $showName = show_site_name() && !empty($f['name_show']);
 $about = $f['about'] !== '' ? $f['about'] : (string) setting('site.description', '');
 $panels = Panels::render('footer');
 $ticker = $f['ticker'] !== 'none' ? Footer::tickerItems($f['ticker']) : [];
