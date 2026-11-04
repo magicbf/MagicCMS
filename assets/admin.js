@@ -33,7 +33,14 @@
   (function () {
     var img = d.getElementById('logo-prev'), warn = d.getElementById('logo-warn');
     if (!img || !warn) return;
-    function bad() { warn.hidden = false; }
+    function bad() {
+      warn.hidden = false;
+      var dg = d.getElementById('logo-diag');
+      if (dg && window.fetch) fetch(img.currentSrc || img.src, { cache: 'no-store', credentials: 'same-origin' }).then(function (r) {
+        var hint = r.status >= 500 ? 'a server error – typically the uploads/.htaccess file is rejected' : r.status === 403 ? 'access is forbidden – a server rule or folder permission blocks it' : r.status === 404 ? 'the file is not found at that address – the web root or rewrite rules do not match the install folder' : 'the answer is not an image (' + (r.headers.get('content-type') || 'unknown type') + ')';
+        dg.textContent = 'Your server answered: HTTP ' + r.status + ' – ' + hint + '.';
+      }).catch(function () { dg.textContent = 'The request failed completely (network, firewall or certificate problem).'; });
+    }
     img.addEventListener('error', bad);
     if (img.complete && img.naturalWidth === 0) bad();
   })();

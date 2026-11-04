@@ -11,6 +11,7 @@ return function (Router $r): void {
 
     $r->post('/admin/editor/image', [$c, 'editorImage'], ['perm' => 'admin.access']);
     $r->post('/admin/settings/logo', [$c, 'logoUpload'], ['perm' => 'admin.settings']);
+    $r->post('/admin/settings/uploads-repair', [$c, 'uploadsRepair'], ['perm' => 'admin.settings']);
     $r->post('/admin/settings/logo/reset', [$c, 'logoReset'], ['perm' => 'admin.settings']);
 
     $r->post('/admin/settings/mail', [$c, 'mailSave'], ['perm' => 'admin.settings']);

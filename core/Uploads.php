@@ -262,4 +262,73 @@ final class Uploads
             @unlink(MCMS_ROOT . '/uploads/' . $folder . '/' . $name);
         }
     }
+
+    /** The .htaccess for uploads/: blocks script execution, and every line is guarded so a stricter host can never answer 500 for images. */
+    public const SAFE_HTACCESS = <<<'HT'
+# Uploads must never execute code.
+# Every directive is wrapped in an <IfModule> so a stricter host (no mod_headers, 2.2, limited AllowOverride)
+# cannot turn this file into a "500 Internal Server Error" for every uploaded image.
+<IfModule mod_php.c>
+  php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+  php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+  php_flag engine off
+</IfModule>
+<FilesMatch "\.(php|phtml|phar|php[0-9]|pl|py|cgi|sh)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Content-Security-Policy "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'"
+</IfModule>
+HT;
+
+    /** Rewrite uploads/.htaccess when it is missing or still the old unguarded version. @return bool true when the file was (re)written */
+    public static function repairHtaccess(bool $force = false): bool
+    {
+        $f = MCMS_ROOT . '/uploads/.htaccess';
+        $cur = is_file($f) ? (string) @file_get_contents($f) : '';
+        if (!$force && $cur !== '' && str_contains($cur, 'mod_headers.c') && !preg_match('/^\s*Options\b/mi', $cur)) {
+            return false;   // already a safe (guarded) version
+        }
+        if (!is_dir(dirname($f)) && !@mkdir(dirname($f), 0755, true)) {
+            return false;
+        }
+        $ok = @file_put_contents($f, self::SAFE_HTACCESS) !== false;
+        if (!is_file(dirname($f) . '/index.html')) {
+            @file_put_contents(dirname($f) . '/index.html', "<!doctype html><title></title>\n");
+        }
+        return $ok;
+    }
+
+    /** Make the uploads tree readable by the web server (dirs 0755, files 0644). @return int number of entries changed */
+    public static function fixPermissions(): int
+    {
+        $n = 0;
+        $root = MCMS_ROOT . '/uploads';
+        if (!is_dir($root)) {
+            return 0;
+        }
+        $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST);
+        foreach ($it as $p) {
+            if ($p->isLink()) {
+                continue;
+            }
+            $want = $p->isDir() ? 0755 : 0644;
+            if (($p->getPerms() & 0777) !== $want && @chmod($p->getPathname(), $want)) {
+                $n++;
+            }
+        }
+        @chmod($root, 0755);
+        return $n;
+    }
 }

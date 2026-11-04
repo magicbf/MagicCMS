@@ -152,6 +152,18 @@ final class Controller
         $this->back('/admin/settings');
     }
 
+    /** Repair uploads/: safe .htaccess + readable permissions. */
+    public function uploadsRepair(): void
+    {
+        $re = Uploads::repairHtaccess(true);
+        $n = Uploads::fixPermissions();
+        audit('uploads.repair');
+        flash($re ? 'success' : 'warning', $re
+            ? t('The uploads folder was repaired (safe .htaccess written, {n} permission(s) fixed). Reload this page and check the logo.', ['n' => $n])
+            : t('Could not write uploads/.htaccess – the folder is not writable. Set it to 755 (or 775) in your FTP program, or delete the file uploads/.htaccess by hand.'));
+        $this->back('/admin/settings');
+    }
+
     public function logoReset(): void
     {
         Uploads::deleteLogo((string) setting('site.logo', ''));

@@ -71,7 +71,11 @@
 
 <div class="card"><h2 class="card-title"><?= e(t('Logo')) ?></h2><div class="card-body">
   <div class="logo-preview"><img id="logo-prev" src="<?= e(site_logo()) ?>" alt="" height="48" style="max-height:56px;width:auto;max-width:260px"></div>
-  <?php if (has_custom_logo()): ?><div class="alert alert-warning" id="logo-warn" hidden>⚠ <?= e(t("The uploaded logo was saved but your server does not deliver it (the browser cannot load {url}). Check that the uploads/ folder is reachable from the web and that its .htaccess is accepted by the server; until then the default logo is shown.", ["url" => site_logo()])) ?></div><?php endif ?>
+  <?php if (has_custom_logo()): ?><div class="alert alert-warning" id="logo-warn" hidden><div>⚠ <strong><?= e(t('The uploaded logo was saved, but your web server does not deliver it.')) ?></strong>
+    <p class="small" id="logo-diag"></p>
+    <p class="small"><?= e(t('This is almost never a file-permission problem. The usual cause is the uploads/.htaccess file (some hosts reject it). The button below replaces it with a safe version and fixes the folder permissions.')) ?></p>
+    <form method="post" action="<?= e(url('admin/settings/uploads-repair')) ?>"><?= csrf_field() ?><button class="btn btn-sm btn-primary">🛠 <?= e(t('Repair the uploads folder')) ?></button></form>
+    <p class="small muted"><?= e(t('Still broken afterwards? On nginx the .htaccess file is ignored – the server configuration must serve /uploads/ (see nginx.conf.sample). On shared hosting, ask support why {url} is not served.', ['url' => site_logo()])) ?></p></div></div><?php endif ?>
   <form method="post" action="<?= e(url('admin/settings/logo')) ?>" enctype="multipart/form-data" class="mt"><?= csrf_field() ?>
     <div class="form-row"><label class="label" for="logo"><?= e(t('Replace logo')) ?></label>
     <input class="input" id="logo" type="file" name="logo" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" required>
