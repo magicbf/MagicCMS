@@ -83,6 +83,7 @@
     <button class="btn btn-primary"><?= e(t('Upload logo')) ?></button>
   </form>
   <?php if (has_custom_logo()): ?><form method="post" action="<?= e(url('admin/settings/logo/reset')) ?>" class="mt"><?= csrf_field() ?><button class="btn btn-ghost btn-sm" data-confirm="<?= e(t('Restore the default logo?')) ?>"><?= e(t('Restore default logo')) ?></button></form><?php endif ?>
+  <form method="post" action="<?= e(url('admin/settings/uploads-repair')) ?>" class="mt"><?= csrf_field() ?><small class="help"><?= e(t('Uploaded images (logo, avatars, covers) not showing?')) ?></small> <button class="btn btn-ghost btn-sm">🛠 <?= e(t('Repair the uploads folder')) ?></button></form>
 </div></div>
 
 <?php $mc = MagicCMS\Core\Mailer::config(); ?>
